@@ -1,5 +1,10 @@
 <script lang="ts">
 	import type { CoreToolMessage } from 'ai'
+	import type {
+		TextUIPart,
+		ReasoningUIPart,
+		ToolInvocationUIPart,
+	} from '@ai-sdk/ui-utils'
 	import type { Message } from '@ai-sdk/svelte'
 	import Chat from './(component)/chat.svelte'
 	import type { ToolInvocation } from '@ai-sdk/ui-utils'
@@ -22,6 +27,7 @@
 				}
 
 				let textContent = ''
+				let reasoningContent = ''
 				const toolInvocations: Array<ToolInvocation> = []
 
 				if (typeof message.content === 'string') {
@@ -30,6 +36,8 @@
 					for (const content of message.content) {
 						if (content.type === 'text') {
 							textContent += content.text
+						} else if (content.type === 'reasoning') {
+							reasoningContent += content.reasoning
 						} else if (content.type === 'tool-call') {
 							toolInvocations.push({
 								state: 'call',
@@ -45,6 +53,7 @@
 					id: message.id,
 					role: message.role as Message['role'],
 					content: textContent,
+					reasoning: reasoningContent,
 					toolInvocations,
 					annotations: [
 						{ type: 'model', model: message.model },
@@ -149,6 +158,8 @@
 
 {#key initialMessages}
 	{#if !isLoading}
-		<Chat chat_id={data.chat_id} {initialMessages} />
+		<div class="flex flex-1 overflow-hidden">
+			<Chat chat_id={data.chat_id} {initialMessages} />
+		</div>
 	{/if}
 {/key}

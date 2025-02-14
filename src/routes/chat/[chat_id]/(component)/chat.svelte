@@ -10,12 +10,14 @@
 		ArrowUpIcon,
 		BrainIcon,
 		ChevronDownIcon,
+		CloudLightningIcon,
 		CopyIcon,
 		GlobeIcon,
 		ImageIcon,
 		SearchIcon,
 		SendIcon,
 		SparklesIcon,
+		ZapIcon,
 	} from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
@@ -29,9 +31,11 @@
 	import { copy } from '$lib/clipboard'
 	import { type JSONValue } from 'ai'
 	import { code } from '@cartamd/plugin-code'
-	import 'katex/dist/katex.css'
+	// import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
+	import * as Accordion from '$lib/components/ui/accordion/index.js'
+	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 
 	export let chat_id
 	export let initialMessages: Array<Message>
@@ -94,6 +98,7 @@
 			id: 'gemini-2.0-flash-001',
 			capabilities: {
 				image: true,
+				fast: false,
 				reasoning: false,
 			},
 		},
@@ -104,10 +109,10 @@
 			id: 'gpt-4o-mini',
 			capabilities: {
 				image: true,
+				fast: false,
 				reasoning: false,
 			},
 		},
-
 		{
 			name: 'GPT 4o',
 			info: '',
@@ -115,10 +120,10 @@
 			id: 'gpt-4o',
 			capabilities: {
 				image: true,
+				fast: false,
 				reasoning: false,
 			},
 		},
-
 		{
 			name: 'o3 mini',
 			info: '',
@@ -126,6 +131,18 @@
 			id: 'o3-mini',
 			capabilities: {
 				image: false,
+				fast: false,
+				reasoning: true,
+			},
+		},
+		{
+			name: 'DeepSeek R1 (Groq)',
+			info: '',
+			provider: 'groq',
+			id: 'deepseek-r1-distill-llama-70b',
+			capabilities: {
+				image: false,
+				fast: true,
 				reasoning: true,
 			},
 		},
@@ -145,200 +162,236 @@
 	]
 </script>
 
-<div
-	bind:this={scrollElement}
-	class="flex h-full w-full flex-col items-center overflow-scroll p-4 pb-40">
-	<div class="flex w-full max-w-[800px] flex-col gap-4">
-		{#each $messages as message, index}
-			<div
-				class={cn(
-					'flex gap-2',
-					message.role === 'user'
-						? 'place-self-end'
-						: 'place-self-start',
-				)}>
-				<div class="group flex flex-col gap-2">
-					{#if message.role !== 'user'}
-						<div
-							class="ring-border bg-background flex size-8 shrink-0 items-center justify-center rounded-full ring-1">
-							<div class="translate-y-px">
-								<SparklesIcon size={14} />
-							</div>
-						</div>
-					{/if}
-					{#each message.annotations ?? [] as annotation}
-						{/* @ts-ignore */ null}
-						{#if annotation['type'] === 'search'}
-							{/* @ts-ignore */ null}
-							{#if annotation?.data}
-								<div class="grid max-w-[600px] grid-cols-2 gap-2">
-									{/* @ts-ignore */ null}
-									{#each annotation?.data.slice(0, 4) as data}
-										<a href={data.url} target="_blank">
-											<div
-												class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
-												<span class="line-clamp-1">
-													{data.title}
-												</span>
-												<div class="flex items-center gap-2">
-													<Avatar.Root
-														class="size-4 overflow-visible">
-														<Avatar.Image
-															src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
-																data.url}
-															alt="favicon"
-															class="size-4" />
-														<Avatar.Fallback
-															class="size-4 bg-opacity-0">
-															<img src="/logo.png" alt="favicon" />
-														</Avatar.Fallback>
-													</Avatar.Root>
-													<span
-														class="text-muted-foreground line-clamp-1 text-sm">
-														{data.url}
-													</span>
-												</div>
-											</div>
-										</a>
-									{/each}
-								</div>
-
-								{/* @ts-ignore */ null}
-								{#if annotation?.data.length > 4}
-									<Dialog.Root>
-										<Dialog.Trigger
-											class={cn(
-												buttonVariants({ variant: 'outline' }),
-												'w-full',
-											)}>
-											View All Sources
-										</Dialog.Trigger>
-										<Dialog.Content>
-											<Dialog.Header>
-												<Dialog.Title>Sources and links</Dialog.Title>
-												<Dialog.Description
-													class="max-h-[calc(100vh-10rem)] overflow-scroll">
-													<div class="grid grid-cols-1 gap-2">
-														{/* @ts-ignore */ null}
-														{#each annotation?.data as data}
-															<a href={data.url} target="_blank">
-																<div
-																	class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
-																	<span class="line-clamp-1">
-																		{data.title}
-																	</span>
-																	<div
-																		class="flex items-center gap-2">
-																		<Avatar.Root
-																			class="size-4 overflow-visible">
-																			<Avatar.Image
-																				src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
-																					data.url}
-																				alt="favicon"
-																				class="size-4" />
-																			<Avatar.Fallback
-																				class="size-4 bg-opacity-0">
-																				<img
-																					src="/logo.png"
-																					alt="favicon" />
-																			</Avatar.Fallback>
-																		</Avatar.Root>
-																		<span
-																			class="text-muted-foreground line-clamp-1 text-sm">
-																			{data.url}
-																		</span>
-																	</div>
-																</div>
-															</a>
-														{/each}
-													</div>
-												</Dialog.Description>
-											</Dialog.Header>
-										</Dialog.Content>
-									</Dialog.Root>
-								{/if}
-							{/if}
-						{/if}
-					{/each}
-
-					{#key message.content}
-						{#if message.content.length > 0}
-							<div class="bg-background w-fit rounded-xl border p-4">
-								<div class="prose dark:prose-invert prose-p:my-0">
-									<Markdown {carta} value={message.content} />
-								</div>
-							</div>
-						{/if}
-					{/key}
-
-					{#if $isLoading && index === $messages.length - 1}
-						{#if $data}
-							{/* @ts-ignore */ null}
-							{#if $data.filter((data) => data.type === 'message').length > 0}
-								<div class="animate-pulse">
-									{/* @ts-ignore */ null}
-									<!-- prettier-ignore -->
-									{$data.filter((data) => data.type === 'message')[$data.filter((data) => data.type === 'message').length-1].message}
-								</div>
-							{/if}
-						{/if}
-					{/if}
-
-					{#if message.role !== 'user' && (!$isLoading || index !== $messages.length - 1)}
-						<div
-							class="invisible flex items-center gap-2 group-hover:visible">
-							<Button
-								variant="secondary"
-								onclick={() => {
-									copy(message.content)
-									toast.success('Copied Response to Clipboard')
-								}}>
-								<CopyIcon />
-								Copy Response
-							</Button>
-							{#each message.annotations ?? [] as annotation}
-								{/* @ts-ignore */ null}
-								{#if annotation['type'] === 'model' && annotation['model'] !== null}
-									<div class="text-muted-foreground">
-										{/* @ts-ignore */ null}
-										Model: {annotation.model}
-									</div>
-								{/if}
-								{/* @ts-ignore */ null}
-								{#if annotation['type'] === 'search-error'}
-									<div class="text-destructive">
-										{/* @ts-ignore */ null}
-										Error: {annotation.message}
-									</div>
-								{/if}
-							{/each}
-						</div>
-					{/if}
-				</div>
-			</div>
-		{/each}
-		{#if $isLoading && $messages.length > 0 && $messages[$messages.length - 1].role === 'user'}
-			<div
-				class={cn(
-					'flex w-full gap-4 rounded-xl group-data-[role=user]/message:ml-auto group-data-[role=user]/message:w-fit group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:px-3 group-data-[role=user]/message:py-2',
-					{
-						'group-data-[role=user]/message:bg-muted': true,
-					},
-				)}>
+<ScrollArea
+	bind:vp={scrollElement}
+	class="flex flex-1 flex-col items-center p-4 pb-40">
+	<div class="flex w-full flex-col items-center">
+		<div class="flex w-full max-w-[600px] flex-col gap-4">
+			{#each $messages as message, index}
 				<div
-					class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full ring-1">
-					<SparklesIcon size={14} />
-				</div>
+					class={cn(
+						'flex gap-2',
+						message.role === 'user'
+							? 'place-self-end'
+							: 'place-self-start',
+					)}>
+					<div class="group flex flex-col gap-2">
+						{#if message.role !== 'user'}
+							<div class="flex items-center gap-4">
+								<div
+									class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
+									<div class="translate-y-px">
+										<Avatar.Root class="size-4 overflow-visible">
+											<Avatar.Image
+												src={'/logo.png'}
+												alt="favicon"
+												class="size-4" />
+											<Avatar.Fallback class="size-4 bg-opacity-0">
+												<img src="/logo.png" alt="favicon" />
+											</Avatar.Fallback>
+										</Avatar.Root>
+									</div>
+								</div>
 
-				<div class="flex w-full flex-col gap-2">
-					<div class="text-muted-foreground flex flex-col gap-4">
-						Thinking...
+								{#if $isLoading && index === $messages.length - 1}
+									{#if $data}
+										{/* @ts-ignore */ null}
+										{#if $data.filter((data) => data.type === 'message').length > 0}
+											<div class="animate-pulse">
+												{/* @ts-ignore */ null}
+												<!-- prettier-ignore -->
+												{$data.filter((data) => data.type === 'message')[$data.filter((data) => data.type === 'message').length-1].message}
+											</div>
+										{/if}
+									{/if}
+								{/if}
+							</div>
+						{/if}
+						{#each message.annotations ?? [] as annotation}
+							{/* @ts-ignore */ null}
+							{#if annotation['type'] === 'search'}
+								{/* @ts-ignore */ null}
+								{#if annotation?.data}
+									<div class="grid grid-cols-2 gap-2">
+										{/* @ts-ignore */ null}
+										{#each annotation?.data.slice(0, 4) as data}
+											<a href={data.url} target="_blank">
+												<div
+													class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
+													<span class="line-clamp-1">
+														{data.title}
+													</span>
+													<div class="flex items-center gap-2">
+														<Avatar.Root
+															class="size-4 overflow-visible">
+															<Avatar.Image
+																src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
+																	data.url}
+																alt="favicon"
+																class="size-4" />
+															<Avatar.Fallback
+																class="size-4 bg-opacity-0">
+																<img src="/logo.png" alt="favicon" />
+															</Avatar.Fallback>
+														</Avatar.Root>
+														<span
+															class="text-muted-foreground line-clamp-1 text-sm">
+															{data.url}
+														</span>
+													</div>
+												</div>
+											</a>
+										{/each}
+									</div>
+
+									{/* @ts-ignore */ null}
+									{#if annotation?.data.length > 4}
+										<Dialog.Root>
+											<Dialog.Trigger
+												class={cn(
+													buttonVariants({ variant: 'outline' }),
+													'w-full',
+												)}>
+												View All Sources
+											</Dialog.Trigger>
+											<Dialog.Content>
+												<Dialog.Header>
+													<Dialog.Title>
+														Sources and links
+													</Dialog.Title>
+													<Dialog.Description>
+														<ScrollArea>
+															<div
+																class="grid max-h-[calc(100vh-10rem)] grid-cols-1 gap-2">
+																{/* @ts-ignore */ null}
+																{#each annotation?.data as data}
+																	<a href={data.url} target="_blank">
+																		<div
+																			class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
+																			<span class="line-clamp-1">
+																				{data.title}
+																			</span>
+																			<div
+																				class="flex items-center gap-2">
+																				<Avatar.Root
+																					class="size-4 overflow-visible">
+																					<Avatar.Image
+																						src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
+																							data.url}
+																						alt="favicon"
+																						class="size-4" />
+																					<Avatar.Fallback
+																						class="size-4 bg-opacity-0">
+																						<img
+																							src="/logo.png"
+																							alt="favicon" />
+																					</Avatar.Fallback>
+																				</Avatar.Root>
+																				<span
+																					class="text-muted-foreground line-clamp-1 text-sm">
+																					{data.url}
+																				</span>
+																			</div>
+																		</div>
+																	</a>
+																{/each}
+															</div>
+														</ScrollArea>
+													</Dialog.Description>
+												</Dialog.Header>
+											</Dialog.Content>
+										</Dialog.Root>
+									{/if}
+								{/if}
+							{/if}
+						{/each}
+
+						{#key message.parts}
+							{#if message.parts.length > 0}
+								{#if message.parts.find((part) => part.type === 'reasoning') !== undefined}
+									<Toggle
+										size="sm"
+										class="text-muted-foreground group peer w-fit border">
+										Reasoning
+										<ChevronDownIcon
+											class={'transition-transform group-data-[state="on"]:rotate-180'} />
+									</Toggle>
+								{/if}
+								{#each message.parts as part}
+									{#if part.type === 'reasoning'}
+										<div
+											class="text-muted-foreground hidden rounded-md border p-2 text-sm peer-data-[state='on']:block">
+											{part.reasoning}
+										</div>
+									{/if}
+									{#if part.type === 'text'}
+										<div class="bg-secondary rounded-xl border p-4">
+											<div
+												class="prose dark:prose-invert prose-p:my-0">
+												<Markdown {carta} value={part.text} />
+											</div>
+										</div>
+									{/if}
+								{/each}
+							{/if}
+						{/key}
+
+						{#if message.role !== 'user' && (!$isLoading || index !== $messages.length - 1)}
+							<div
+								class="invisible flex items-center gap-2 group-hover:visible">
+								<Button
+									variant="secondary"
+									onclick={() => {
+										copy(message.content)
+										toast.success('Copied Response to Clipboard')
+									}}>
+									<CopyIcon />
+									Copy Response
+								</Button>
+								{#each message.annotations ?? [] as annotation}
+									{/* @ts-ignore */ null}
+									{#if annotation['type'] === 'model' && annotation['model'] !== null}
+										<div class="text-muted-foreground">
+											{/* @ts-ignore */ null}
+											Model: {annotation.model}
+										</div>
+									{/if}
+									{/* @ts-ignore */ null}
+									{#if annotation['type'] === 'search-error'}
+										<div class="text-destructive">
+											{/* @ts-ignore */ null}
+											Error: {annotation.message}
+										</div>
+									{/if}
+								{/each}
+							</div>
+						{/if}
 					</div>
 				</div>
-			</div>
-		{/if}
+			{/each}
+			{#if $isLoading && $messages.length > 0 && $messages[$messages.length - 1].role === 'user'}
+				<div
+					class={cn(
+						'flex w-full gap-4 rounded-xl group-data-[role=user]/message:ml-auto group-data-[role=user]/message:w-fit group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:px-3 group-data-[role=user]/message:py-2',
+						{
+							'group-data-[role=user]/message:bg-muted': true,
+						},
+					)}>
+					<div
+						class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full ring-1">
+						<SparklesIcon size={14} />
+					</div>
+
+					<div class="flex w-full flex-col gap-2">
+						<div class="text-muted-foreground flex flex-col gap-4">
+							Thinking...
+						</div>
+					</div>
+				</div>
+			{/if}
+		</div>
 	</div>
-</div>
+</ScrollArea>
 <form
 	onsubmit={(event) => {
 		if ($isLoading) {
@@ -426,16 +479,22 @@
 										{/if}
 									</div>
 									<div class="flex items-center gap-2">
-										{#if model.capabilities.image}
+										{#if model.capabilities.fast}
 											<div
-												class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
-												<ImageIcon />
+												class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
+												<ZapIcon />
 											</div>
 										{/if}
 										{#if model.capabilities.reasoning}
 											<div
 												class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
 												<BrainIcon />
+											</div>
+										{/if}
+										{#if model.capabilities.image}
+											<div
+												class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
+												<ImageIcon />
 											</div>
 										{/if}
 									</div>
