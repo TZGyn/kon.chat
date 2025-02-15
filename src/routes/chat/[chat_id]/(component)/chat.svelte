@@ -31,7 +31,7 @@
 	import { copy } from '$lib/clipboard'
 	import { type JSONValue } from 'ai'
 	import { code } from '@cartamd/plugin-code'
-	// import 'katex/dist/katex.css'
+	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
 	import * as Accordion from '$lib/components/ui/accordion/index.js'
@@ -40,6 +40,8 @@
 	import OpenaiIcon from './openai-icon.svelte'
 	import GroqIcon from './groq-icon.svelte'
 	import AnthropicIcon from './anthropic-icon.svelte'
+	import { page } from '$app/stores'
+	import { goto } from '$app/navigation'
 
 	export let chat_id
 	export let initialMessages: Array<Message>
@@ -93,6 +95,8 @@
 		api: env.PUBLIC_API_URL + `/chat/${chat_id}`,
 		generateId: () => chat_id,
 		onFinish: () => {
+			$page.url.searchParams.delete('type')
+			goto(`?${$page.url.searchParams.toString()}`)
 			scrollToBottom()
 			useChats().getChats()
 		},
@@ -104,7 +108,7 @@
 
 	const carta = new Carta({
 		sanitizer: DOMPurify.sanitize,
-		extensions: [code()],
+		extensions: [math(), code()],
 		theme: 'catppuccin-mocha',
 	})
 
@@ -210,8 +214,8 @@
 
 <ScrollArea
 	bind:vp={scrollElement}
-	class="flex flex-1 flex-col items-center p-4 pb-40">
-	<div class="flex w-full flex-col items-center">
+	class="flex flex-1 flex-col items-center p-4">
+	<div class="flex w-full flex-col items-center pb-40">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
 			{#each $messages as message, index}
 				<div
@@ -220,6 +224,8 @@
 						message.role === 'user'
 							? 'place-self-end'
 							: 'place-self-start',
+						index === $messages.length - 1 &&
+							'min-h-[calc(100vh-21rem)]',
 					)}>
 					<div class="group flex flex-col gap-2">
 						{#if message.role !== 'user'}
