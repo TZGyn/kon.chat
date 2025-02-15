@@ -55,18 +55,52 @@
 	}
 	let search = false
 
-	const { input, handleSubmit, messages, isLoading, data, setData } =
-		useChat({
-			maxSteps: 1,
-			initialMessages: initialMessages,
-			api: env.PUBLIC_API_URL + `/chat/${chat_id}`,
-			generateId: () => chat_id,
-			onFinish: () => {
-				scrollToBottom()
-				useChats().getChats()
-			},
-			credentials: 'include',
-		})
+	function customSubmit(event: Event) {
+		if ($error != null) {
+			setMessages($messages.slice(0, -1)) // remove last message
+		}
+
+		if ($isLoading) {
+			toast.warning(
+				'Please wait for the model to finish its response',
+			)
+		} else {
+			setData([])
+			handleSubmit(event, {
+				body: {
+					provider: {
+						name: selectedModel.provider,
+						model: selectedModel.id,
+					},
+					search,
+				},
+			})
+		}
+	}
+
+	const {
+		input,
+		handleSubmit,
+		messages,
+		isLoading,
+		data,
+		setData,
+		error,
+		setMessages,
+	} = useChat({
+		maxSteps: 1,
+		initialMessages: initialMessages,
+		api: env.PUBLIC_API_URL + `/chat/${chat_id}`,
+		generateId: () => chat_id,
+		onFinish: () => {
+			scrollToBottom()
+			useChats().getChats()
+		},
+		onError: (error) => {
+			toast.error(error.message)
+		},
+		credentials: 'include',
+	})
 
 	const carta = new Carta({
 		sanitizer: DOMPurify.sanitize,
@@ -411,25 +445,8 @@
 	</div>
 </ScrollArea>
 <form
-	onsubmit={(event) => {
-		if ($isLoading) {
-			toast.warning(
-				'Please wait for the model to finish its response',
-			)
-		} else {
-			setData([])
-			handleSubmit(event, {
-				body: {
-					provider: {
-						name: selectedModel.provider,
-						model: selectedModel.id,
-					},
-					search,
-				},
-			})
-		}
-	}}
-	class="bg-secondary absolute bottom-4 right-1/2 flex h-auto w-[500px] translate-x-1/2 flex-col gap-2 rounded-xl p-3">
+	onsubmit={customSubmit}
+	class="bg-secondary absolute bottom-0 right-1/2 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
 	<Textarea
 		bind:value={$input}
 		bind:ref={inputElement}
@@ -439,22 +456,7 @@
 			if (event.key === 'Enter' && !event.shiftKey) {
 				event.preventDefault()
 
-				if ($isLoading) {
-					toast.warning(
-						'Please wait for the model to finish its response',
-					)
-				} else {
-					setData([])
-					handleSubmit(event, {
-						body: {
-							provider: {
-								name: selectedModel.provider,
-								model: selectedModel.id,
-							},
-							search,
-						},
-					})
-				}
+				customSubmit(event)
 			}
 		}} />
 
@@ -572,7 +574,7 @@
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 			<Toggle aria-label="toggle search" bind:pressed={search}>
-				<GlobeIcon /> Search
+				<GlobeIcon />
 			</Toggle>
 		</div>
 		<Button type="submit" class="" size="icon">
