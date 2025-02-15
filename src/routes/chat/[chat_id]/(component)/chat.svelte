@@ -36,6 +36,10 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
 	import * as Accordion from '$lib/components/ui/accordion/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
+	import GoogleIcon from './google-icon.svelte'
+	import OpenaiIcon from './openai-icon.svelte'
+	import GroqIcon from './groq-icon.svelte'
+	import AnthropicIcon from './anthropic-icon.svelte'
 
 	export let chat_id
 	export let initialMessages: Array<Message>
@@ -325,7 +329,13 @@
 										</div>
 									{/if}
 									{#if part.type === 'text'}
-										<div class="bg-secondary rounded-xl border p-4">
+										<div
+											class={cn(
+												'rounded-xl border p-4',
+												message.role === 'user'
+													? 'bg-secondary'
+													: 'bg-background',
+											)}>
 											<div
 												class="prose dark:prose-invert prose-p:my-0">
 												<Markdown {carta} value={part.text} />
@@ -445,6 +455,7 @@
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger
 					class={buttonVariants({ variant: 'ghost' })}>
+					{@render modelIcon(selectedModel.provider)}
 					{selectedModel.name}
 					<ChevronDownIcon />
 				</DropdownMenu.Trigger>
@@ -461,6 +472,7 @@
 								onclick={() => (selectedModel = model)}>
 								<div class="flex w-full items-center justify-between">
 									<div class="flex items-center gap-2">
+										{@render modelIcon(model.provider)}
 										<div>{model.name}</div>
 										{#if model.info}
 											<Tooltip.Provider>
@@ -557,3 +569,15 @@
 		</Button>
 	</div>
 </form>
+
+{#snippet modelIcon(provider: string)}
+	{#if provider === 'google'}
+		<GoogleIcon />
+	{:else if provider === 'openai'}
+		<OpenaiIcon />
+	{:else if provider === 'groq'}
+		<GroqIcon />
+	{:else if provider === 'anthropic'}
+		<AnthropicIcon />
+	{/if}
+{/snippet}
