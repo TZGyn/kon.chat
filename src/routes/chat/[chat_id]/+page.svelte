@@ -9,11 +9,13 @@
 	import Chat from './(component)/chat.svelte'
 	import type { ToolInvocation } from '@ai-sdk/ui-utils'
 	import { customFetch } from '$lib/fetch'
+	import { useUser } from '../../state.svelte'
 
 	let { data } = $props()
 
 	let isLoading = $state(true)
 	let initialMessages = $state<Array<Message>>([])
+	let user = $derived(useUser().user)
 
 	function convertToUIMessages(messages: Array<any>): Array<Message> {
 		return messages.reduce(
@@ -161,7 +163,10 @@
 {#key initialMessages}
 	{#if !isLoading}
 		<div class="flex flex-1 overflow-hidden">
-			<Chat chat_id={data.chat_id} {initialMessages} />
+			<Chat
+				chat_id={data.chat_id}
+				{initialMessages}
+				plan={user?.plan} />
 		</div>
 	{/if}
 {/key}

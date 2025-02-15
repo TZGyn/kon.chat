@@ -18,3 +18,30 @@ export function useChats() {
 		getChats,
 	}
 }
+
+let user = $state<{
+	email: string
+	name: string
+	plan: 'pro' | 'basic' | 'free' | 'owner'
+} | null>(null)
+
+export const useUser = () => {
+	const getUser = async () => {
+		user = (
+			await customFetch<{
+				user: {
+					email: string
+					name: string
+					plan: 'free' | 'basic' | 'pro'
+				} | null
+			}>('/auth/me')
+		).user
+	}
+
+	return {
+		get user() {
+			return user
+		},
+		getUser,
+	}
+}

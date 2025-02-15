@@ -15,29 +15,14 @@
 	import { onMount } from 'svelte'
 	import { Button } from '$lib/components/ui/button'
 	import { env } from '$env/dynamic/public'
-
-	let user = $state<{
-		email: string
-		name: string
-		plan: 'free' | 'basic' | 'pro'
-	} | null>()
+	import { useUser } from '../state.svelte'
 
 	const sidebar = useSidebar()
-
-	const getUser = async () => {
-		user = (
-			await customFetch<{
-				user: {
-					email: string
-					name: string
-					plan: 'free' | 'basic' | 'pro'
-				} | null
-			}>('/auth/me')
-		).user
-	}
+	const userState = useUser()
+	let user = $derived(userState.user)
 
 	onMount(() => {
-		getUser()
+		userState.getUser()
 	})
 
 	let loginDialogOpen = $state(false)
@@ -50,7 +35,7 @@
 		await customFetch<{}>('/auth/logout', {
 			method: 'POST',
 		})
-		await getUser()
+		await userState.getUser()
 		logoutDialogOpen = false
 		isLoggingOut = false
 	}

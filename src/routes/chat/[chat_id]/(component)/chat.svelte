@@ -43,6 +43,7 @@
 
 	export let chat_id
 	export let initialMessages: Array<Message>
+	export let plan: 'free' | 'basic' | 'pro' | 'owner' | undefined
 
 	let scrollElement: HTMLDivElement | null = null
 	let inputElement: HTMLTextAreaElement | null = null
@@ -105,6 +106,7 @@
 				fast: false,
 				reasoning: false,
 			},
+			disabled: false,
 		},
 		{
 			name: 'GPT 4o mini',
@@ -116,6 +118,7 @@
 				fast: false,
 				reasoning: false,
 			},
+			disabled: plan === undefined || plan === 'free',
 		},
 		{
 			name: 'GPT 4o',
@@ -127,6 +130,7 @@
 				fast: false,
 				reasoning: false,
 			},
+			disabled: plan === undefined || plan === 'free',
 		},
 		{
 			name: 'o3 mini',
@@ -138,6 +142,7 @@
 				fast: false,
 				reasoning: true,
 			},
+			disabled: plan === undefined || plan === 'free',
 		},
 		{
 			name: 'DeepSeek R1 (Groq)',
@@ -149,6 +154,7 @@
 				fast: true,
 				reasoning: true,
 			},
+			disabled: plan === undefined || plan === 'free',
 		},
 	] as const
 
@@ -162,6 +168,8 @@
 				image: true,
 				reasoning: false,
 			},
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'basic',
 		},
 	]
 </script>
@@ -468,6 +476,7 @@
 						</DropdownMenu.GroupHeading>
 						{#each standardModels as model}
 							<DropdownMenu.Item
+								disabled={model.disabled}
 								class="p-3"
 								onclick={() => (selectedModel = model)}>
 								<div class="flex w-full items-center justify-between">
@@ -519,10 +528,12 @@
 
 						{#each premiumModels as model}
 							<DropdownMenu.Item
+								disabled={model.disabled}
 								class="p-3"
 								onclick={() => (selectedModel = model)}>
 								<div class="flex w-full items-center justify-between">
 									<div class="flex items-center gap-2">
+										{@render modelIcon(model.provider)}
 										<div>{model.name}</div>
 										{#if model.info}
 											<Tooltip.Provider>
