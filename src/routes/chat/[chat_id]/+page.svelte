@@ -152,6 +152,8 @@
 		initialMessages = []
 		if (!data.isNew) {
 			getChat()
+		} else {
+			isLoading = false
 		}
 	})
 </script>
