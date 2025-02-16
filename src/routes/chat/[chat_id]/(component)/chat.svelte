@@ -97,9 +97,12 @@
 		generateId: () => chat_id,
 		onFinish: () => {
 			$page.url.searchParams.delete('type')
-			goto(`?${$page.url.searchParams.toString()}`)
+			goto(`?${$page.url.searchParams.toString()}`, {
+				keepFocus: true,
+			})
 			scrollToBottom()
 			useChats().getChats()
+			useUser().getUser()
 		},
 		onError: (error) => {
 			toast.error(error.message)
@@ -130,7 +133,9 @@
 		}
 	}
 
-	$: $status === 'streaming' && $messages && scrollToBottom()
+	$: ($status === 'streaming' || $status === 'submitted') &&
+		$messages &&
+		scrollToBottom()
 
 	$: $input && adjustInputHeight()
 
@@ -207,7 +212,7 @@
 			name: 'Clause 3.5 Sonnet',
 			info: '',
 			provider: 'anthropic',
-			id: 'claude-3-5-sonnet',
+			id: 'claude-3-5-sonnet-latest',
 			capabilities: {
 				image: true,
 				fast: false,
