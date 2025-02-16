@@ -23,6 +23,12 @@ let user = $state<{
 	email: string
 	name: string
 	plan: 'pro' | 'basic' | 'free' | 'owner'
+	standardChatLimit: number
+	premiumChatLimit: number
+	standardChatCredit: number
+	premiumChatCredit: number
+	searchLimit: number
+	searchCredit: number
 } | null>(null)
 
 export const useUser = () => {
@@ -33,6 +39,12 @@ export const useUser = () => {
 					email: string
 					name: string
 					plan: 'free' | 'basic' | 'pro'
+					standardChatLimit: number
+					premiumChatLimit: number
+					standardChatCredit: number
+					premiumChatCredit: number
+					searchLimit: number
+					searchCredit: number
 				} | null
 			}>('/auth/me')
 		).user
