@@ -56,6 +56,7 @@
 		id: 'gemini-2.0-flash-001',
 	}
 	let search = false
+	let searchGrounding = false
 
 	function customSubmit(event: Event) {
 		if ($error != null) {
@@ -75,6 +76,7 @@
 						model: selectedModel.id,
 					},
 					search,
+					searchGrounding,
 				},
 			})
 		}
@@ -143,6 +145,7 @@
 				image: true,
 				fast: false,
 				reasoning: false,
+				searchGrounding: true,
 			},
 			disabled: false,
 		},
@@ -155,6 +158,7 @@
 				image: true,
 				fast: false,
 				reasoning: false,
+				searchGrounding: false,
 			},
 			disabled: plan === undefined || plan === 'free',
 		},
@@ -167,6 +171,7 @@
 				image: true,
 				fast: false,
 				reasoning: false,
+				searchGrounding: false,
 			},
 			disabled: plan === undefined || plan === 'free',
 		},
@@ -179,6 +184,7 @@
 				image: false,
 				fast: false,
 				reasoning: true,
+				searchGrounding: false,
 			},
 			disabled: plan === undefined || plan === 'free',
 		},
@@ -191,6 +197,7 @@
 				image: false,
 				fast: true,
 				reasoning: true,
+				searchGrounding: false,
 			},
 			disabled: plan === undefined || plan === 'free',
 		},
@@ -204,7 +211,9 @@
 			id: 'claude-3-5-sonnet',
 			capabilities: {
 				image: true,
+				fast: false,
 				reasoning: false,
+				searchGrounding: false,
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'basic',
@@ -508,24 +517,9 @@
 										{/if}
 									</div>
 									<div class="flex items-center gap-2">
-										{#if model.capabilities.fast}
-											<div
-												class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
-												<ZapIcon />
-											</div>
-										{/if}
-										{#if model.capabilities.reasoning}
-											<div
-												class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
-												<BrainIcon />
-											</div>
-										{/if}
-										{#if model.capabilities.image}
-											<div
-												class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
-												<ImageIcon />
-											</div>
-										{/if}
+										{@render modelCapabilitiesIcon(
+											model.capabilities,
+										)}
 									</div>
 								</div>
 							</DropdownMenu.Item>
@@ -560,18 +554,9 @@
 										{/if}
 									</div>
 									<div class="flex items-center gap-2">
-										{#if model.capabilities.image}
-											<div
-												class="flex items-center justify-center rounded-sm bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
-												<ImageIcon />
-											</div>
-										{/if}
-										{#if model.capabilities.reasoning}
-											<div
-												class="flex items-center justify-center rounded-sm bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
-												<BrainIcon />
-											</div>
-										{/if}
+										{@render modelCapabilitiesIcon(
+											model.capabilities,
+										)}
 									</div>
 								</div>
 							</DropdownMenu.Item>
@@ -579,9 +564,42 @@
 					</DropdownMenu.Group>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
-			<Toggle aria-label="toggle search" bind:pressed={search}>
-				<GlobeIcon />
-			</Toggle>
+			{#if selectedModel.provider === 'google'}
+				<Tooltip.Provider>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							{#snippet child({ props })}
+								<Toggle
+									{...props}
+									aria-label="toggle grounding"
+									bind:pressed={searchGrounding}>
+									<SearchIcon />
+								</Toggle>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content>
+							<p>Search Grounding</p>
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+			{/if}
+			<Tooltip.Provider>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						{#snippet child({ props })}
+							<Toggle
+								{...props}
+								aria-label="toggle search"
+								bind:pressed={search}>
+								<GlobeIcon />
+							</Toggle>
+						{/snippet}
+					</Tooltip.Trigger>
+					<Tooltip.Content>
+						<p>Web Search</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+			</Tooltip.Provider>
 		</div>
 		<Button type="submit" class="" size="icon">
 			<SendIcon />
@@ -598,5 +616,37 @@
 		<GroqIcon />
 	{:else if provider === 'anthropic'}
 		<AnthropicIcon />
+	{/if}
+{/snippet}
+
+{#snippet modelCapabilitiesIcon(capabilities: {
+	fast: boolean
+	reasoning: boolean
+	searchGrounding: boolean
+	image: boolean
+})}
+	{#if capabilities.searchGrounding}
+		<div
+			class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
+			<SearchIcon />
+		</div>
+	{/if}
+	{#if capabilities.fast}
+		<div
+			class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
+			<ZapIcon />
+		</div>
+	{/if}
+	{#if capabilities.reasoning}
+		<div
+			class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
+			<BrainIcon />
+		</div>
+	{/if}
+	{#if capabilities.image}
+		<div
+			class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
+			<ImageIcon />
+		</div>
 	{/if}
 {/snippet}
