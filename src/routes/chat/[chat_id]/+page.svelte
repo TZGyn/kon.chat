@@ -10,6 +10,7 @@
 	import type { ToolInvocation } from '@ai-sdk/ui-utils'
 	import { customFetch } from '$lib/fetch'
 	import { useUser } from '../../state.svelte'
+	import { type GoogleGenerativeAIProviderMetadata } from '@ai-sdk/google'
 
 	let { data } = $props()
 
@@ -17,7 +18,19 @@
 	let initialMessages = $state<Array<Message>>([])
 	let user = $derived(useUser().user)
 
-	function convertToUIMessages(messages: Array<any>): Array<Message> {
+	function convertToUIMessages(
+		messages: Array<{
+			model: string | null
+			provider: string | null
+			id: string
+			createdAt: number
+			content: unknown
+			role: string
+			providerMetadata: any
+			chatId: string
+			braveData: any
+		}>,
+	): Array<Message> {
 		return messages.reduce(
 			(chatMessages: Array<Message>, message) => {
 				if (message.role === 'tool') {
@@ -72,6 +85,11 @@
 										}
 									},
 								) || [],
+						},
+						message.provider === 'google' && {
+							type: 'google-grounding',
+							data: message.providerMetadata
+								?.google as GoogleGenerativeAIProviderMetadata,
 						},
 					],
 				})
@@ -133,10 +151,10 @@
 						chatId: string
 						role: string
 						content: unknown
-						model: string
-						promptTokens: number
-						completionTokens: number
-						totalTokens: number
+						model: string | null
+						providerMetadata: any
+						braveData: any
+						provider: string | null
 					}[]
 				} | null
 			}>(`/chat/${data.chat_id}`)

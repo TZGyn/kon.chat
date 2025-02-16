@@ -38,11 +38,12 @@
 		"vite": "^6.0.0"
 	},
 	"dependencies": {
+		"@ai-sdk/google": "^1.1.14",
 		"@ai-sdk/svelte": "^1.1.12",
 		"@cartamd/plugin-code": "^4.0.6",
 		"@cartamd/plugin-component": "^1.0.2",
 		"@cartamd/plugin-math": "^4.2.1",
-		"ai": "^4.1.35",
+		"ai": "^4.1.41",
 		"carta-md": "^4.6.7",
 		"isomorphic-dompurify": "^2.21.0",
 		"katex": "^0.16.21"

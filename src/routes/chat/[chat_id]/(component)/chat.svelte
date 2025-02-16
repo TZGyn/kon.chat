@@ -42,6 +42,7 @@
 	import AnthropicIcon from './anthropic-icon.svelte'
 	import { page } from '$app/stores'
 	import { goto } from '$app/navigation'
+	import GoogleGroundingSection from './google-grounding-section.svelte'
 
 	export let chat_id
 	export let initialMessages: Array<Message>
@@ -402,6 +403,18 @@
 								{/each}
 							{/if}
 						{/key}
+
+						{#each message.annotations ?? [] as annotation}
+							{/* @ts-ignore */ null}
+							{#if annotation['type'] === 'google-grounding'}
+								{/* @ts-ignore */ null}
+								{#if annotation?.data}
+									{/* @ts-ignore */ null}
+									<!-- prettier-ignore -->
+									<GoogleGroundingSection metadata={annotation?.data}/>
+								{/if}
+							{/if}
+						{/each}
 
 						{#if message.role !== 'user' && (!$isLoading || index !== $messages.length - 1)}
 							<div
