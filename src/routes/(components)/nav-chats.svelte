@@ -12,6 +12,7 @@
 	import { page } from '$app/state'
 	import { useChats } from '../state.svelte.js'
 	import { customFetch } from '$lib/fetch.js'
+	import { cn } from '$lib/utils.js'
 
 	const sidebar = Sidebar.useSidebar()
 
@@ -36,7 +37,7 @@
 	<Sidebar.GroupLabel>Chat</Sidebar.GroupLabel>
 
 	<Sidebar.Menu>
-		{#if sidebar.open}
+		{#if sidebar.open || sidebar.isMobile}
 			{#each chats.chats as chat}
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton
@@ -98,6 +99,16 @@
 					</DropdownMenu.Root>
 				</Sidebar.MenuItem>
 			{/each}
+			<Sidebar.MenuItem>
+				<Sidebar.MenuButton class="text-sidebar-foreground/70">
+					{#snippet child({ props })}
+						<a href="/chat" {...props}>
+							<PlusIcon />
+							<span>New Chat</span>
+						</a>
+					{/snippet}
+				</Sidebar.MenuButton>
+			</Sidebar.MenuItem>
 		{:else}
 			<Sidebar.MenuItem>
 				<DropdownMenu.Root>
@@ -133,20 +144,26 @@
 									{/snippet}
 								</DropdownMenu.Item>
 							{/each}
+							<DropdownMenu.Separator />
+							<DropdownMenu.Item>
+								{#snippet child({ props })}
+									<a
+										href={`/chat`}
+										title={'new chat'}
+										{...props}
+										class={cn(
+											'text-muted-foreground',
+											props.class as string,
+										)}>
+										<PlusIcon />
+										<span>New Chat</span>
+									</a>
+								{/snippet}
+							</DropdownMenu.Item>
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			</Sidebar.MenuItem>
 		{/if}
-		<Sidebar.MenuItem>
-			<Sidebar.MenuButton class="text-sidebar-foreground/70">
-				{#snippet child({ props })}
-					<a href="/chat" {...props}>
-						<PlusIcon />
-						<span>New Chat</span>
-					</a>
-				{/snippet}
-			</Sidebar.MenuButton>
-		</Sidebar.MenuItem>
 	</Sidebar.Menu>
 </Sidebar.Group>

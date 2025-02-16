@@ -23,7 +23,7 @@
 						<Avatar.Image src={'/logo.png'} alt={'logo'} />
 						<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
 					</Avatar.Root>
-					{#if sidebar.open}
+					{#if sidebar.open || sidebar.isMobile}
 						Kon.Chat
 					{/if}
 				</Sidebar.MenuItem>
