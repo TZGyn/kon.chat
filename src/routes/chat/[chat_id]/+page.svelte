@@ -160,8 +160,6 @@
 			}>(`/chat/${data.chat_id}`)
 		).chat
 
-		console.log(chat)
-
 		initialMessages = chat ? convertToUIMessages(chat.messages) : []
 
 		isLoading = false
