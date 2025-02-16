@@ -26,7 +26,7 @@
 	import { env } from '$env/dynamic/public'
 	import { math } from '@cartamd/plugin-math'
 
-	import { useChats } from '../../../state.svelte.js'
+	import { useChats, useUser } from '../../../state.svelte.js'
 	import { Toggle } from '$lib/components/ui/toggle/index.js'
 	import { copy } from '$lib/clipboard'
 	import { type JSONValue } from 'ai'
@@ -392,13 +392,13 @@
 									{#if part.type === 'text'}
 										<div
 											class={cn(
-												'rounded-xl p-4',
+												'rounded-xl',
 												message.role === 'user'
-													? 'bg-secondary'
+													? 'bg-secondary p-4'
 													: 'bg-background',
 											)}>
 											<div
-												class="prose dark:prose-invert prose-p:my-0">
+												class="prose prose-neutral dark:prose-invert prose-p:my-0">
 												<Markdown {carta} value={part.text} />
 											</div>
 										</div>
