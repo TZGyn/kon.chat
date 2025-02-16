@@ -60,11 +60,10 @@
 	let searchGrounding = false
 
 	function customSubmit(event: Event) {
-		if ($error != null) {
+		if ($status === 'error') {
 			setMessages($messages.slice(0, -1)) // remove last message
 		}
-
-		if ($status !== 'ready') {
+		if ($status === 'streaming') {
 			toast.warning(
 				'Please wait for the model to finish its response',
 			)
@@ -90,7 +89,6 @@
 		status,
 		data,
 		setData,
-		error,
 		setMessages,
 	} = useChat({
 		maxSteps: 1,
