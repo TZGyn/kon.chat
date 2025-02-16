@@ -388,7 +388,7 @@
 									{#if part.type === 'text'}
 										<div
 											class={cn(
-												'rounded-xl border p-4',
+												'rounded-xl p-4',
 												message.role === 'user'
 													? 'bg-secondary'
 													: 'bg-background',
@@ -405,7 +405,7 @@
 
 						{#if message.role !== 'user' && (!$isLoading || index !== $messages.length - 1)}
 							<div
-								class="invisible flex items-center gap-2 group-hover:visible">
+								class="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
 								<Button
 									variant="secondary"
 									onclick={() => {
