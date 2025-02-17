@@ -29,7 +29,7 @@
 	import { useChats, useUser } from '../../../state.svelte.js'
 	import { Toggle } from '$lib/components/ui/toggle/index.js'
 	import { copy } from '$lib/clipboard'
-	import { type JSONValue } from 'ai'
+	import { type Attachment, type JSONValue } from 'ai'
 	import { code } from '@cartamd/plugin-code'
 	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
@@ -43,6 +43,7 @@
 	import { page } from '$app/stores'
 	import { goto } from '$app/navigation'
 	import GoogleGroundingSection from './google-grounding-section.svelte'
+	import UploadFileCard from './upload-file-card.svelte'
 
 	export let chat_id
 	export let initialMessages: Array<Message>
@@ -50,6 +51,35 @@
 
 	let scrollElement: HTMLDivElement | null = null
 	let inputElement: HTMLTextAreaElement | null = null
+
+	let imageInput: HTMLInputElement | null = null
+	let fileInputs: FileList | undefined
+
+	$: appendToAttachments(fileInputs)
+
+	const appendToAttachments = (filelist?: FileList) => {
+		if (!filelist) return
+
+		const items = Array.from(filelist).map((file) => ({
+			file: file,
+			url: '',
+			status: 'submitted' as const,
+		}))
+
+		attachments.push(...items)
+		attachments = attachments
+	}
+
+	let attachments: {
+		file: File
+		url?: string
+		status: 'submitted' | 'uploading' | 'error' | 'ready'
+	}[] = [
+		// {
+		// 	contentType: 'image/png',
+		// 	url: 'https://pub-ebd1464da2b7495383cfdcb47dd2acd9.r2.dev/ok.png',
+		// },
+	]
 
 	let selectedModel = {
 		name: 'Gemini 2.0 Flash',
@@ -60,6 +90,18 @@
 	let searchGrounding = false
 
 	function customSubmit(event: Event) {
+		console.log(attachments)
+		if (
+			attachments.some(
+				(attachment) => attachment.status === 'uploading',
+			)
+		) {
+			toast.warning(
+				'Please wait for the files to complete the upload',
+			)
+			return
+		}
+
 		if ($status === 'error') {
 			setMessages($messages.slice(0, -1)) // remove last message
 		}
@@ -78,7 +120,19 @@
 					search,
 					searchGrounding,
 				},
+				experimental_attachments: attachments
+					.filter(
+						(attachment) =>
+							attachment.url !== undefined &&
+							attachment.status === 'ready',
+					)
+					.map((attachment) => ({
+						contentType: attachment.file.type,
+						url: attachment.url!,
+						name: attachment.file.name,
+					})),
 			})
+			attachments = []
 		}
 	}
 
@@ -406,6 +460,13 @@
 								{/each}
 							{/if}
 						{/key}
+						{#if message.experimental_attachments}
+							{#each message.experimental_attachments as attachment}
+								{#if attachment.contentType?.startsWith('image/')}
+									<img src={attachment.url} alt={attachment.name} />
+								{/if}
+							{/each}
+						{/if}
 
 						{#each message.annotations ?? [] as annotation}
 							{/* @ts-ignore */ null}
@@ -470,7 +531,23 @@
 				customSubmit(event)
 			}
 		}} />
-
+	{#if attachments.length > 0}
+		<div class="flex flex-wrap items-center gap-2 px-4">
+			{#each attachments as attachment, index (attachment)}
+				<UploadFileCard
+					file={attachment.file}
+					bind:url={attachment.url}
+					bind:status={attachment.status}
+					delete={() => {
+						attachments = attachments.filter(
+							(attachment, attachment_index) =>
+								attachment_index !== index,
+						)
+					}} />
+			{/each}
+		</div>
+	{/if}
+	<div></div>
 	<div class="flex justify-between">
 		<div class="flex items-center gap-2">
 			<DropdownMenu.Root>
@@ -596,6 +673,22 @@
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</Tooltip.Provider>
+			<input
+				bind:this={imageInput}
+				type="file"
+				accept="image/*"
+				bind:files={fileInputs}
+				multiple={true}
+				hidden />
+			<Button
+				onclick={() => {
+					imageInput?.click()
+				}}
+				variant="ghost"
+				size="icon"
+				class="">
+				<ImageIcon />
+			</Button>
 		</div>
 		<Button type="submit" class="" size="icon">
 			<SendIcon />
