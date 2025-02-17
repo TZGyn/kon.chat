@@ -19,6 +19,9 @@
 					title: 'Access to all standard models',
 				},
 				{
+					title: 'Access to Web Search and Image upload',
+				},
+				{
 					title: '1000 Standard Chats/month',
 				},
 				{
@@ -36,6 +39,13 @@
 			included: [
 				{
 					title: 'Access to all standard and premium models',
+				},
+				{
+					title: 'Access to Web Search and Image upload',
+				},
+				{
+					title:
+						'Access to all upcoming features (youtube/pdf summarizer, deep searcher, etc)',
 				},
 				{
 					title: '3000 Standard Chats/month',
