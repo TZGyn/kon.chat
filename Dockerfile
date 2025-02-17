@@ -28,7 +28,10 @@ RUN bun install
 COPY . .
 
 # Build application
-RUN bun run build
+ARG PUBLIC_APP_URL
+ARG PUBLIC_API_URL
+
+RUN PUBLIC_API_URL=$PUBLIC_API_URL PUBLIC_APP_URL=$PUBLIC_APP_URL bun run build
 
 # Remove development dependencies
 RUN rm -rf node_modules && \
