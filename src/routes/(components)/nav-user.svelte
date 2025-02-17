@@ -16,6 +16,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import { env } from '$env/dynamic/public'
 	import { useUser } from '../state.svelte'
+	import { useChats } from '../state.svelte'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
@@ -35,6 +36,7 @@
 		await customFetch<{}>('/auth/logout', {
 			method: 'POST',
 		})
+		await useChats().getChats()
 		await userState.getUser()
 		logoutDialogOpen = false
 		isLoggingOut = false
