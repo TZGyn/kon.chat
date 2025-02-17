@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { CoreToolMessage } from 'ai'
+	import type { Attachment, CoreToolMessage } from 'ai'
 	import type {
 		TextUIPart,
 		ReasoningUIPart,
@@ -44,11 +44,13 @@
 				let textContent = ''
 				let reasoningContent = ''
 				const toolInvocations: Array<ToolInvocation> = []
+				const attachments: Array<Attachment> = []
 
 				if (typeof message.content === 'string') {
 					textContent = message.content
 				} else if (Array.isArray(message.content)) {
 					for (const content of message.content) {
+						console.log('content', content)
 						if (content.type === 'text') {
 							textContent += content.text
 						} else if (content.type === 'reasoning') {
@@ -60,9 +62,31 @@
 								toolName: content.toolName,
 								args: content.args,
 							})
+						} else if (content.type === 'image') {
+							const filename = (content.image as string)
+								.split('/')
+								.pop()
+							if (!filename) continue
+							const filetype = filename.split('.').pop()
+							if (
+								filetype === 'png' ||
+								filetype === 'jpg' ||
+								filetype === 'jpeg'
+							) {
+								attachments.push({
+									url: content.image,
+									contentType: `image/${filetype}`,
+									name: filename.substring(
+										filename.indexOf('-'),
+										filename.length,
+									),
+								})
+							}
 						}
 					}
 				}
+
+				console.log('attachment', attachments)
 
 				chatMessages.push({
 					id: message.id,
@@ -92,6 +116,7 @@
 								?.google as GoogleGenerativeAIProviderMetadata,
 						},
 					],
+					experimental_attachments: attachments,
 				})
 
 				return chatMessages

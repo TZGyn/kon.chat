@@ -136,7 +136,8 @@
 	</Card.Content>
 </Card.Root> -->
 
-<div class="bg-background group relative min-h-16 min-w-16 border">
+<div
+	class="bg-background group relative min-h-16 min-w-16 overflow-hidden rounded-lg border">
 	{#if url}
 		<img src={url} class="h-16" alt="upload" />
 	{/if}

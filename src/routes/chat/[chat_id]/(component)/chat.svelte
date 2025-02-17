@@ -14,6 +14,7 @@
 		CopyIcon,
 		GlobeIcon,
 		ImageIcon,
+		Loader2Icon,
 		SearchIcon,
 		SendIcon,
 		SparklesIcon,
@@ -85,6 +86,12 @@
 		name: 'Gemini 2.0 Flash',
 		provider: 'google',
 		id: 'gemini-2.0-flash-001',
+		capabilities: {
+			image: true,
+			fast: false,
+			reasoning: false,
+			searchGrounding: true,
+		},
 	}
 	let search = false
 	let searchGrounding = false
@@ -220,32 +227,32 @@
 			},
 			disabled: plan === undefined || plan === 'free',
 		},
-		{
-			name: 'GPT 4o',
-			info: '',
-			provider: 'openai',
-			id: 'gpt-4o',
-			capabilities: {
-				image: true,
-				fast: false,
-				reasoning: false,
-				searchGrounding: false,
-			},
-			disabled: plan === undefined || plan === 'free',
-		},
-		{
-			name: 'o3 mini',
-			info: '',
-			provider: 'openai',
-			id: 'o3-mini',
-			capabilities: {
-				image: false,
-				fast: false,
-				reasoning: true,
-				searchGrounding: false,
-			},
-			disabled: plan === undefined || plan === 'free',
-		},
+		// {
+		// 	name: 'GPT 4o',
+		// 	info: '',
+		// 	provider: 'openai',
+		// 	id: 'gpt-4o',
+		// 	capabilities: {
+		// 		image: true,
+		// 		fast: false,
+		// 		reasoning: false,
+		// 		searchGrounding: false,
+		// 	},
+		// 	disabled: plan === undefined || plan === 'free',
+		// },
+		// {
+		// 	name: 'o3 mini',
+		// 	info: '',
+		// 	provider: 'openai',
+		// 	id: 'o3-mini',
+		// 	capabilities: {
+		// 		image: false,
+		// 		fast: false,
+		// 		reasoning: true,
+		// 		searchGrounding: false,
+		// 	},
+		// 	disabled: plan === undefined || plan === 'free',
+		// },
 		{
 			name: 'DeepSeek R1 (Groq)',
 			info: '',
@@ -255,6 +262,19 @@
 				image: false,
 				fast: true,
 				reasoning: true,
+				searchGrounding: false,
+			},
+			disabled: plan === undefined || plan === 'free',
+		},
+		{
+			name: 'Llama 3.3 (Groq)',
+			info: '',
+			provider: 'groq',
+			id: 'llama-3.3-70b-versatile',
+			capabilities: {
+				image: false,
+				fast: true,
+				reasoning: false,
 				searchGrounding: false,
 			},
 			disabled: plan === undefined || plan === 'free',
@@ -282,7 +302,7 @@
 <ScrollArea
 	bind:vp={scrollElement}
 	class="flex flex-1 flex-col items-center p-4">
-	<div class="flex w-full flex-col items-center pb-40">
+	<div class="flex w-full flex-col items-center pb-40 pt-20">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
 			{#each $messages as message, index}
 				<div
@@ -292,7 +312,7 @@
 							? 'place-self-end'
 							: 'place-self-start',
 						index === $messages.length - 1 &&
-							'min-h-[calc(100vh-21rem)]',
+							'min-h-[calc(100vh-25rem)]',
 					)}>
 					<div class="group flex flex-col gap-2">
 						{#if message.role !== 'user'}
@@ -463,7 +483,13 @@
 						{#if message.experimental_attachments}
 							{#each message.experimental_attachments as attachment}
 								{#if attachment.contentType?.startsWith('image/')}
-									<img src={attachment.url} alt={attachment.name} />
+									<div
+										class="bg-background min-h-16 min-w-16 overflow-hidden rounded-lg border">
+										<img
+											src={attachment.url}
+											alt={attachment.name}
+											class="w-full" />
+									</div>
 								{/if}
 							{/each}
 						{/if}
@@ -547,7 +573,6 @@
 			{/each}
 		</div>
 	{/if}
-	<div></div>
 	<div class="flex justify-between">
 		<div class="flex items-center gap-2">
 			<DropdownMenu.Root>
@@ -659,17 +684,32 @@
 			<Tooltip.Provider>
 				<Tooltip.Root>
 					<Tooltip.Trigger>
-						{#snippet child({ props })}
-							<Toggle
-								{...props}
-								aria-label="toggle search"
-								bind:pressed={search}>
-								<GlobeIcon />
-							</Toggle>
-						{/snippet}
+						<Toggle
+							aria-label="toggle search"
+							bind:pressed={search}
+							disabled={plan === 'free' || plan === undefined}>
+							<GlobeIcon />
+						</Toggle>
 					</Tooltip.Trigger>
-					<Tooltip.Content>
-						<p>Web Search</p>
+					<Tooltip.Content class="max-w-[300px]">
+						{#if plan === 'free' || plan === undefined}
+							<div class="flex flex-col gap-4 p-2">
+								<div class="flex flex-col gap-1">
+									<span class="text-lg">
+										Upgrade to basic or higher plan
+									</span>
+									<p class="text-muted-foreground text-wrap text-sm">
+										Get access to web search and more by upgrading
+										your plan
+									</p>
+								</div>
+								<Button href={'/billing/plan'} class="w-full">
+									Checkout plans
+								</Button>
+							</div>
+						{:else}
+							<p>Web Search</p>
+						{/if}
 					</Tooltip.Content>
 				</Tooltip.Root>
 			</Tooltip.Provider>
@@ -680,18 +720,51 @@
 				bind:files={fileInputs}
 				multiple={true}
 				hidden />
-			<Button
-				onclick={() => {
-					imageInput?.click()
-				}}
-				variant="ghost"
-				size="icon"
-				class="">
-				<ImageIcon />
-			</Button>
+			<Tooltip.Provider>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Button
+							onclick={() => {
+								imageInput?.click()
+							}}
+							variant="ghost"
+							size="icon"
+							class=""
+							disabled={!selectedModel.capabilities.image ||
+								plan === 'free' ||
+								plan === undefined}>
+							<ImageIcon />
+						</Button>
+					</Tooltip.Trigger>
+					<Tooltip.Content class="max-w-[300px]">
+						{#if plan === 'free' || plan === undefined}
+							<div class="flex flex-col gap-4 p-2">
+								<div class="flex flex-col gap-1">
+									<span class="text-lg">
+										Upgrade to basic or higher plan
+									</span>
+									<p class="text-muted-foreground text-wrap text-sm">
+										Get access to image upload and more by upgrading
+										your plan
+									</p>
+								</div>
+								<Button href={'/billing/plan'} class="w-full">
+									Checkout plans
+								</Button>
+							</div>
+						{:else}
+							<p>Image Upload</p>
+						{/if}
+					</Tooltip.Content>
+				</Tooltip.Root>
+			</Tooltip.Provider>
 		</div>
 		<Button type="submit" class="" size="icon">
-			<SendIcon />
+			{#if $status === 'submitted' || $status === 'streaming'}
+				<Loader2Icon class="animate-spin" />
+			{:else}
+				<SendIcon />
+			{/if}
 		</Button>
 	</div>
 </form>
