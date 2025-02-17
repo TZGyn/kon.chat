@@ -14,7 +14,7 @@
 	import Sparkles from 'lucide-svelte/icons/sparkles'
 	import { onMount } from 'svelte'
 	import { Button } from '$lib/components/ui/button'
-	import { env } from '$env/dynamic/public'
+	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { useUser } from '../state.svelte'
 	import { useChats } from '../state.svelte'
 
@@ -55,7 +55,7 @@
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src={''} alt={user?.name} />
 							<Avatar.Fallback class="rounded-lg">
-								{user?.name || 'K'}
+								{user?.name[0] || 'K'}
 							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
@@ -81,7 +81,7 @@
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src={''} alt={user?.name} />
 							<Avatar.Fallback class="rounded-lg">
-								{user?.name || 'K'}
+								{user?.name[0] || 'K'}
 							</Avatar.Fallback>
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
@@ -120,30 +120,32 @@
 						</div>
 					</div>
 				</DropdownMenu.Label>
+				{#if user === null || user.plan === 'free'}
+					<DropdownMenu.Separator />
+					<DropdownMenu.Group>
+						<a href="/billing/plan">
+							<DropdownMenu.Item>
+								<Sparkles />
+								Upgrade to Pro
+							</DropdownMenu.Item>
+						</a>
+					</DropdownMenu.Group>
+				{/if}
 				<DropdownMenu.Separator />
 				<DropdownMenu.Group>
-					<DropdownMenu.Item>
-						<Sparkles />
-						Upgrade to Pro
-					</DropdownMenu.Item>
-				</DropdownMenu.Group>
-				<DropdownMenu.Separator />
-				<DropdownMenu.Group>
-					<DropdownMenu.Item>
+					<!-- <DropdownMenu.Item>
 						<BadgeCheck />
 						Account
-					</DropdownMenu.Item>
-					<DropdownMenu.Item>
-						<CreditCard />
-						Billing
-					</DropdownMenu.Item>
-					<DropdownMenu.Item>
-						<Bell />
-						Notifications
-					</DropdownMenu.Item>
+					</DropdownMenu.Item> -->
+					<a href={PUBLIC_API_URL + '/billing/portal'}>
+						<DropdownMenu.Item>
+							<CreditCard />
+							Billing
+						</DropdownMenu.Item>
+					</a>
 				</DropdownMenu.Group>
 				<DropdownMenu.Separator />
-				{#if user}
+				{#if user?.email}
 					<DropdownMenu.Item
 						onclick={() => (logoutDialogOpen = true)}>
 						<LogOut />
@@ -170,7 +172,7 @@
 		</Dialog.Header>
 		<div class="grid gap-4">
 			<Button
-				href={`${env.PUBLIC_API_URL}/auth/login/google?redirect=${env.PUBLIC_APP_URL + '/'}`}
+				href={`${PUBLIC_API_URL}/auth/login/google?redirect=${PUBLIC_APP_URL + '/'}`}
 				variant="outline"
 				class="w-full">
 				<svg

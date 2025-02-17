@@ -23,7 +23,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import { Separator } from '$lib/components/ui/separator'
 	import * as Tooltip from '$lib/components/ui/tooltip'
-	import { env } from '$env/dynamic/public'
+	import { PUBLIC_API_URL } from '$env/static/public'
 	import { math } from '@cartamd/plugin-math'
 
 	import { useChats, useUser } from '../../../state.svelte.js'
@@ -147,7 +147,7 @@
 	} = useChat({
 		maxSteps: 1,
 		initialMessages: initialMessages,
-		api: env.PUBLIC_API_URL + `/chat/${chat_id}`,
+		api: PUBLIC_API_URL + `/chat/${chat_id}`,
 		generateId: () => chat_id,
 		onFinish: () => {
 			$page.url.searchParams.delete('type')

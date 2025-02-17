@@ -1,11 +1,11 @@
-import { env } from '$env/dynamic/public'
+import { PUBLIC_API_URL } from '$env/static/public'
 
 export const customFetch = async <T>(
 	url: string,
 	props?: RequestInit,
 ) => {
 	return (
-		await fetch(env.PUBLIC_API_URL + url, {
+		await fetch(PUBLIC_API_URL + url, {
 			credentials: 'include',
 			...props,
 		})
