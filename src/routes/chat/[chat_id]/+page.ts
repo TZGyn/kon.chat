@@ -1,3 +1,6 @@
+export const prerender = false
+export const ssr = false
+
 export const load = async ({ params, url }) => {
 	return {
 		chat_id: params.chat_id,
