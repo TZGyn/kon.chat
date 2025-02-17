@@ -1,6 +1,9 @@
 import { encodeBase32 } from '$lib/encoding/base32'
 import { redirect } from '@sveltejs/kit'
 
+export const prerender = false
+export const ssr = false
+
 export const load = async () => {
 	redirect(302, `/chat/${generateId()}?type=new`)
 }
