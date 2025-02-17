@@ -10,11 +10,11 @@
 <Sidebar.Provider>
 	<AppSidebar />
 	<Sidebar.Inset>
-		<header
-			class="flex h-16 shrink-0 items-center justify-between gap-2 px-4">
-			<Sidebar.Trigger class="-ml-1" />
-		</header>
-		<div class="flex max-h-[calc(100vh-64px)] flex-1 overflow-hidden">
+		<!-- <header
+			class="flex h-16 shrink-0 items-center justify-between gap-2 bg-transparent px-4">
+		</header> -->
+		<div class="flex max-h-svh flex-1 overflow-hidden">
+			<Sidebar.Trigger class="absolute left-4 top-4 z-50" />
 			<div class="flex w-full flex-1 flex-col">
 				{@render children()}
 			</div>
