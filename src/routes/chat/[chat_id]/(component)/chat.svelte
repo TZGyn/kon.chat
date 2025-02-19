@@ -157,10 +157,12 @@
 		api: PUBLIC_API_URL + `/chat/${chat_id}`,
 		generateId: () => chat_id,
 		onFinish: () => {
-			$page.url.searchParams.delete('type')
-			goto(`?${$page.url.searchParams.toString()}`, {
-				keepFocus: true,
-			})
+			if ($page.url.searchParams) {
+				$page.url.searchParams.delete('type')
+				goto(`?${$page.url.searchParams.toString()}`, {
+					keepFocus: true,
+				})
+			}
 			scrollToBottom()
 			useChats().getChats()
 			useUser().getUser()
