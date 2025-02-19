@@ -6,59 +6,61 @@
 	import { Button } from '$lib/components/ui/button'
 </script>
 
-<ScrollArea class="flex flex-1 p-4">
-	<div class="flex w-full flex-wrap justify-center gap-8">
-		{@render PricingCard({
-			name: 'Basic',
-			description: 'Monthly Subscription',
-			price: '5',
-			per: 'month',
-			link: PUBLIC_API_URL + '/billing/plan/basic',
-			included: [
-				{
-					title: 'Access to all standard models',
-				},
-				{
-					title: 'Access to Web Search and Image upload',
-				},
-				{
-					title: '1000 Standard Chats/month',
-				},
-				{
-					title: '100 Web Searches/month',
-				},
-			],
-			notIncluded: [],
-		})}
-		{@render PricingCard({
-			name: 'Pro',
-			description: 'Monthly Subscription',
-			price: '15',
-			per: 'month',
-			link: PUBLIC_API_URL + '/billing/plan/pro',
-			included: [
-				{
-					title: 'Access to all standard and premium models',
-				},
-				{
-					title: 'Access to Web Search and Image upload',
-				},
-				{
-					title:
-						'Access to all upcoming features (youtube/pdf summarizer, deep researcher, etc)',
-				},
-				{
-					title: '3000 Standard Chats/month',
-				},
-				{
-					title: '200 Premium Chats/month',
-				},
-				{
-					title: '400 Web Searches/month',
-				},
-			],
-			notIncluded: [],
-		})}
+<ScrollArea class="max-h-svh flex-1 p-4">
+	<div class="flex h-full w-full items-center justify-center">
+		<div class="flex flex-wrap justify-center gap-8">
+			{@render PricingCard({
+				name: 'Basic',
+				description: 'Monthly Subscription',
+				price: '5',
+				per: 'month',
+				link: PUBLIC_API_URL + '/billing/plan/basic',
+				included: [
+					{
+						title: 'Access to all standard models',
+					},
+					{
+						title: 'Access to Web Search and Image upload',
+					},
+					{
+						title: '1000 Standard Chats/month',
+					},
+					{
+						title: '100 Web Searches/month',
+					},
+				],
+				notIncluded: [],
+			})}
+			{@render PricingCard({
+				name: 'Pro',
+				description: 'Monthly Subscription',
+				price: '15',
+				per: 'month',
+				link: PUBLIC_API_URL + '/billing/plan/pro',
+				included: [
+					{
+						title: 'Access to all standard and premium models',
+					},
+					{
+						title: 'Access to Web Search and Image upload',
+					},
+					{
+						title:
+							'Access to all upcoming features (youtube/pdf summarizer, deep researcher, etc)',
+					},
+					{
+						title: '3000 Standard Chats/month',
+					},
+					{
+						title: '200 Premium Chats/month',
+					},
+					{
+						title: '400 Web Searches/month',
+					},
+				],
+				notIncluded: [],
+			})}
+		</div>
 	</div>
 </ScrollArea>
 
