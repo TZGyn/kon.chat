@@ -102,13 +102,16 @@
 				</Sidebar.MenuItem>
 			{/each}
 			<Sidebar.MenuItem>
-				<Sidebar.MenuButton
-					class="text-sidebar-foreground/70"
-					onclick={() => {
-						goto(`/chat/${nanoid()}?type=new`)
-					}}>
-					<PlusIcon />
-					<span>New Chat</span>
+				<Sidebar.MenuButton class="text-sidebar-foreground/70">
+					{#snippet child({ props })}
+						<a
+							href="/chat"
+							{...props}
+							data-sveltekit-preload-code="eager">
+							<PlusIcon />
+							<span>New Chat</span>
+						</a>
+					{/snippet}
 				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>
 		{:else}

@@ -14,10 +14,9 @@
 			Welcome to Kon.Chat
 		</span>
 		<Button
-			onclick={() => {
-				goto(`/chat/${nanoid()}?type=new`)
-			}}
-			class="flex items-center justify-between gap-2">
+			href="/chat"
+			class="flex items-center justify-between gap-2"
+			data-sveltekit-preload-code="eager">
 			<PlusIcon class="size-5" />
 			New Chat
 		</Button>
