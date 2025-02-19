@@ -45,7 +45,7 @@
 				},
 				{
 					title:
-						'Access to all upcoming features (youtube/pdf summarizer, deep searcher, etc)',
+						'Access to all upcoming features (youtube/pdf summarizer, deep researcher, etc)',
 				},
 				{
 					title: '3000 Standard Chats/month',
@@ -84,7 +84,7 @@
 	link: string
 })}
 	<div
-		class="bg-secondary min-w-[400px] divide-y rounded-2xl border shadow-sm">
+		class="bg-secondary w-[400px] divide-y rounded-2xl border shadow-sm">
 		<div class="flex flex-col items-start gap-4 p-6 sm:px-8">
 			<h2 class="text-primary text-lg font-medium">
 				{name}
@@ -121,7 +121,7 @@
 							viewBox="0 0 24 24"
 							stroke-width="1.5"
 							stroke="currentColor"
-							class="text-primary size-5">
+							class="text-primary size-5 min-w-5">
 							<path
 								stroke-linecap="round"
 								stroke-linejoin="round"
