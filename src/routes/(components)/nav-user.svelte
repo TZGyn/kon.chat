@@ -125,25 +125,27 @@
 					<DropdownMenu.Group>
 						<a href="/billing/plan">
 							<DropdownMenu.Item>
-								<Sparkles />
+								<Sparkles class="text-primary" />
 								Upgrade to Pro
 							</DropdownMenu.Item>
 						</a>
 					</DropdownMenu.Group>
 				{/if}
-				<DropdownMenu.Separator />
-				<DropdownMenu.Group>
-					<!-- <DropdownMenu.Item>
+				{#if user !== null && user.plan !== 'free'}
+					<DropdownMenu.Separator />
+					<DropdownMenu.Group>
+						<!-- <DropdownMenu.Item>
 						<BadgeCheck />
 						Account
 					</DropdownMenu.Item> -->
-					<a href={PUBLIC_API_URL + '/billing/portal'}>
-						<DropdownMenu.Item>
-							<CreditCard />
-							Billing
-						</DropdownMenu.Item>
-					</a>
-				</DropdownMenu.Group>
+						<a href={PUBLIC_API_URL + '/billing/portal'}>
+							<DropdownMenu.Item>
+								<CreditCard />
+								Billing
+							</DropdownMenu.Item>
+						</a>
+					</DropdownMenu.Group>
+				{/if}
 				<DropdownMenu.Separator />
 				{#if user?.email}
 					<DropdownMenu.Item
