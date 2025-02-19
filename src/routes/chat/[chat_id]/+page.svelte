@@ -11,12 +11,15 @@
 	import { customFetch } from '$lib/fetch'
 	import { useUser } from '../../state.svelte'
 	import { type GoogleGenerativeAIProviderMetadata } from '@ai-sdk/google'
+	import { page } from '$app/state'
 
 	let { data } = $props()
 
 	let isLoading = $state(true)
 	let initialMessages = $state<Array<Message>>([])
 	let user = $derived(useUser().user)
+	let chat_id = $derived(page.params.chat_id)
+	let isNew = $derived(page.url.searchParams.get('type') === 'new')
 
 	function convertToUIMessages(
 		messages: Array<{
@@ -182,7 +185,7 @@
 						provider: string | null
 					}[]
 				} | null
-			}>(`/chat/${data.chat_id}`)
+			}>(`/chat/${chat_id}`)
 		).chat
 
 		initialMessages = chat ? convertToUIMessages(chat.messages) : []
@@ -191,9 +194,9 @@
 	}
 
 	$effect(() => {
-		console.log(data.chat_id)
+		console.log(chat_id)
 		initialMessages = []
-		if (!data.isNew) {
+		if (!isNew) {
 			getChat()
 		} else {
 			isLoading = false
@@ -204,10 +207,7 @@
 {#key initialMessages}
 	{#if !isLoading}
 		<div class="flex flex-1 overflow-hidden">
-			<Chat
-				chat_id={data.chat_id}
-				{initialMessages}
-				plan={user?.plan} />
+			<Chat {chat_id} {initialMessages} plan={user?.plan} />
 		</div>
 	{/if}
 {/key}

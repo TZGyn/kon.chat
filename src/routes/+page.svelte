@@ -1,5 +1,7 @@
 <script>
+	import { goto } from '$app/navigation'
 	import { Button } from '$lib/components/ui/button'
+	import { nanoid } from '$lib/nanoid'
 
 	import { PartyPopperIcon, PlusIcon } from 'lucide-svelte'
 </script>
@@ -12,7 +14,9 @@
 			Welcome to Kon.Chat
 		</span>
 		<Button
-			href="/chat"
+			onclick={() => {
+				goto(`/chat/${nanoid()}?type=new`)
+			}}
 			class="flex items-center justify-between gap-2">
 			<PlusIcon class="size-5" />
 			New Chat
