@@ -23,13 +23,17 @@
 	<div
 		class="text-muted-foreground hidden flex-col gap-2 peer-data-[state='on']:flex">
 		{#if searchQueries}
-			<div class="flex flex-col gap-1">
-				<span>Search Queries:</span>
-				{#each searchQueries as query}
+			<div class="flex flex-wrap gap-1">
+				<span>
+					Search Queries: <span class="text-xs">
+						{searchQueries.join(', ')}
+					</span>
+				</span>
+				<!-- {#each searchQueries as query}
 					<span class="text-xs">
 						{query}
 					</span>
-				{/each}
+				{/each} -->
 			</div>
 		{/if}
 		{#if groundingChunks}

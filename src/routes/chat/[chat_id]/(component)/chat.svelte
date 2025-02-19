@@ -312,6 +312,7 @@
 							? 'place-self-end'
 							: 'place-self-start',
 						index === $messages.length - 1 &&
+							$status !== 'submitted' &&
 							'min-h-[calc(100vh-25rem)]',
 					)}>
 					<div class="group flex flex-col gap-2">
@@ -506,9 +507,15 @@
 							{/if}
 						{/each}
 
-						{#if message.role !== 'user' && (!($status === 'streaming') || index !== $messages.length - 1)}
+						{#if message.role !== 'user'}
 							<div
-								class="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+								class={cn(
+									'flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100',
+									$status !== 'streaming' ||
+										index !== $messages.length - 1
+										? 'visible'
+										: 'invisible',
+								)}>
 								<Button
 									variant="secondary"
 									onclick={() => {
@@ -539,6 +546,32 @@
 					</div>
 				</div>
 			{/each}
+			{#if $status === 'submitted'}
+				<div
+					class={cn(
+						'flex min-h-[calc(100vh-25rem)] gap-2 place-self-start',
+					)}>
+					<div class="group flex flex-col gap-2">
+						<div class="flex items-center gap-4">
+							<div
+								class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
+								<div class="translate-y-px">
+									<Avatar.Root class="size-4 overflow-visible">
+										<Avatar.Image
+											src={'/logo.png'}
+											alt="favicon"
+											class="size-4" />
+										<Avatar.Fallback class="size-4 bg-opacity-0">
+											<img src="/logo.png" alt="favicon" />
+										</Avatar.Fallback>
+									</Avatar.Root>
+								</div>
+							</div>
+							<div class="animate-pulse">Submitting Prompt</div>
+						</div>
+					</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 </ScrollArea>
