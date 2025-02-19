@@ -3,8 +3,11 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js'
 	import '../app.css'
 	import { Toaster } from '$lib/components/ui/sonner'
+	import { preloadCode } from '$app/navigation'
 
 	let { children } = $props()
+
+	preloadCode('/chat/fast')
 </script>
 
 <Sidebar.Provider>
