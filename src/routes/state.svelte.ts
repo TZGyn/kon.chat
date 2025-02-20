@@ -4,11 +4,23 @@ let chats = $state<{ id: string; title: string }[]>([])
 
 export function useChats() {
 	async function getChats() {
+		chats = JSON.parse(localStorage.getItem('chats') || '[]')
 		chats = (
 			await customFetch<{ chats: { id: string; title: string }[] }>(
 				'/chat',
 			)
 		).chats
+		localStorage.setItem('chats', JSON.stringify(chats))
+	}
+
+	async function deleteChats(id: string) {
+		const success = (
+			await customFetch<{ success: boolean }>(`/chat/${id}`, {
+				method: 'DELETE',
+			})
+		).success
+
+		getChats()
 	}
 
 	return {

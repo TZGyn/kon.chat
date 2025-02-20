@@ -166,6 +166,10 @@
 			scrollToBottom()
 			useChats().getChats()
 			useUser().getUser()
+			localStorage.setItem(
+				`chat:${chat_id}`,
+				JSON.stringify($messages),
+			)
 		},
 		onError: (error) => {
 			toast.error(error.message)

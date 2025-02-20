@@ -166,6 +166,12 @@
 
 	const getChat = async () => {
 		isLoading = true
+		const cache = localStorage.getItem(`chat:${chat_id}`)
+		if (cache) {
+			const chat = JSON.parse(cache)
+			initialMessages = chat || []
+			isLoading = false
+		}
 		const chat = (
 			await customFetch<{
 				chat: {
@@ -187,6 +193,11 @@
 				} | null
 			}>(`/chat/${chat_id}`)
 		).chat
+
+		localStorage.setItem(
+			`chat:${chat_id}`,
+			JSON.stringify(convertToUIMessages(chat?.messages || [])),
+		)
 
 		initialMessages = chat ? convertToUIMessages(chat.messages) : []
 
