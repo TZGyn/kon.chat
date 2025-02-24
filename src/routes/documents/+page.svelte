@@ -14,7 +14,7 @@
 				PDF
 			</div>
 		</a> -->
-		<a href="/documents/sheets" data-sveltekit-preload-code="eager">
+		<a href="/documents/sheets">
 			<div
 				class="bg-secondary hover:bg-accent flex h-48 w-44 flex-col items-center justify-center gap-8 rounded-lg border p-8">
 				<CsvIcon class="size-16 text-green-500" />
