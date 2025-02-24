@@ -4,6 +4,7 @@
 	import type { ComponentProps } from 'svelte'
 	import * as Avatar from '$lib/components/ui/avatar'
 	import NavChats from './nav-chats.svelte'
+	import { NotepadTextIcon } from 'lucide-svelte'
 
 	let {
 		ref = $bindable(null),
@@ -17,21 +18,44 @@
 <Sidebar.Root bind:ref {collapsible} {...restProps}>
 	<Sidebar.Header>
 		<Sidebar.Menu>
-			<a href="/">
-				<Sidebar.MenuItem class="flex items-center gap-4">
-					<Avatar.Root class="h-8 w-8 rounded-lg">
-						<Avatar.Image src={'/logo.png'} alt={'logo'} />
-						<Avatar.Fallback class="rounded-lg">CN</Avatar.Fallback>
-					</Avatar.Root>
-					{#if sidebar.open || sidebar.isMobile}
-						Kon.Chat
-					{/if}
-				</Sidebar.MenuItem>
-			</a>
+			<Sidebar.MenuItem class="flex justify-between gap-4">
+				{#if sidebar.open || sidebar.isMobile}
+					<a href="/">
+						<div class="flex items-center gap-4">
+							<Avatar.Root class="h-8 w-8 rounded-lg">
+								<Avatar.Image src={'/logo.png'} alt={'logo'} />
+								<Avatar.Fallback class="rounded-lg">
+									CN
+								</Avatar.Fallback>
+							</Avatar.Root>
+							Kon.Chat
+						</div>
+					</a>
+				{/if}
+				<Sidebar.Trigger class="z-50" />
+			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<NavChats />
+		<Sidebar.Group>
+			<Sidebar.GroupLabel>Tools</Sidebar.GroupLabel>
+			<Sidebar.Menu>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton class="">
+						{#snippet child({ props })}
+							<a
+								href="/documents"
+								{...props}
+								data-sveltekit-preload-code="eager">
+								<NotepadTextIcon />
+								<span>Documents</span>
+							</a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+			</Sidebar.Menu>
+		</Sidebar.Group>
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		<NavUser />

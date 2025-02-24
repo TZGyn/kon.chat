@@ -21,6 +21,7 @@
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"@tailwindcss/typography": "^0.5.16",
 		"@tailwindcss/vite": "^4.0.0",
+		"@types/tabulator-tables": "^6.2.4",
 		"bits-ui": "^1.2.0",
 		"clsx": "^2.1.1",
 		"lucide-svelte": "^0.475.0",
@@ -48,6 +49,7 @@
 		"ai": "^4.1.41",
 		"carta-md": "^4.6.7",
 		"isomorphic-dompurify": "^2.21.0",
-		"katex": "^0.16.21"
+		"katex": "^0.16.21",
+		"tabulator-tables": "^6.3.1"
 	}
 }
