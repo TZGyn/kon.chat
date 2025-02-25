@@ -12,7 +12,6 @@
 
 	onMount(() => {
 		table = new Tabulator(tableComponent, {
-			reactiveData: true, //enable data reactivity
 			spreadsheet: true,
 			rowHeader: {
 				formatter: 'rownum',
@@ -23,6 +22,8 @@
 			},
 			// @ts-ignore
 			spreadsheetData: [],
+			spreadsheetRows: 20,
+			spreadsheetColumns: 10,
 			resizableColumnFit: false,
 			scrollToRowIfVisible: true, //prevent scrolling to a row if it is visible
 			selectableRange: true,
@@ -42,7 +43,6 @@
 			},
 			clipboardCopyStyled: false,
 		})
-		table.on('dataLoaded', function (data) {})
 	})
 </script>
 

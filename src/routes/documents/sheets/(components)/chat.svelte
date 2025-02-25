@@ -177,14 +177,14 @@
 					const { row, column, data } = sheetData
 					if (table.getRows().length <= row) {
 						const data = table.getSheetData('')
-						table.getSheet('').setColumns(row)
+						table.getSheet('').setRows(row + 10)
 						table.setSheetData('', data)
 					}
 					const spreadSheetRow = table.getRows()[row]
 
-					if (spreadSheetRow.getCells().length <= column) {
+					if (spreadSheetRow.getCells().length <= column + 1) {
 						const data = table.getSheetData('')
-						table.getSheet('').setColumns(column)
+						table.getSheet('').setColumns(column + 1 + 5)
 						table.setSheetData('', data)
 					}
 
@@ -209,14 +209,14 @@
 				}
 				if (table.getRows().length <= row) {
 					const data = table.getSheetData('')
-					table.getSheet('').setRows(row)
+					table.getSheet('').setRows(row + 10)
 					table.setSheetData('', data)
 				}
 				const spreadSheetRow = table.getRows()[row]
 
-				if (spreadSheetRow.getCells().length <= column) {
+				if (spreadSheetRow.getCells().length <= column + 1) {
 					const data = table.getSheetData('')
-					table.getSheet('').setColumns(column)
+					table.getSheet('').setColumns(column + 1 + 5)
 					table.setSheetData('', data)
 				}
 				const cell = spreadSheetRow.getCells()[column + 1]
@@ -242,14 +242,14 @@
 					const { row, column } = sheetData
 					if (table.getRows().length <= row) {
 						const data = table.getSheetData('')
-						table.getSheet('').setColumns(row)
+						table.getSheet('').setRows(row + 10)
 						table.setSheetData('', data)
 					}
 					const spreadSheetRow = table.getRows()[row]
 
-					if (spreadSheetRow.getCells().length <= column) {
+					if (spreadSheetRow.getCells().length <= column + 1) {
 						const data = table.getSheetData('')
-						table.getSheet('').setColumns(column)
+						table.getSheet('').setColumns(column + 1 + 5)
 						table.setSheetData('', data)
 					}
 
@@ -397,6 +397,19 @@
 				plan === undefined || plan === 'free' || plan === 'basic',
 		},
 	]
+
+	const adjustInputHeight = () => {
+		if (inputElement) {
+			inputElement.style.height = 'auto'
+			inputElement.style.height = `${inputElement.scrollHeight + 2}px`
+		}
+	}
+
+	$: ($status === 'streaming' || $status === 'submitted') &&
+		$messages &&
+		scrollToBottom()
+
+	$: $input && adjustInputHeight()
 </script>
 
 <ScrollArea
@@ -411,9 +424,9 @@
 						message.role === 'user'
 							? 'place-self-end'
 							: 'place-self-start',
-						// index === $messages.length - 1 &&
-						// 	$status !== 'submitted' &&
-						// 	'min-h-[calc(100svh-25rem)]',
+						index === $messages.length - 1 &&
+							$status !== 'submitted' &&
+							'@6xl:min-h-[calc(100svh-25rem)] min-h-[calc(50svh-25rem)]',
 					)}>
 					<div class="group flex flex-col gap-2">
 						{#if message.role !== 'user'}
@@ -550,7 +563,7 @@
 			{#if $status === 'submitted'}
 				<div
 					class={cn(
-						'flex min-h-[calc(100vh-25rem)] gap-2 place-self-start',
+						'@6xl:min-h-[calc(100svh-25rem)] flex min-h-[calc(50svh-25rem)] gap-2 place-self-start',
 					)}>
 					<div class="group flex flex-col gap-2">
 						<div class="flex items-center gap-4">
