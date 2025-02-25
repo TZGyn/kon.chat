@@ -302,6 +302,20 @@
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'basic',
 		},
+		{
+			name: 'Clause 3.7 Sonnet',
+			info: '',
+			provider: 'anthropic',
+			id: 'claude-3-7-sonnet-20250219',
+			capabilities: {
+				image: true,
+				fast: false,
+				reasoning: true,
+				searchGrounding: false,
+			},
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'basic',
+		},
 	]
 </script>
 
