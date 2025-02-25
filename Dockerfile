@@ -21,8 +21,9 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential pkg-config python-is-python3
 
 # Install node modules
-COPY .npmrc bun.lock package-lock.json package.json ./
-RUN bun install
+ARG TIPTAP_TOKEN
+COPY .npmrc bunfig.toml bun.lock package-lock.json package.json ./
+RUN TIPTAP_TOKEN=$TIPTAP_TOKEN bun install
 
 # Copy application code
 COPY . .

@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only --build-arg PUBLIC_APP_URL=$PUBLIC_APP_URL --build-arg PUBLIC_API_URL=$PUBLIC_API_URL
+      - run: flyctl deploy --remote-only --build-arg PUBLIC_APP_URL=$PUBLIC_APP_URL --build-arg PUBLIC_API_URL=$PUBLIC_API_URL --build-arg TIPTAP_TOKEN=$TIPTAP_TOKEN
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           PUBLIC_APP_URL: ${{ vars.PUBLIC_APP_URL }}
