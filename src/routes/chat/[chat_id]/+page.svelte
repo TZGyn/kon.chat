@@ -1,10 +1,5 @@
 <script lang="ts">
 	import type { Attachment, CoreToolMessage } from 'ai'
-	import type {
-		TextUIPart,
-		ReasoningUIPart,
-		ToolInvocationUIPart,
-	} from '@ai-sdk/ui-utils'
 	import type { Message } from '@ai-sdk/svelte'
 	import Chat from './(component)/chat.svelte'
 	import type { ToolInvocation } from '@ai-sdk/ui-utils'
@@ -12,8 +7,6 @@
 	import { useUser } from '../../state.svelte'
 	import { type GoogleGenerativeAIProviderMetadata } from '@ai-sdk/google'
 	import { page } from '$app/state'
-
-	let { data } = $props()
 
 	let isLoading = $state(true)
 	let initialMessages = $state<Array<Message>>([])
@@ -53,7 +46,6 @@
 					textContent = message.content
 				} else if (Array.isArray(message.content)) {
 					for (const content of message.content) {
-						console.log('content', content)
 						if (content.type === 'text') {
 							textContent += content.text
 						} else if (content.type === 'reasoning') {
@@ -88,8 +80,6 @@
 						}
 					}
 				}
-
-				console.log('attachment', attachments)
 
 				chatMessages.push({
 					id: message.id,
@@ -215,7 +205,7 @@
 	})
 </script>
 
-{#key initialMessages}
+{#key initialMessages && user && chat_id}
 	{#if !isLoading}
 		<div class="flex flex-1 overflow-hidden">
 			<Chat {chat_id} {initialMessages} plan={user?.plan} />

@@ -44,6 +44,8 @@
 			clipboardCopyStyled: false,
 		})
 	})
+
+	let user = useUser().user
 </script>
 
 <div
@@ -96,7 +98,7 @@
 		<div bind:this={tableComponent} class="flex-1 overflow-scroll">
 		</div>
 		<div class="relative flex flex-1 overflow-hidden border">
-			<Chat plan={useUser().user?.plan} {table} />
+			<Chat plan={user?.plan} {table} />
 		</div>
 	</div>
 </div>

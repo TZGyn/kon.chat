@@ -1,41 +1,28 @@
 <script lang="ts">
 	import { useChat, type Message } from '@ai-sdk/svelte'
-	import { Carta, Markdown } from 'carta-md'
-	import DOMPurify from 'isomorphic-dompurify'
 	import { cn } from '$lib/utils'
 	import { onMount } from 'svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { Textarea } from '$lib/components/ui/textarea/index.js'
 	import {
-		ArrowUpIcon,
 		BrainIcon,
 		ChevronDownIcon,
-		CloudLightningIcon,
-		CopyIcon,
 		GlobeIcon,
 		ImageIcon,
 		Loader2Icon,
 		SearchIcon,
 		SendIcon,
-		SparklesIcon,
 		ZapIcon,
 	} from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
-	import { Separator } from '$lib/components/ui/separator'
 	import * as Tooltip from '$lib/components/ui/tooltip'
 	import { PUBLIC_API_URL } from '$env/static/public'
-	import { math } from '@cartamd/plugin-math'
 
 	import { useChats, useUser } from '../../../state.svelte.js'
 	import { Toggle } from '$lib/components/ui/toggle/index.js'
-	import { copy } from '$lib/clipboard'
-	import { type Attachment, type JSONValue } from 'ai'
-	import { code } from '@cartamd/plugin-code'
 	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
-	import * as Dialog from '$lib/components/ui/dialog/index.js'
-	import * as Accordion from '$lib/components/ui/accordion/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import GoogleIcon from './google-icon.svelte'
 	import OpenaiIcon from './openai-icon.svelte'
@@ -43,12 +30,16 @@
 	import AnthropicIcon from './anthropic-icon.svelte'
 	import { page } from '$app/stores'
 	import { goto } from '$app/navigation'
-	import GoogleGroundingSection from './google-grounding-section.svelte'
 	import UploadFileCard from './upload-file-card.svelte'
+	import { useModels } from '$lib/models.svelte.js'
+	import MessageBlock from '$lib/components/message-block.svelte'
 
 	export let chat_id
 	export let initialMessages: Array<Message>
 	export let plan: 'free' | 'basic' | 'pro' | 'owner' | undefined
+
+	let standardModels = useModels().standardModels
+	let premiumModels = useModels().premiumModels
 
 	let scrollElement: HTMLDivElement | null = null
 	let inputElement: HTMLTextAreaElement | null = null
@@ -82,22 +73,28 @@
 		// },
 	]
 
-	let selectedModel = {
-		name: 'Gemini 2.0 Flash',
-		provider: 'google',
-		id: 'gemini-2.0-flash-001',
-		capabilities: {
-			image: true,
-			fast: false,
-			reasoning: false,
-			searchGrounding: true,
-		},
-	}
+	let selectedModel = JSON.parse(
+		localStorage.getItem(`model:chat:${chat_id}`) ||
+			JSON.stringify({
+				name: 'Gemini 2.0 Flash',
+				provider: 'google',
+				id: 'gemini-2.0-flash-001',
+				capabilities: {
+					image: true,
+					fast: false,
+					reasoning: false,
+					searchGrounding: true,
+				},
+			}),
+	)
+	$: localStorage.setItem(
+		`model:chat:${chat_id}`,
+		JSON.stringify(selectedModel),
+	)
 	let search = false
 	let searchGrounding = false
 
 	function customSubmit(event: Event) {
-		console.log(attachments)
 		if (
 			attachments.some(
 				(attachment) => attachment.status === 'uploading',
@@ -177,12 +174,6 @@
 		credentials: 'include',
 	})
 
-	const carta = new Carta({
-		sanitizer: DOMPurify.sanitize,
-		extensions: [math(), code()],
-		theme: 'catppuccin-mocha',
-	})
-
 	const scrollToBottom = () => {
 		if (scrollElement) {
 			scrollElement.scrollTop = scrollElement.scrollHeight
@@ -205,118 +196,6 @@
 		scrollToBottom()
 
 	$: $input && adjustInputHeight()
-
-	const standardModels = [
-		{
-			name: 'Gemini 2.0 Flash',
-			info: '',
-			provider: 'google',
-			id: 'gemini-2.0-flash-001',
-			capabilities: {
-				image: true,
-				fast: false,
-				reasoning: false,
-				searchGrounding: true,
-			},
-			disabled: false,
-		},
-		{
-			name: 'GPT 4o mini',
-			info: '',
-			provider: 'openai',
-			id: 'gpt-4o-mini',
-			capabilities: {
-				image: true,
-				fast: false,
-				reasoning: false,
-				searchGrounding: false,
-			},
-			disabled: plan === undefined || plan === 'free',
-		},
-		// {
-		// 	name: 'GPT 4o',
-		// 	info: '',
-		// 	provider: 'openai',
-		// 	id: 'gpt-4o',
-		// 	capabilities: {
-		// 		image: true,
-		// 		fast: false,
-		// 		reasoning: false,
-		// 		searchGrounding: false,
-		// 	},
-		// 	disabled: plan === undefined || plan === 'free',
-		// },
-		// {
-		// 	name: 'o3 mini',
-		// 	info: '',
-		// 	provider: 'openai',
-		// 	id: 'o3-mini',
-		// 	capabilities: {
-		// 		image: false,
-		// 		fast: false,
-		// 		reasoning: true,
-		// 		searchGrounding: false,
-		// 	},
-		// 	disabled: plan === undefined || plan === 'free',
-		// },
-		{
-			name: 'DeepSeek R1 (Groq)',
-			info: '',
-			provider: 'groq',
-			id: 'deepseek-r1-distill-llama-70b',
-			capabilities: {
-				image: false,
-				fast: true,
-				reasoning: true,
-				searchGrounding: false,
-			},
-			disabled: plan === undefined || plan === 'free',
-		},
-		{
-			name: 'Llama 3.3 (Groq)',
-			info: '',
-			provider: 'groq',
-			id: 'llama-3.3-70b-versatile',
-			capabilities: {
-				image: false,
-				fast: true,
-				reasoning: false,
-				searchGrounding: false,
-			},
-			disabled: plan === undefined || plan === 'free',
-		},
-	] as const
-
-	const premiumModels = [
-		{
-			name: 'Clause 3.5 Sonnet',
-			info: '',
-			provider: 'anthropic',
-			id: 'claude-3-5-sonnet-latest',
-			capabilities: {
-				image: true,
-				fast: false,
-				reasoning: false,
-				searchGrounding: false,
-			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'basic',
-		},
-		{
-			name: 'Clause 3.7 Sonnet',
-			info: '',
-			provider: 'anthropic',
-			id: 'claude-3-7-sonnet-20250219',
-			capabilities: {
-				image: true,
-				fast: false,
-				reasoning: true,
-				searchGrounding: false,
-			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'basic',
-		},
-	]
 </script>
 
 <ScrollArea
@@ -325,246 +204,13 @@
 	<div class="flex w-full flex-col items-center pb-40 pt-20">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
 			{#each $messages as message, index}
-				<div
-					class={cn(
-						'flex gap-2',
-						message.role === 'user'
-							? 'place-self-end'
-							: 'place-self-start',
-						index === $messages.length - 1 &&
-							$status !== 'submitted' &&
-							'min-h-[calc(100vh-25rem)]',
-					)}>
-					<div class="group flex flex-col gap-2">
-						{#if message.role !== 'user'}
-							<div class="flex items-center gap-4">
-								<div
-									class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
-									<div class="translate-y-px">
-										<Avatar.Root class="size-4 overflow-visible">
-											<Avatar.Image
-												src={'/logo.png'}
-												alt="favicon"
-												class="size-4" />
-											<Avatar.Fallback class="size-4 bg-opacity-0">
-												<img src="/logo.png" alt="favicon" />
-											</Avatar.Fallback>
-										</Avatar.Root>
-									</div>
-								</div>
-
-								{#if $status === 'streaming' && index === $messages.length - 1}
-									{#if $data}
-										{/* @ts-ignore */ null}
-										{#if $data.filter((data) => data.type === 'message').length > 0}
-											<div class="animate-pulse">
-												{/* @ts-ignore */ null}
-												<!-- prettier-ignore -->
-												{$data.filter((data) => data.type === 'message')[$data.filter((data) => data.type === 'message').length-1].message}
-											</div>
-										{/if}
-									{/if}
-								{/if}
-							</div>
-						{/if}
-						{#each message.annotations ?? [] as annotation}
-							{/* @ts-ignore */ null}
-							{#if annotation['type'] === 'search'}
-								{/* @ts-ignore */ null}
-								{#if annotation?.data}
-									<div class="grid grid-cols-2 gap-2">
-										{/* @ts-ignore */ null}
-										{#each annotation?.data.slice(0, 4) as data}
-											<a href={data.url} target="_blank">
-												<div
-													class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
-													<span class="line-clamp-1">
-														{data.title}
-													</span>
-													<div class="flex items-center gap-2">
-														<Avatar.Root
-															class="size-4 overflow-visible">
-															<Avatar.Image
-																src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
-																	data.url}
-																alt="favicon"
-																class="size-4" />
-															<Avatar.Fallback
-																class="size-4 bg-opacity-0">
-																<img src="/logo.png" alt="favicon" />
-															</Avatar.Fallback>
-														</Avatar.Root>
-														<span
-															class="text-muted-foreground line-clamp-1 text-sm">
-															{data.url}
-														</span>
-													</div>
-												</div>
-											</a>
-										{/each}
-									</div>
-
-									{/* @ts-ignore */ null}
-									{#if annotation?.data.length > 4}
-										<Dialog.Root>
-											<Dialog.Trigger
-												class={cn(
-													buttonVariants({ variant: 'outline' }),
-													'w-full',
-												)}>
-												View All Sources
-											</Dialog.Trigger>
-											<Dialog.Content>
-												<Dialog.Header>
-													<Dialog.Title>
-														Sources and links
-													</Dialog.Title>
-													<Dialog.Description>
-														<ScrollArea>
-															<div
-																class="grid max-h-[calc(100vh-10rem)] grid-cols-1 gap-2">
-																{/* @ts-ignore */ null}
-																{#each annotation?.data as data}
-																	<a href={data.url} target="_blank">
-																		<div
-																			class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
-																			<span class="line-clamp-1">
-																				{data.title}
-																			</span>
-																			<div
-																				class="flex items-center gap-2">
-																				<Avatar.Root
-																					class="size-4 overflow-visible">
-																					<Avatar.Image
-																						src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
-																							data.url}
-																						alt="favicon"
-																						class="size-4" />
-																					<Avatar.Fallback
-																						class="size-4 bg-opacity-0">
-																						<img
-																							src="/logo.png"
-																							alt="favicon" />
-																					</Avatar.Fallback>
-																				</Avatar.Root>
-																				<span
-																					class="text-muted-foreground line-clamp-1 text-sm">
-																					{data.url}
-																				</span>
-																			</div>
-																		</div>
-																	</a>
-																{/each}
-															</div>
-														</ScrollArea>
-													</Dialog.Description>
-												</Dialog.Header>
-											</Dialog.Content>
-										</Dialog.Root>
-									{/if}
-								{/if}
-							{/if}
-						{/each}
-
-						{#key message.parts}
-							{#if message.parts.length > 0}
-								{#if message.parts.find((part) => part.type === 'reasoning') !== undefined}
-									<Toggle
-										size="sm"
-										class="text-muted-foreground group peer w-fit border">
-										Reasoning
-										<ChevronDownIcon
-											class={'transition-transform group-data-[state="on"]:rotate-180'} />
-									</Toggle>
-								{/if}
-								{#each message.parts as part}
-									{#if part.type === 'reasoning'}
-										<div
-											class="text-muted-foreground hidden rounded-md border p-2 text-sm peer-data-[state='on']:block">
-											{part.reasoning}
-										</div>
-									{/if}
-									{#if part.type === 'text'}
-										<div
-											class={cn(
-												'rounded-xl',
-												message.role === 'user'
-													? 'bg-secondary p-4'
-													: 'bg-background',
-											)}>
-											<div
-												class="prose prose-neutral dark:prose-invert prose-p:my-0">
-												<Markdown {carta} value={part.text} />
-											</div>
-										</div>
-									{/if}
-								{/each}
-							{/if}
-						{/key}
-						{#if message.experimental_attachments}
-							{#each message.experimental_attachments as attachment}
-								{#if attachment.contentType?.startsWith('image/')}
-									<div
-										class="bg-background min-h-16 min-w-16 overflow-hidden rounded-lg border">
-										<img
-											src={attachment.url}
-											alt={attachment.name}
-											class="w-full" />
-									</div>
-								{/if}
-							{/each}
-						{/if}
-
-						{#each message.annotations ?? [] as annotation}
-							{/* @ts-ignore */ null}
-							{#if annotation['type'] === 'google-grounding'}
-								{/* @ts-ignore */ null}
-								{#if annotation?.data}
-									{/* @ts-ignore */ null}
-									<!-- prettier-ignore -->
-									<GoogleGroundingSection metadata={annotation?.data}/>
-								{/if}
-							{/if}
-						{/each}
-
-						{#if message.role !== 'user'}
-							<div
-								class={cn(
-									'flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100',
-									$status !== 'streaming' ||
-										index !== $messages.length - 1
-										? 'visible'
-										: 'invisible',
-								)}>
-								<Button
-									variant="secondary"
-									onclick={() => {
-										copy(message.content)
-										toast.success('Copied Response to Clipboard')
-									}}>
-									<CopyIcon />
-									Copy Response
-								</Button>
-								{#each message.annotations ?? [] as annotation}
-									{/* @ts-ignore */ null}
-									{#if annotation['type'] === 'model' && annotation['model'] !== null}
-										<div class="text-muted-foreground">
-											{/* @ts-ignore */ null}
-											Model: {annotation.model}
-										</div>
-									{/if}
-									{/* @ts-ignore */ null}
-									{#if annotation['type'] === 'search-error'}
-										<div class="text-destructive">
-											{/* @ts-ignore */ null}
-											Error: {annotation.message}
-										</div>
-									{/if}
-								{/each}
-							</div>
-						{/if}
-					</div>
-				</div>
+				<MessageBlock
+					annotations={message.annotations}
+					data={$data}
+					{message}
+					role={message.role}
+					status={$status}
+					isLast={index === $messages.length - 1} />
 			{/each}
 			{#if $status === 'submitted'}
 				<div

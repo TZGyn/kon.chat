@@ -10,7 +10,6 @@
 	import {
 		BrainIcon,
 		ChevronDownIcon,
-		CopyIcon,
 		GlobeIcon,
 		ImageIcon,
 		Loader2Icon,
@@ -19,12 +18,7 @@
 		ZapIcon,
 	} from 'lucide-svelte'
 	import { cn } from '$lib/utils'
-	import { Carta, Markdown } from 'carta-md'
-	import DOMPurify from 'isomorphic-dompurify'
-	import { math } from '@cartamd/plugin-math'
-	import { code } from '@cartamd/plugin-code'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { copy } from '$lib/clipboard'
 	import { Textarea } from '$lib/components/ui/textarea'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
 	import * as Tooltip from '$lib/components/ui/tooltip'
@@ -33,12 +27,17 @@
 	import GroqIcon from '$lib/icons/groq-icon.svelte'
 	import AnthropicIcon from '$lib/icons/anthropic-icon.svelte'
 	import type { Tabulator } from 'tabulator-tables'
+	import MessageBlock from '$lib/components/message-block.svelte'
+	import { useModels } from '$lib/models.svelte'
 
 	export let plan: 'free' | 'basic' | 'pro' | 'owner' | undefined
 	export let table: Tabulator | undefined
 
 	let scrollElement: HTMLDivElement | null = null
 	let inputElement: HTMLTextAreaElement | null = null
+
+	let standardModels = useModels().standardModels
+	let premiumModels = useModels().premiumModels
 
 	let selectedModel = {
 		name: 'Gemini 2.0 Flash',
@@ -112,7 +111,6 @@
 			if (!table) return
 
 			table.getRanges().map((range) => range.remove())
-			console.log(toolCall)
 			if (toolCall.toolName === 'getCellValue') {
 				const { row, column } = toolCall.args as {
 					row: number
@@ -284,12 +282,6 @@
 		credentials: 'include',
 	})
 
-	const carta = new Carta({
-		sanitizer: DOMPurify.sanitize,
-		extensions: [math(), code()],
-		theme: 'catppuccin-mocha',
-	})
-
 	const scrollToBottom = () => {
 		if (scrollElement) {
 			scrollElement.scrollTop = scrollElement.scrollHeight
@@ -299,104 +291,6 @@
 	onMount(() => {
 		scrollToBottom()
 	})
-
-	const standardModels = [
-		{
-			name: 'Gemini 2.0 Flash',
-			info: '',
-			provider: 'google',
-			id: 'gemini-2.0-flash-001',
-			capabilities: {
-				image: true,
-				fast: false,
-				reasoning: false,
-				searchGrounding: true,
-			},
-			disabled: false,
-		},
-		{
-			name: 'GPT 4o mini',
-			info: '',
-			provider: 'openai',
-			id: 'gpt-4o-mini',
-			capabilities: {
-				image: true,
-				fast: false,
-				reasoning: false,
-				searchGrounding: false,
-			},
-			disabled: plan === undefined || plan === 'free',
-		},
-		// {
-		// 	name: 'GPT 4o',
-		// 	info: '',
-		// 	provider: 'openai',
-		// 	id: 'gpt-4o',
-		// 	capabilities: {
-		// 		image: true,
-		// 		fast: false,
-		// 		reasoning: false,
-		// 		searchGrounding: false,
-		// 	},
-		// 	disabled: plan === undefined || plan === 'free',
-		// },
-		// {
-		// 	name: 'o3 mini',
-		// 	info: '',
-		// 	provider: 'openai',
-		// 	id: 'o3-mini',
-		// 	capabilities: {
-		// 		image: false,
-		// 		fast: false,
-		// 		reasoning: true,
-		// 		searchGrounding: false,
-		// 	},
-		// 	disabled: plan === undefined || plan === 'free',
-		// },
-		{
-			name: 'DeepSeek R1 (Groq)',
-			info: '',
-			provider: 'groq',
-			id: 'deepseek-r1-distill-llama-70b',
-			capabilities: {
-				image: false,
-				fast: true,
-				reasoning: true,
-				searchGrounding: false,
-			},
-			disabled: plan === undefined || plan === 'free',
-		},
-		{
-			name: 'Llama 3.3 (Groq)',
-			info: '',
-			provider: 'groq',
-			id: 'llama-3.3-70b-versatile',
-			capabilities: {
-				image: false,
-				fast: true,
-				reasoning: false,
-				searchGrounding: false,
-			},
-			disabled: plan === undefined || plan === 'free',
-		},
-	] as const
-
-	const premiumModels = [
-		{
-			name: 'Clause 3.5 Sonnet',
-			info: '',
-			provider: 'anthropic',
-			id: 'claude-3-5-sonnet-latest',
-			capabilities: {
-				image: true,
-				fast: false,
-				reasoning: false,
-				searchGrounding: false,
-			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'basic',
-		},
-	]
 
 	const adjustInputHeight = () => {
 		if (inputElement) {
@@ -418,147 +312,14 @@
 	<div class="flex w-full flex-col items-center pb-40">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
 			{#each $messages as message, index}
-				<div
-					class={cn(
-						'flex gap-2',
-						message.role === 'user'
-							? 'place-self-end'
-							: 'place-self-start',
-						index === $messages.length - 1 &&
-							$status !== 'submitted' &&
-							'@6xl:min-h-[calc(100svh-25rem)] min-h-[calc(50svh-25rem)]',
-					)}>
-					<div class="group flex flex-col gap-2">
-						{#if message.role !== 'user'}
-							<div class="flex items-center gap-4">
-								<div
-									class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
-									<div class="translate-y-px">
-										<Avatar.Root class="size-4 overflow-visible">
-											<Avatar.Image
-												src={'/logo.png'}
-												alt="favicon"
-												class="size-4" />
-											<Avatar.Fallback class="size-4 bg-opacity-0">
-												<img src="/logo.png" alt="favicon" />
-											</Avatar.Fallback>
-										</Avatar.Root>
-									</div>
-								</div>
-
-								{#if $status === 'streaming' && index === $messages.length - 1}
-									{#if $data}
-										{/* @ts-ignore */ null}
-										{#if $data.filter((data) => data.type === 'message').length > 0}
-											<div class="animate-pulse">
-												{/* @ts-ignore */ null}
-												<!-- prettier-ignore -->
-												{$data.filter((data) => data.type === 'message')[$data.filter((data) => data.type === 'message').length-1].message}
-											</div>
-										{/if}
-									{/if}
-								{/if}
-							</div>
-						{/if}
-						{#key message.parts}
-							{#if message.parts.length > 0}
-								{#if message.parts.find((part) => part.type === 'reasoning') !== undefined}
-									<Toggle
-										size="sm"
-										class="text-muted-foreground group peer w-fit border">
-										Reasoning
-										<ChevronDownIcon
-											class={'transition-transform group-data-[state="on"]:rotate-180'} />
-									</Toggle>
-								{/if}
-								{#each message.parts as part}
-									{#if part.type === 'reasoning'}
-										<div
-											class="text-muted-foreground hidden rounded-md border p-2 text-sm peer-data-[state='on']:block">
-											{part.reasoning}
-										</div>
-									{/if}
-									{#if part.type === 'text'}
-										<div
-											class={cn(
-												'rounded-xl',
-												message.role === 'user'
-													? 'bg-secondary p-4'
-													: 'bg-background',
-											)}>
-											<div
-												class="prose prose-neutral dark:prose-invert prose-p:my-0">
-												<Markdown {carta} value={part.text} />
-											</div>
-										</div>
-									{/if}
-								{/each}
-							{/if}
-						{/key}
-						{#if message.experimental_attachments}
-							{#each message.experimental_attachments as attachment}
-								{#if attachment.contentType?.startsWith('image/')}
-									<div
-										class="bg-background min-h-16 min-w-16 overflow-hidden rounded-lg border">
-										<img
-											src={attachment.url}
-											alt={attachment.name}
-											class="w-full" />
-									</div>
-								{/if}
-							{/each}
-						{/if}
-
-						{#each message.annotations ?? [] as annotation}
-							{/* @ts-ignore */ null}
-							{#if annotation['type'] === 'google-grounding'}
-								{/* @ts-ignore */ null}
-								{#if annotation?.data}
-									{/* @ts-ignore */ null}
-									<!-- prettier-ignore -->
-									<GoogleGroundingSection metadata={annotation?.data}/>
-								{/if}
-							{/if}
-						{/each}
-
-						{#if message.role !== 'user'}
-							<div
-								class={cn(
-									'flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100',
-									$status !== 'streaming' ||
-										index !== $messages.length - 1
-										? 'visible'
-										: 'invisible',
-								)}>
-								<Button
-									variant="secondary"
-									onclick={() => {
-										copy(message.content)
-										toast.success('Copied Response to Clipboard')
-									}}>
-									<CopyIcon />
-									Copy Response
-								</Button>
-								{#each message.annotations ?? [] as annotation}
-									{/* @ts-ignore */ null}
-									{#if annotation['type'] === 'model' && annotation['model'] !== null}
-										<div class="text-muted-foreground">
-											{/* @ts-ignore */ null}
-											Model: {annotation.model}
-										</div>
-									{/if}
-									{/* @ts-ignore */ null}
-									{#if annotation['type'] === 'search-error'}
-										<div class="text-destructive">
-											{/* @ts-ignore */ null}
-											Error: {annotation.message}
-										</div>
-									{/if}
-								{/each}
-							</div>
-						{/if}
-					</div>
-				</div>
+				<MessageBlock
+					annotations={message.annotations}
+					data={$data}
+					{message}
+					role={message.role}
+					status={$status}
+					isLast={index === $messages.length - 1}
+					halfSize={true} />
 			{/each}
 			{#if $status === 'submitted'}
 				<div
