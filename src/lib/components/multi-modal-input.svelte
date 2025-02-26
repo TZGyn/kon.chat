@@ -102,22 +102,25 @@
 		attachments = attachments
 	})
 
-	let selectedModel = $state(
-		JSON.parse(
-			(browser && localStorage.getItem(selectedModelLocator)) ||
-				JSON.stringify({
-					name: 'Gemini 2.0 Flash',
-					provider: 'google',
-					id: 'gemini-2.0-flash-001',
-					capabilities: {
-						image: true,
-						fast: false,
-						reasoning: false,
-						searchGrounding: true,
-					},
-				}),
-		),
-	)
+	let selectedModel = $state({
+		name: 'Gemini 2.0 Flash',
+		provider: 'google',
+		id: 'gemini-2.0-flash-001',
+		capabilities: {
+			image: true,
+			fast: false,
+			reasoning: false,
+			searchGrounding: true,
+		},
+	})
+
+	$effect(() => {
+		if (!browser) return
+		if (!localStorage.getItem(selectedModelLocator)) return
+		selectedModel = JSON.parse(
+			localStorage.getItem(selectedModelLocator)!,
+		)
+	})
 
 	$effect(() => {
 		localStorage.setItem(
