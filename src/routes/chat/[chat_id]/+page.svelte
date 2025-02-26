@@ -47,7 +47,7 @@
 						if (content.type === 'text') {
 							textContent += content.text
 						} else if (content.type === 'reasoning') {
-							reasoningContent += content.reasoning
+							reasoningContent += content.reasoning ?? ''
 						} else if (content.type === 'tool-call') {
 							toolInvocations.push({
 								state: 'call',
