@@ -16,8 +16,9 @@
 				formatter: 'rownum',
 				headerSort: false,
 				hozAlign: 'center',
-				resizable: false,
+				resizable: true,
 				frozen: true,
+				width: 41,
 			},
 			// @ts-ignore
 			spreadsheetData: [],
