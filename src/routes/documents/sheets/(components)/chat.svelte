@@ -6,84 +6,28 @@
 	import { toast } from 'svelte-sonner'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
 	import * as Avatar from '$lib/components/ui/avatar'
-	import { Toggle } from '$lib/components/ui/toggle'
-	import {
-		BrainIcon,
-		ChevronDownIcon,
-		GlobeIcon,
-		ImageIcon,
-		Loader2Icon,
-		SearchIcon,
-		SendIcon,
-		ZapIcon,
-	} from 'lucide-svelte'
 	import { cn } from '$lib/utils'
-	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { Textarea } from '$lib/components/ui/textarea'
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu'
-	import * as Tooltip from '$lib/components/ui/tooltip'
-	import GoogleIcon from '$lib/icons/google-icon.svelte'
-	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
-	import GroqIcon from '$lib/icons/groq-icon.svelte'
-	import AnthropicIcon from '$lib/icons/anthropic-icon.svelte'
 	import type { Tabulator } from 'tabulator-tables'
 	import MessageBlock from '$lib/components/message-block.svelte'
-	import { useModels } from '$lib/models.svelte'
+	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 
-	export let plan: 'free' | 'basic' | 'pro' | 'owner' | undefined
 	export let table: Tabulator | undefined
 
 	let scrollElement: HTMLDivElement | null = null
-	let inputElement: HTMLTextAreaElement | null = null
 
-	let standardModels = useModels().standardModels
-	let premiumModels = useModels().premiumModels
-
-	let selectedModel = {
-		name: 'Gemini 2.0 Flash',
-		provider: 'google',
-		id: 'gemini-2.0-flash-001',
-		capabilities: {
-			image: true,
-			fast: false,
-			reasoning: false,
-			searchGrounding: true,
-		},
-	}
-	let search = false
-	let searchGrounding = false
-
-	function customSubmit(event: Event) {
+	const getCustomData = () => {
 		if (!table) return
-		if ($status === 'error') {
-			setMessages($messages.slice(0, -1)) // remove last message
-		}
-		if ($status === 'streaming') {
-			toast.warning(
-				'Please wait for the model to finish its response',
-			)
-		} else {
-			setData([])
-			handleSubmit(event, {
-				body: {
-					provider: {
-						name: selectedModel.provider,
-						model: selectedModel.id,
-					},
-					spreadSheetData: table.getSheetData('') || [],
-					selectedSheetData: table.getRanges().map((range) => {
-						return {
-							topLeftRow: range.getTopEdge(),
-							topLeftColumn: range.getLeftEdge(),
-							bottomRightRow: range.getBottomEdge(),
-							bottomRightColumn: range.getRightEdge(),
-							data: range.getData(),
-						}
-					}),
-					search,
-					searchGrounding,
-				},
-			})
+		return {
+			spreadSheetData: table.getSheetData('') || [],
+			selectedSheetData: table.getRanges().map((range) => {
+				return {
+					topLeftRow: range.getTopEdge(),
+					topLeftColumn: range.getLeftEdge(),
+					bottomRightRow: range.getBottomEdge(),
+					bottomRightColumn: range.getRightEdge(),
+					data: range.getData(),
+				}
+			}),
 		}
 	}
 
@@ -292,18 +236,9 @@
 		scrollToBottom()
 	})
 
-	const adjustInputHeight = () => {
-		if (inputElement) {
-			inputElement.style.height = 'auto'
-			inputElement.style.height = `${inputElement.scrollHeight + 2}px`
-		}
-	}
-
 	$: ($status === 'streaming' || $status === 'submitted') &&
 		$messages &&
 		scrollToBottom()
-
-	$: $input && adjustInputHeight()
 </script>
 
 <ScrollArea
@@ -350,212 +285,12 @@
 		</div>
 	</div>
 </ScrollArea>
-<form
-	onsubmit={customSubmit}
-	class="bg-secondary absolute bottom-0 right-1/2 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
-	<Textarea
-		bind:value={$input}
-		bind:ref={inputElement}
-		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pb-0 pt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-		placeholder="Send a message..."
-		onkeydown={(event) => {
-			if (event.key === 'Enter' && !event.shiftKey) {
-				event.preventDefault()
-
-				customSubmit(event)
-			}
-		}} />
-	<div class="flex justify-between">
-		<div class="flex items-center gap-2">
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger
-					class={buttonVariants({ variant: 'ghost' })}>
-					{@render modelIcon(selectedModel.provider)}
-					{selectedModel.name}
-					<ChevronDownIcon />
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content
-					class="w-[400px] min-w-[8rem]"
-					align="start">
-					<DropdownMenu.Group>
-						<DropdownMenu.GroupHeading class="text-muted-foreground">
-							Standard Models
-						</DropdownMenu.GroupHeading>
-						{#each standardModels as model}
-							<DropdownMenu.Item
-								disabled={model.disabled}
-								class="p-3"
-								onclick={() => (selectedModel = model)}>
-								<div class="flex w-full items-center justify-between">
-									<div class="flex items-center gap-2">
-										{@render modelIcon(model.provider)}
-										<div>{model.name}</div>
-										{#if model.info}
-											<Tooltip.Provider>
-												<Tooltip.Root>
-													<Tooltip.Trigger
-														class={buttonVariants({
-															variant: 'outline',
-														})}>
-														Hover
-													</Tooltip.Trigger>
-													<Tooltip.Content>
-														<p>Add to library</p>
-													</Tooltip.Content>
-												</Tooltip.Root>
-											</Tooltip.Provider>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2">
-										{@render modelCapabilitiesIcon(
-											model.capabilities,
-										)}
-									</div>
-								</div>
-							</DropdownMenu.Item>
-						{/each}
-						<DropdownMenu.GroupHeading class="text-muted-foreground">
-							Premium Models
-						</DropdownMenu.GroupHeading>
-
-						{#each premiumModels as model}
-							<DropdownMenu.Item
-								disabled={model.disabled}
-								class="p-3"
-								onclick={() => (selectedModel = model)}>
-								<div class="flex w-full items-center justify-between">
-									<div class="flex items-center gap-2">
-										{@render modelIcon(model.provider)}
-										<div>{model.name}</div>
-										{#if model.info}
-											<Tooltip.Provider>
-												<Tooltip.Root>
-													<Tooltip.Trigger
-														class={buttonVariants({
-															variant: 'outline',
-														})}>
-														Hover
-													</Tooltip.Trigger>
-													<Tooltip.Content>
-														<p>Add to library</p>
-													</Tooltip.Content>
-												</Tooltip.Root>
-											</Tooltip.Provider>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2">
-										{@render modelCapabilitiesIcon(
-											model.capabilities,
-										)}
-									</div>
-								</div>
-							</DropdownMenu.Item>
-						{/each}
-					</DropdownMenu.Group>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
-			{#if selectedModel.provider === 'google'}
-				<Tooltip.Provider>
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							{#snippet child({ props })}
-								<Toggle
-									{...props}
-									aria-label="toggle grounding"
-									bind:pressed={searchGrounding}>
-									<SearchIcon />
-								</Toggle>
-							{/snippet}
-						</Tooltip.Trigger>
-						<Tooltip.Content>
-							<p>Search Grounding</p>
-						</Tooltip.Content>
-					</Tooltip.Root>
-				</Tooltip.Provider>
-			{/if}
-			<Tooltip.Provider>
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Toggle
-							aria-label="toggle search"
-							bind:pressed={search}
-							disabled={plan === 'free' || plan === undefined}>
-							<GlobeIcon />
-						</Toggle>
-					</Tooltip.Trigger>
-					<Tooltip.Content class="max-w-[300px]">
-						{#if plan === 'free' || plan === undefined}
-							<div class="flex flex-col gap-4 p-2">
-								<div class="flex flex-col gap-1">
-									<span class="text-lg">
-										Upgrade to basic or higher plan
-									</span>
-									<p class="text-muted-foreground text-wrap text-sm">
-										Get access to web search and more by upgrading
-										your plan
-									</p>
-								</div>
-								<Button href={'/billing/plan'} class="w-full">
-									Checkout plans
-								</Button>
-							</div>
-						{:else}
-							<p>Web Search</p>
-						{/if}
-					</Tooltip.Content>
-				</Tooltip.Root>
-			</Tooltip.Provider>
-		</div>
-		<Button type="submit" class="" size="icon">
-			{#if $status === 'submitted' || $status === 'streaming'}
-				<Loader2Icon class="animate-spin" />
-			{:else}
-				<SendIcon />
-			{/if}
-		</Button>
-	</div>
-</form>
-
-{#snippet modelIcon(provider: string)}
-	{#if provider === 'google'}
-		<GoogleIcon />
-	{:else if provider === 'openai'}
-		<OpenaiIcon />
-	{:else if provider === 'groq'}
-		<GroqIcon />
-	{:else if provider === 'anthropic'}
-		<AnthropicIcon />
-	{/if}
-{/snippet}
-
-{#snippet modelCapabilitiesIcon(capabilities: {
-	fast: boolean
-	reasoning: boolean
-	searchGrounding: boolean
-	image: boolean
-})}
-	{#if capabilities.searchGrounding}
-		<div
-			class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
-			<SearchIcon />
-		</div>
-	{/if}
-	{#if capabilities.fast}
-		<div
-			class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
-			<ZapIcon />
-		</div>
-	{/if}
-	{#if capabilities.reasoning}
-		<div
-			class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
-			<BrainIcon />
-		</div>
-	{/if}
-	{#if capabilities.image}
-		<div
-			class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
-			<ImageIcon />
-		</div>
-	{/if}
-{/snippet}
+<MultiModalInput
+	bind:input={$input}
+	selectedModelLocator={`model:sheets`}
+	{handleSubmit}
+	messages={$messages}
+	{setData}
+	{setMessages}
+	status={$status}
+	customData={getCustomData} />

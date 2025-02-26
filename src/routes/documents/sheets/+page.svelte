@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte'
 	import Chat from './(components)/chat.svelte'
 	import { Button } from '$lib/components/ui/button'
-	import { useUser } from '../../state.svelte'
 
 	let tableComponent: HTMLElement
 
@@ -44,8 +43,6 @@
 			clipboardCopyStyled: false,
 		})
 	})
-
-	let user = useUser().user
 </script>
 
 <div
@@ -98,7 +95,7 @@
 		<div bind:this={tableComponent} class="flex-1 overflow-scroll">
 		</div>
 		<div class="relative flex flex-1 overflow-hidden border">
-			<Chat plan={user?.plan} {table} />
+			<Chat {table} />
 		</div>
 	</div>
 </div>

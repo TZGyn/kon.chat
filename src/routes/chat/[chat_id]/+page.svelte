@@ -4,13 +4,11 @@
 	import Chat from './(component)/chat.svelte'
 	import type { ToolInvocation } from '@ai-sdk/ui-utils'
 	import { customFetch } from '$lib/fetch'
-	import { useUser } from '../../state.svelte'
 	import { type GoogleGenerativeAIProviderMetadata } from '@ai-sdk/google'
 	import { page } from '$app/state'
 
 	let isLoading = $state(true)
 	let initialMessages = $state<Array<Message>>([])
-	let user = $derived(useUser().user)
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
 
@@ -205,10 +203,10 @@
 	})
 </script>
 
-{#key initialMessages && user && chat_id}
+{#key initialMessages}
 	{#if !isLoading}
 		<div class="flex flex-1 overflow-hidden">
-			<Chat {chat_id} {initialMessages} plan={user?.plan} />
+			<Chat {chat_id} {initialMessages} />
 		</div>
 	{/if}
 {/key}
