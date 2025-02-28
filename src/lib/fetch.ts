@@ -11,3 +11,13 @@ export const customFetch = async <T>(
 		})
 	).json() as T
 }
+
+export const customFetchRaw = async (
+	url: string,
+	props?: RequestInit,
+) => {
+	return await fetch(PUBLIC_API_URL + url, {
+		credentials: 'include',
+		...props,
+	})
+}

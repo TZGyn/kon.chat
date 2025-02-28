@@ -9,9 +9,9 @@
 	import { ChevronDownIcon, CopyIcon } from 'lucide-svelte'
 	import { copy } from '$lib/clipboard'
 	import { toast } from 'svelte-sonner'
-	import { Markdown } from 'carta-md'
+	import { Carta, Markdown } from 'carta-md'
 	import GoogleGroundingSection from '$lib/components/google-grounding-section.svelte'
-	import { carta } from '$lib/carta'
+	import { carta as defaultCarta } from '$lib/carta'
 
 	let {
 		isLast,
@@ -21,11 +21,13 @@
 		data = [],
 		annotations = [],
 		halfSize = false,
+		carta: customCarta,
 	}: {
 		role: 'system' | 'user' | 'assistant' | 'data'
 		message: UIMessage
 		isLast: boolean
 		status: 'submitted' | 'streaming' | 'ready' | 'error'
+		carta?: Carta
 		data?: JSONValue[]
 		annotations?: JSONValue[]
 		halfSize?: boolean
@@ -38,6 +40,8 @@
 	let reasoningPart = $derived(
 		message.parts.find((part) => part.type === 'reasoning'),
 	)
+
+	const carta = customCarta ?? defaultCarta
 </script>
 
 <div

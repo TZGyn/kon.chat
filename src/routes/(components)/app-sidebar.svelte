@@ -4,7 +4,7 @@
 	import type { ComponentProps } from 'svelte'
 	import * as Avatar from '$lib/components/ui/avatar'
 	import NavChats from './nav-chats.svelte'
-	import { NotepadTextIcon } from 'lucide-svelte'
+	import { NotepadTextIcon, YoutubeIcon } from 'lucide-svelte'
 
 	let {
 		ref = $bindable(null),
@@ -38,6 +38,7 @@
 	</Sidebar.Header>
 	<Sidebar.Content>
 		<NavChats />
+		<Sidebar.Separator />
 		<Sidebar.Group>
 			<Sidebar.GroupLabel>Tools</Sidebar.GroupLabel>
 			<Sidebar.Menu>
@@ -50,6 +51,19 @@
 								data-sveltekit-preload-code="eager">
 								<NotepadTextIcon />
 								<span>Documents</span>
+							</a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a
+								href="/youtube"
+								{...props}
+								data-sveltekit-preload-code="eager">
+								<YoutubeIcon />
+								<span>Youtube</span>
 							</a>
 						{/snippet}
 					</Sidebar.MenuButton>
