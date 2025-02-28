@@ -22,7 +22,7 @@ RUN apt-get update -qq && \
 
 # Install node modules
 ARG TIPTAP_TOKEN
-COPY .npmrc bunfig.toml bun.lock package-lock.json package.json ./
+COPY .npmrc bunfig.toml bun.lock package.json ./
 RUN TIPTAP_TOKEN=$TIPTAP_TOKEN bun install
 
 # Copy application code
