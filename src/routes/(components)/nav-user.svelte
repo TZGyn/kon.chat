@@ -17,6 +17,7 @@
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { useUser } from '../state.svelte'
 	import { useChats } from '../state.svelte'
+	import { cn } from '$lib/utils'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
@@ -50,8 +51,11 @@
 				{#snippet child({ props })}
 					<Sidebar.MenuButton
 						size="lg"
-						class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-						{...props}>
+						{...props}
+						class={cn(
+							'data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:cursor-pointer',
+						)}
+						variant="outline">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
 							<Avatar.Image src={''} alt={user?.name} />
 							<Avatar.Fallback class="rounded-lg">

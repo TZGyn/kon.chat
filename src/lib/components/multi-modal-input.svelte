@@ -232,7 +232,7 @@
 		<div class="flex items-center gap-2">
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger
-					class={buttonVariants({ variant: 'ghost' })}>
+					class={buttonVariants({ variant: 'outline' })}>
 					{@render modelIcon(selectedModel.provider)}
 					{selectedModel.name}
 					<ChevronDownIcon />
