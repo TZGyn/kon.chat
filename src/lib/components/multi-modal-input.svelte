@@ -29,6 +29,7 @@
 		UIMessage,
 	} from '@ai-sdk/ui-utils'
 	import { browser } from '$app/environment'
+	import SpeechToText from './speech-to-text.svelte'
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
 
 	let {
@@ -419,14 +420,17 @@
 					</Tooltip.Root>
 				</Tooltip.Provider>
 			{/if}
+			<SpeechToText bind:input />
 		</div>
-		<Button type="submit" class="" size="icon">
-			{#if status === 'submitted' || status === 'streaming'}
-				<Loader2Icon class="animate-spin" />
-			{:else}
-				<SendIcon />
-			{/if}
-		</Button>
+		<div class="flex items-center gap-2">
+			<Button type="submit" class="" size="icon">
+				{#if status === 'submitted' || status === 'streaming'}
+					<Loader2Icon class="animate-spin" />
+				{:else}
+					<SendIcon />
+				{/if}
+			</Button>
+		</div>
 	</div>
 </form>
 
