@@ -29,6 +29,7 @@
 		UIMessage,
 	} from '@ai-sdk/ui-utils'
 	import { browser } from '$app/environment'
+	import XaiIcon from '$lib/icons/xai-icon.svelte'
 
 	let {
 		input = $bindable(),
@@ -438,6 +439,8 @@
 		<GroqIcon />
 	{:else if provider === 'anthropic'}
 		<AnthropicIcon />
+	{:else if provider === 'xai'}
+		<XaiIcon />
 	{/if}
 {/snippet}
 

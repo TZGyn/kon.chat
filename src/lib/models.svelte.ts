@@ -31,6 +31,32 @@ export const useModels = () => {
 			},
 			disabled: plan === undefined || plan === 'free',
 		},
+		{
+			name: 'Grok 2',
+			info: '',
+			provider: 'xai',
+			id: 'grok-2-1212',
+			capabilities: {
+				image: false,
+				fast: false,
+				reasoning: false,
+				searchGrounding: false,
+			},
+			disabled: plan === undefined || plan === 'free',
+		},
+		{
+			name: 'Grok 2 Vision',
+			info: '',
+			provider: 'xai',
+			id: 'grok-2-vision-1212',
+			capabilities: {
+				image: true,
+				fast: false,
+				reasoning: false,
+				searchGrounding: false,
+			},
+			disabled: plan === undefined || plan === 'free',
+		},
 		// {
 		// 	name: 'GPT 4o',
 		// 	info: '',
