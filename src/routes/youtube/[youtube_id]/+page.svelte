@@ -266,12 +266,12 @@
 		tabDiv?.addEventListener(
 			'click',
 			(event) => {
-				event.preventDefault()
 				console.log(event)
 				// @ts-ignore
 				const target = event.target as HTMLElement
 				const classNames = target.getAttribute('class')
 				if (classNames?.startsWith('youtube-timestamp')) {
+					event.preventDefault()
 					const href = target.getAttribute('href')
 
 					if (!href) return
