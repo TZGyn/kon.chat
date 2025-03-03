@@ -288,7 +288,7 @@
 		sanitizer: DOMPurify.sanitize,
 		extensions: [
 			// component(mapped, initializeComponents),
-			math(),
+			math({ remarkMath: { singleDollarTextMath: false } }),
 			code(),
 			youtube(),
 		],

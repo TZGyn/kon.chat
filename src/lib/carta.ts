@@ -22,7 +22,7 @@ export const carta = new Carta({
 	sanitizer: DOMPurify.sanitize,
 	extensions: [
 		// component(mapped, initializeComponents),
-		math(),
+		math({ remarkMath: { singleDollarTextMath: false } }),
 		code(),
 	],
 	theme: 'catppuccin-mocha',
