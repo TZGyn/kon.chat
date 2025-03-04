@@ -4,7 +4,7 @@ const userState = useUser()
 let plan = $derived(userState.user?.plan)
 
 export const useModels = () => {
-	let standardModels = $derived([
+	let freeModels = $derived([
 		{
 			name: 'Gemini 2.0 Flash',
 			info: '',
@@ -18,6 +18,8 @@ export const useModels = () => {
 			},
 			disabled: false,
 		},
+	] as const)
+	let standardModels = $derived([
 		{
 			name: 'GPT 4o mini',
 			info: '',
@@ -141,10 +143,10 @@ export const useModels = () => {
 				plan === undefined || plan === 'free' || plan === 'basic',
 		},
 	] as const)
-	$effect(() => {
-		console.log(premiumModels)
-	})
 	return {
+		get freeModels() {
+			return freeModels
+		},
 		get standardModels() {
 			return standardModels
 		},

@@ -242,6 +242,44 @@
 					align="start">
 					<DropdownMenu.Group>
 						<DropdownMenu.GroupHeading class="text-muted-foreground">
+							Free Models
+						</DropdownMenu.GroupHeading>
+						{#each modelState.freeModels as model}
+							<DropdownMenu.Item
+								disabled={model.disabled}
+								class="p-3"
+								onclick={() => (selectedModel = model)}>
+								<div class="flex w-full items-center justify-between">
+									<div class="flex items-center gap-2">
+										{@render modelIcon(model.provider)}
+										<div>{model.name}</div>
+										{#if model.info}
+											<Tooltip.Provider>
+												<Tooltip.Root>
+													<Tooltip.Trigger
+														class={buttonVariants({
+															variant: 'outline',
+														})}>
+														Hover
+													</Tooltip.Trigger>
+													<Tooltip.Content>
+														<p>Add to library</p>
+													</Tooltip.Content>
+												</Tooltip.Root>
+											</Tooltip.Provider>
+										{/if}
+									</div>
+									<div class="flex items-center gap-2">
+										{@render modelCapabilitiesIcon(
+											model.capabilities,
+										)}
+									</div>
+								</div>
+							</DropdownMenu.Item>
+						{/each}
+					</DropdownMenu.Group>
+					<DropdownMenu.Group>
+						<DropdownMenu.GroupHeading class="text-muted-foreground">
 							Standard Models
 						</DropdownMenu.GroupHeading>
 						{#each modelState.standardModels as model}
@@ -277,10 +315,11 @@
 								</div>
 							</DropdownMenu.Item>
 						{/each}
+					</DropdownMenu.Group>
+					<DropdownMenu.Group>
 						<DropdownMenu.GroupHeading class="text-muted-foreground">
 							Premium Models
 						</DropdownMenu.GroupHeading>
-
 						{#each modelState.premiumModels as model}
 							<DropdownMenu.Item
 								disabled={model.disabled}
