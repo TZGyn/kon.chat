@@ -34,7 +34,8 @@ export function useChats() {
 let user = $state<{
 	email: string
 	name: string
-	plan: 'pro' | 'basic' | 'free' | 'owner'
+	plan: 'pro' | 'basic' | 'free' | 'owner' | 'trial'
+	freeChatLimit: number
 	standardChatLimit: number
 	premiumChatLimit: number
 	standardChatCredit: number
@@ -50,7 +51,8 @@ export const useUser = () => {
 				user: {
 					email: string
 					name: string
-					plan: 'free' | 'basic' | 'pro'
+					plan: 'free' | 'basic' | 'pro' | 'trial'
+					freeChatLimit: number
 					standardChatLimit: number
 					premiumChatLimit: number
 					standardChatCredit: number
