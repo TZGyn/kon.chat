@@ -196,7 +196,7 @@
 				{'>'}
 			</div>
 			<div
-				class="flex w-full flex-col gap-2 overflow-x-scroll text-zinc-900 dark:text-zinc-50">
+				class="flex w-full flex-col gap-2 text-zinc-900 dark:text-zinc-50">
 				{#each output as content, index}
 					{#if content.type === 'image'}
 						<picture>
