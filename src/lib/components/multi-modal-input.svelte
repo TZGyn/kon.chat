@@ -206,7 +206,7 @@
 		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pb-0 pt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
 		placeholder="Send a message..."
 		onkeydown={(event) => {
-			if (event.key === 'Enter' && !event.shiftKey) {
+			if (event.key === 'Enter' && event.ctrlKey) {
 				event.preventDefault()
 
 				customSubmit(event)
