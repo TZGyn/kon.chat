@@ -3,7 +3,6 @@
 	import { marked } from 'marked'
 
 	import DOMPurify from 'isomorphic-dompurify'
-	import CopyButton from './copy-button.svelte'
 	import MarkdownInline from './markdown-inline.svelte'
 	import * as Tooltip from '$lib/components/ui/tooltip'
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js'
@@ -37,36 +36,8 @@
 	{:else if token.type === 'code'}
 		{#if token.raw.includes('```')}
 			<div class="my-7">
-				<div
-					class="bg-secondary flex items-center justify-between rounded-t">
-					<span class="px-2 py-1 text-sm">{token.lang}</span>
-					<div>
-						<CopyButton
-							variant="ghost"
-							class="hover:bg-transparent"
-							text={token.text} />
-					</div>
-				</div>
 				<Code code={token.text} lang={token.lang} />
 			</div>
-			<!-- <CodeBlock
-				id={`${id}-${tokenIdx}`}
-				{token}
-				lang={token?.lang ?? ''}
-				code={token?.text ?? ''}
-				{attributes}
-				{save}
-				onCode={(value) => {
-					dispatch('code', value);
-				}}
-				onSave={(value) => {
-					dispatch('update', {
-						raw: token.raw,
-						oldContent: token.text,
-						newContent: value
-					});
-				}}
-			/> -->
 		{:else}
 			{token.text}
 		{/if}
