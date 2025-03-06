@@ -99,6 +99,19 @@ export const useModels = () => {
 			disabled: plan === undefined || plan === 'free',
 		},
 		{
+			name: 'Qwen QwQ (Groq)',
+			info: '',
+			provider: 'groq',
+			id: 'qwen-qwq-32b',
+			capabilities: {
+				image: false,
+				fast: true,
+				reasoning: true,
+				searchGrounding: false,
+			},
+			disabled: plan === undefined || plan === 'free',
+		},
+		{
 			name: 'Llama 3.3 (Groq)',
 			info: '',
 			provider: 'groq',
