@@ -10,7 +10,7 @@
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import { page } from '$app/stores'
-	import { goto } from '$app/navigation'
+	import { goto, replaceState } from '$app/navigation'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 
@@ -35,9 +35,7 @@
 		onFinish: () => {
 			if ($page.url.searchParams) {
 				$page.url.searchParams.delete('type')
-				goto(`?${$page.url.searchParams.toString()}`, {
-					keepFocus: true,
-				})
+				replaceState($page.url, $page.state)
 			}
 			scrollToBottom()
 			useChats().getChats()

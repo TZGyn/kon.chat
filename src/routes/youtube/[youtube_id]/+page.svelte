@@ -9,7 +9,7 @@
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import { Separator } from '$lib/components/ui/separator'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
-	import { goto } from '$app/navigation'
+	import { goto, replaceState } from '$app/navigation'
 	import { cn } from '$lib/utils'
 	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { toast } from 'svelte-sonner'
@@ -350,10 +350,7 @@
 				onValueChange={(value) => {
 					selectedTab = value
 					page.url.searchParams.set('tab', value)
-
-					goto(`?${page.url.searchParams.toString()}`, {
-						keepFocus: true,
-					})
+					replaceState(page.url, page.state)
 				}}
 				class="flex flex-1 flex-col border p-4 pb-0">
 				<Tabs.List class="w-fit">
