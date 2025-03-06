@@ -11,12 +11,10 @@
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
-	import { Carta, Markdown } from 'carta-md'
 	import { browser } from '$app/environment'
 
 	export let transcript: any[]
 	export let youtube_id: string
-	export let carta: Carta
 
 	let scrollElement: HTMLDivElement | null = null
 
@@ -71,9 +69,8 @@
 	class="flex flex-1 flex-col items-center p-4">
 	<div class="flex w-full flex-col items-center pb-40 pt-20">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
-			{#each $messages as message, index}
+			{#each $messages as message, index (index)}
 				<MessageBlock
-					{carta}
 					annotations={message.annotations}
 					data={$data}
 					{message}

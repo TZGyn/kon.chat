@@ -1,27 +1,19 @@
 <script lang="ts">
 	import { AspectRatio } from '$lib/components/ui/aspect-ratio'
-	import { Button } from '$lib/components/ui/button'
 	import { onMount } from 'svelte'
 	import * as Tabs from '$lib/components/ui/tabs/index.js'
 	import Chat from './(components)/chat.svelte'
 	import { page } from '$app/state'
-	import { customFetch, customFetchRaw } from '$lib/fetch'
-	import {
-		parsePartialJson,
-		processDataStream,
-	} from '@ai-sdk/ui-utils'
+	import { customFetchRaw } from '$lib/fetch'
+	import { processDataStream } from '@ai-sdk/ui-utils'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import { Separator } from '$lib/components/ui/separator'
-	import { Carta, Markdown } from 'carta-md'
-	import { math } from '@cartamd/plugin-math'
-	import { code } from '@cartamd/plugin-code'
-	import DOMPurify from 'isomorphic-dompurify'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
 	import { goto } from '$app/navigation'
-	import { youtube } from './carta'
 	import { cn } from '$lib/utils'
 	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { toast } from 'svelte-sonner'
+	import Markdown from '$lib/components/markdown.svelte'
 
 	let selectedTab = $state(
 		page.url.searchParams.get('tab') || 'summary',
@@ -284,17 +276,6 @@
 			{ capture: true },
 		)
 	})
-
-	const carta = new Carta({
-		sanitizer: DOMPurify.sanitize,
-		extensions: [
-			// component(mapped, initializeComponents),
-			math({ remarkMath: { singleDollarTextMath: false } }),
-			code(),
-			youtube(),
-		],
-		theme: 'catppuccin-mocha',
-	})
 </script>
 
 <svelte:head>
@@ -386,9 +367,7 @@
 					<ScrollArea class="flex flex-1 flex-col items-center">
 						<div
 							class="prose prose-neutral dark:prose-invert prose-p:my-0 pb-4 pt-2">
-							{#key summary}
-								<Markdown {carta} value={summary} />
-							{/key}
+							<Markdown id="youtube-summary" content={summary} />
 						</div>
 						{#if status === 'loading'}
 							<div
@@ -459,10 +438,7 @@
 					value="chat"
 					class="flex flex-1 overflow-hidden">
 					<div class="relative flex flex-1 overflow-hidden">
-						<Chat
-							youtube_id={page.params.youtube_id}
-							{transcript}
-							{carta} />
+						<Chat youtube_id={page.params.youtube_id} {transcript} />
 					</div>
 				</Tabs.Content>
 			</Tabs.Root>

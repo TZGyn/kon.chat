@@ -1,15 +1,15 @@
 <script lang="ts">
 	import DOMPurify from 'isomorphic-dompurify'
 	import { toast } from 'svelte-sonner'
-
 	import type { Token } from 'marked'
-
 	import { copy } from '$lib/clipboard'
 	import { browser } from '$app/environment'
-
 	import katex from 'katex'
+	import Self from './markdown-inline.svelte'
+	import Link from './markdown/link.svelte'
+	import Text from './markdown/text.svelte'
 
-	export let tokens: Token[]
+	let { tokens = [] }: { tokens: Token[] | undefined } = $props()
 
 	function unescapeHtml(html: string) {
 		if (!browser) return null
@@ -18,7 +18,7 @@
 	}
 </script>
 
-{#each tokens as token}
+{#each tokens as token, tokenIdx (tokenIdx)}
 	{#if token.type === 'escape'}
 		{unescapeHtml(token.text)}
 	{:else if token.type === 'html'}
@@ -30,36 +30,28 @@
 		{/if}
 	{:else if token.type === 'link'}
 		{#if token.tokens}
-			<a
-				href={token.href}
-				target="_blank"
-				rel="nofollow"
-				title={token.title}>
-				<svelte:self tokens={token.tokens} />
-			</a>
+			<Link href={token.href} text={token.text} title={token.title}>
+				{#snippet children()}
+					<Self tokens={token.tokens} />
+				{/snippet}
+			</Link>
 		{:else}
-			<a
-				href={token.href}
-				target="_blank"
-				rel="nofollow"
-				title={token.title}>
-				{token.text}
-			</a>
+			<Link href={token.href} text={token.text} title={token.title} />
 		{/if}
 	{:else if token.type === 'strong'}
 		<strong>
-			<svelte:self tokens={token.tokens} />
+			<Self tokens={token.tokens} />
 		</strong>
 	{:else if token.type === 'em'}
 		<em>
-			<svelte:self tokens={token.tokens} />
+			<Self tokens={token.tokens} />
 		</em>
 	{:else if token.type === 'codespan'}
-		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<code
 			class="bg-secondary text-muted-foreground cursor-pointer rounded px-2 py-1 before:content-none after:content-none"
-			on:click={() => {
+			onclick={() => {
 				copy(unescapeHtml(token.text)!)
 				toast.success('Copied to clipboard')
 			}}>
@@ -69,7 +61,7 @@
 		<br />
 	{:else if token.type === 'del'}
 		<del>
-			<svelte:self tokens={token.tokens} />
+			<Self tokens={token.tokens} />
 		</del>
 	{:else if token.type === 'inlineKatex'}
 		{#if token.text}
@@ -87,8 +79,9 @@
 			onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';">
 		</iframe> -->
 	{:else if token.type === 'text'}
-		<span>
+		<Text text={token.raw} />
+		<!-- <span>
 			{token.raw}
-		</span>
+		</span> -->
 	{/if}
 {/each}
