@@ -35,18 +35,18 @@ ARG PUBLIC_API_URL
 RUN PUBLIC_API_URL=$PUBLIC_API_URL PUBLIC_APP_URL=$PUBLIC_APP_URL bun run build
 
 # Remove development dependencies
-RUN rm -rf node_modules && \
-    bun install --ci
+# RUN rm -rf node_modules && \
+#     bun install --ci
 
 
 # Final stage for app image
-FROM base
+# FROM base
 
 # Copy built application
-COPY --from=build /app/build /app/build
-COPY --from=build /app/node_modules /app/node_modules
-COPY --from=build /app/package.json /app
+# COPY --from=build /app/build /app/build
+# COPY --from=build /app/node_modules /app/node_modules
+# COPY --from=build /app/package.json /app
 
 # Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
-CMD [ "bun", "./build/index.js" ]
+EXPOSE 4173
+CMD [ "bun", "run", "preview" ]
