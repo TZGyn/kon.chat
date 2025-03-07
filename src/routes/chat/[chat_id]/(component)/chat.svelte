@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { useChat, type Message } from '@ai-sdk/svelte'
 	import { cn } from '$lib/utils'
-	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 	import { PUBLIC_API_URL } from '$env/static/public'
 
@@ -9,7 +8,7 @@
 	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
-	import { goto, replaceState } from '$app/navigation'
+	import { replaceState } from '$app/navigation'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 	import { page } from '$app/state'
@@ -21,6 +20,8 @@
 	}: { chat_id: string; initialMessages: Array<Message> } = $props()
 
 	const autoScroll = new UseAutoScroll()
+
+	const chats = useChats()
 
 	const {
 		input,
@@ -36,12 +37,13 @@
 		api: PUBLIC_API_URL + `/chat/${chat_id}`,
 		generateId: () => chat_id,
 		onFinish: () => {
+			console.log('1')
 			if (page.url.searchParams) {
 				page.url.searchParams.delete('type')
 				replaceState(page.url, page.state)
 			}
 			autoScroll.scrollToBottom()
-			useChats().getChats()
+			chats.getChats()
 			useUser().getUser()
 			localStorage.setItem(
 				`chat:${chat_id}`,
@@ -49,6 +51,7 @@
 			)
 		},
 		onError: (error) => {
+			console.log(error)
 			toast.error(error.message)
 		},
 		credentials: 'include',
