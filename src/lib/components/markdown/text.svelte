@@ -1,6 +1,5 @@
 <script lang="ts">
 	let { text }: { text: string } = $props()
-	console.log(text)
 
 	function parseTimestampsAndText(str: string) {
 		// const regex = /\[(\d+):(\d{2}):(\d{2})\]\s*([^[]*)/g // Regular expression to match optional hours, minutes, seconds, and text segments
