@@ -13,22 +13,10 @@
 	import { useChats } from '../state.svelte.js'
 	import { customFetch } from '$lib/fetch.js'
 	import { cn } from '$lib/utils.js'
-	import { goto } from '$app/navigation'
-	import { nanoid } from '$lib/nanoid.js'
 
 	const sidebar = Sidebar.useSidebar()
 
 	let chats = useChats()
-
-	const deleteChat = async (id: string) => {
-		const success = (
-			await customFetch<{ success: boolean }>(`/chat/${id}`, {
-				method: 'DELETE',
-			})
-		).success
-
-		chats.getChats()
-	}
 
 	onMount(() => {
 		chats.getChats()
@@ -40,7 +28,7 @@
 
 	<Sidebar.Menu>
 		{#if sidebar.open || sidebar.isMobile}
-			{#each chats.chats as chat}
+			{#each chats.chats.value as chat}
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton
 						isActive={page.url.pathname === `/chat/${chat.id}`}>
@@ -90,9 +78,9 @@
 							<ArrowUpRight class="text-muted-foreground" />
 							<span>Open in New Tab</span>
 						</DropdownMenu.Item> -->
-							<DropdownMenu.Separator />
+							<!-- <DropdownMenu.Separator /> -->
 							<DropdownMenu.Item
-								onclick={() => deleteChat(chat.id)}
+								onclick={() => chats.deleteChats(chat.id)}
 								class="text-destructive data-[highlighted]:bg-destructive data-[highlighted]:text-white">
 								<Trash2Icon />
 								<span>Delete</span>
@@ -136,7 +124,7 @@
 								Chats
 							</DropdownMenu.GroupHeading>
 							<DropdownMenu.Separator />
-							{#each chats.chats as chat}
+							{#each chats.chats.value as chat}
 								<DropdownMenu.Item>
 									{#snippet child({ props })}
 										<a
