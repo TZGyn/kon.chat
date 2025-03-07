@@ -13,6 +13,7 @@
 	import { useChats } from '../state.svelte.js'
 	import { customFetch } from '$lib/fetch.js'
 	import { cn } from '$lib/utils.js'
+	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 
 	const sidebar = Sidebar.useSidebar()
 
@@ -26,41 +27,47 @@
 <Sidebar.Group>
 	<Sidebar.GroupLabel>Chat</Sidebar.GroupLabel>
 
-	<Sidebar.Menu>
-		{#if sidebar.open || sidebar.isMobile}
-			{#each chats.chats.value as chat}
-				<Sidebar.MenuItem>
-					<Sidebar.MenuButton
-						isActive={page.url.pathname === `/chat/${chat.id}`}>
-						{#snippet child({ props })}
-							<a
-								href={`/chat/${chat.id}`}
-								title={chat.title}
-								{...props}>
-								<!-- <span>{item.emoji}</span> -->
-								<span>{chat.title}</span>
-							</a>
-						{/snippet}
-					</Sidebar.MenuButton>
-					<DropdownMenu.Root>
-						<DropdownMenu.Trigger>
+	{#if sidebar.open || sidebar.isMobile}
+		<ScrollArea class="h-full max-h-96 overflow-hidden">
+			<Sidebar.Menu class="">
+				{#each chats.chats.value as chat}
+					<Sidebar.MenuItem class="group/menu-button">
+						<Sidebar.MenuButton
+							isActive={page.url.pathname === `/chat/${chat.id}`}>
 							{#snippet child({ props })}
-								<Sidebar.MenuAction showOnHover {...props}>
-									<Ellipsis />
-									<span class="sr-only">More</span>
-								</Sidebar.MenuAction>
+								<a
+									href={`/chat/${chat.id}`}
+									title={chat.title}
+									{...props}
+									class={cn(
+										props.class as string,
+										'group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-has-data-[sidebar=menu-action]/menu-item:pr-0 transition-[width,height]',
+									)}>
+									<!-- <span>{item.emoji}</span> -->
+									<span>{chat.title}</span>
+								</a>
 							{/snippet}
-						</DropdownMenu.Trigger>
-						<DropdownMenu.Content
-							class="w-56 rounded-lg"
-							side={sidebar.isMobile ? 'bottom' : 'right'}
-							align={sidebar.isMobile ? 'end' : 'start'}>
-							<!-- <DropdownMenu.Item>
+						</Sidebar.MenuButton>
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger
+								class={'hidden group-hover:block'}>
+								{#snippet child({ props })}
+									<Sidebar.MenuAction showOnHover {...props}>
+										<Ellipsis />
+										<span class="sr-only">More</span>
+									</Sidebar.MenuAction>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content
+								class="w-56 rounded-lg"
+								side={sidebar.isMobile ? 'bottom' : 'right'}
+								align={sidebar.isMobile ? 'end' : 'start'}>
+								<!-- <DropdownMenu.Item>
 							<StarOff class="text-muted-foreground" />
 							<span>Remove from Favorites</span>
 						</DropdownMenu.Item>
 						<DropdownMenu.Separator /> -->
-							<!-- <DropdownMenu.Item
+								<!-- <DropdownMenu.Item
 							onclick={() => regenerateChatTitle(chat.id)}>
 							<RefreshCwIcon class="text-muted-foreground" />
 							<span>
@@ -70,7 +77,7 @@
 								</span>
 							</span>
 						</DropdownMenu.Item> -->
-							<!-- <DropdownMenu.Item>
+								<!-- <DropdownMenu.Item>
 							<Link class="text-muted-foreground" />
 							<span>Copy Link</span>
 						</DropdownMenu.Item>
@@ -78,17 +85,20 @@
 							<ArrowUpRight class="text-muted-foreground" />
 							<span>Open in New Tab</span>
 						</DropdownMenu.Item> -->
-							<!-- <DropdownMenu.Separator /> -->
-							<DropdownMenu.Item
-								onclick={() => chats.deleteChats(chat.id)}
-								class="text-destructive data-[highlighted]:bg-destructive data-[highlighted]:text-white">
-								<Trash2Icon />
-								<span>Delete</span>
-							</DropdownMenu.Item>
-						</DropdownMenu.Content>
-					</DropdownMenu.Root>
-				</Sidebar.MenuItem>
-			{/each}
+								<!-- <DropdownMenu.Separator /> -->
+								<DropdownMenu.Item
+									onclick={() => chats.deleteChats(chat.id)}
+									class="text-destructive data-[highlighted]:bg-destructive data-[highlighted]:text-white">
+									<Trash2Icon />
+									<span>Delete</span>
+								</DropdownMenu.Item>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+					</Sidebar.MenuItem>
+				{/each}
+			</Sidebar.Menu>
+		</ScrollArea>
+		<Sidebar.Menu>
 			<Sidebar.MenuItem>
 				<Sidebar.MenuButton class="text-sidebar-foreground/70">
 					{#snippet child({ props })}
@@ -102,7 +112,9 @@
 					{/snippet}
 				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>
-		{:else}
+		</Sidebar.Menu>
+	{:else}
+		<Sidebar.Menu>
 			<Sidebar.MenuItem>
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger>
@@ -157,6 +169,6 @@
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			</Sidebar.MenuItem>
-		{/if}
-	</Sidebar.Menu>
+		</Sidebar.Menu>
+	{/if}
 </Sidebar.Group>

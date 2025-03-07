@@ -37,7 +37,6 @@
 		api: PUBLIC_API_URL + `/chat/${chat_id}`,
 		generateId: () => chat_id,
 		onFinish: () => {
-			console.log('1')
 			if (page.url.searchParams) {
 				page.url.searchParams.delete('type')
 				replaceState(page.url, page.state)
