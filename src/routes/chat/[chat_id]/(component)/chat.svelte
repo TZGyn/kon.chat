@@ -13,6 +13,7 @@
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 	import { page } from '$app/state'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte.js'
+	import { Loader2Icon } from 'lucide-svelte'
 
 	let {
 		chat_id,
@@ -98,7 +99,10 @@
 									</Avatar.Root>
 								</div>
 							</div>
-							<div class="animate-pulse">Submitting Prompt</div>
+							<div class="flex animate-pulse items-center gap-2">
+								<Loader2Icon class="size-4 animate-spin" />
+								Submitting Prompt
+							</div>
 						</div>
 					</div>
 				</div>

@@ -11,6 +11,7 @@
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
+	import { Loader2Icon } from 'lucide-svelte'
 
 	let { table }: { table: Tabulator | undefined } = $props()
 
@@ -270,7 +271,10 @@
 									</Avatar.Root>
 								</div>
 							</div>
-							<div class="animate-pulse">Submitting Prompt</div>
+							<div class="flex animate-pulse items-center gap-2">
+								<Loader2Icon class="size-4 animate-spin" />
+								Submitting Prompt
+							</div>
 						</div>
 					</div>
 				</div>

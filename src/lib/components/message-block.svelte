@@ -6,7 +6,11 @@
 	import { cn } from '$lib/utils'
 	import type { JSONValue, UIMessage } from 'ai'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { ChevronDownIcon, CopyIcon } from 'lucide-svelte'
+	import {
+		ChevronDownIcon,
+		CopyIcon,
+		Loader2Icon,
+	} from 'lucide-svelte'
 	import { copy } from '$lib/clipboard'
 	import { toast } from 'svelte-sonner'
 	import GoogleGroundingSection from '$lib/components/google-grounding-section.svelte'
@@ -72,7 +76,8 @@
 						{#if data}
 							{/* @ts-ignore */ null}
 							{#if data.filter((data) => data.type === 'message').length > 0}
-								<div class="animate-pulse">
+								<div class="flex animate-pulse items-center gap-2">
+									<Loader2Icon class="size-4 animate-spin" />
 									{/* @ts-ignore */ null}
 									<!-- prettier-ignore -->
 									{data.filter((data) => data.type === 'message')[data.filter((data) => data.type === 'message').length-1].message}
