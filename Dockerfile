@@ -49,4 +49,4 @@ RUN PUBLIC_API_URL=$PUBLIC_API_URL PUBLIC_APP_URL=$PUBLIC_APP_URL bun run build
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 4173
-CMD [ "bun", "run", "preview" ]
+CMD [ "bun", "run", "preview", "--host" ]
