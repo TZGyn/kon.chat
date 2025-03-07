@@ -7,6 +7,7 @@
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import {
+		ArrowDownIcon,
 		BrainIcon,
 		ChevronDownIcon,
 		GlobeIcon,
@@ -31,6 +32,7 @@
 	import { browser } from '$app/environment'
 	import SpeechToText from './speech-to-text.svelte'
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
+	import type { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 
 	let {
 		input = $bindable(),
@@ -43,6 +45,7 @@
 		customData,
 		imageUpload = false,
 		enableSearch = false,
+		autoScroll,
 	}: {
 		input: string
 		selectedModelLocator: string
@@ -68,6 +71,7 @@
 		customData?: () => any
 		imageUpload?: boolean
 		enableSearch?: boolean
+		autoScroll?: UseAutoScroll
 	} = $props()
 
 	let modelState = useModels()
@@ -200,6 +204,15 @@
 <form
 	onsubmit={customSubmit}
 	class="bg-secondary absolute bottom-0 right-1/2 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
+	{#if !autoScroll?.isAtBottom}
+		<Button
+			class="absolute -top-12 right-1/2 translate-x-1/2"
+			variant="outline"
+			onclick={() => autoScroll?.scrollToBottom()}>
+			<ArrowDownIcon />
+			Scroll To Bottom
+		</Button>
+	{/if}
 	<Textarea
 		bind:value={input}
 		bind:ref={inputElement}

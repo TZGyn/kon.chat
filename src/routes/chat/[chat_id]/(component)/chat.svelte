@@ -9,15 +9,18 @@
 	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
-	import { page } from '$app/stores'
 	import { goto, replaceState } from '$app/navigation'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
+	import { page } from '$app/state'
+	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte.js'
 
-	export let chat_id
-	export let initialMessages: Array<Message>
+	let {
+		chat_id,
+		initialMessages,
+	}: { chat_id: string; initialMessages: Array<Message> } = $props()
 
-	let scrollElement: HTMLDivElement | null = null
+	const autoScroll = new UseAutoScroll()
 
 	const {
 		input,
@@ -33,11 +36,11 @@
 		api: PUBLIC_API_URL + `/chat/${chat_id}`,
 		generateId: () => chat_id,
 		onFinish: () => {
-			if ($page.url.searchParams) {
-				$page.url.searchParams.delete('type')
-				replaceState($page.url, $page.state)
+			if (page.url.searchParams) {
+				page.url.searchParams.delete('type')
+				replaceState(page.url, page.state)
 			}
-			scrollToBottom()
+			autoScroll.scrollToBottom()
 			useChats().getChats()
 			useUser().getUser()
 			localStorage.setItem(
@@ -51,23 +54,15 @@
 		credentials: 'include',
 	})
 
-	const scrollToBottom = () => {
-		if (scrollElement) {
-			scrollElement.scrollTop = scrollElement.scrollHeight
-		}
-	}
+	$effect(() => {
+		if (!($status === 'streaming' || $status === 'submitted')) return
 
-	onMount(() => {
-		scrollToBottom()
+		if ($messages) autoScroll.scrollToBottom()
 	})
-
-	$: ($status === 'streaming' || $status === 'submitted') &&
-		$messages &&
-		scrollToBottom()
 </script>
 
 <ScrollArea
-	bind:vp={scrollElement}
+	bind:vp={autoScroll.ref}
 	class="flex flex-1 flex-col items-center p-4">
 	<div class="flex w-full flex-col items-center pb-40 pt-20">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
@@ -119,4 +114,5 @@
 	{setMessages}
 	status={$status}
 	imageUpload={true}
-	enableSearch={true} />
+	enableSearch={true}
+	{autoScroll} />

@@ -12,11 +12,14 @@
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 	import { browser } from '$app/environment'
+	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 
-	export let transcript: any[]
-	export let youtube_id: string
+	let {
+		transcript,
+		youtube_id,
+	}: { transcript: any[]; youtube_id: string } = $props()
 
-	let scrollElement: HTMLDivElement | null = null
+	const autoScroll = new UseAutoScroll()
 
 	const {
 		input,
@@ -36,7 +39,7 @@
 		api: PUBLIC_API_URL + `/youtube/${youtube_id}`,
 		generateId: () => youtube_id,
 		onFinish: () => {
-			scrollToBottom()
+			autoScroll.scrollToBottom()
 			useUser().getUser()
 			localStorage.setItem(
 				`youtube:chat:${youtube_id}`,
@@ -49,23 +52,15 @@
 		credentials: 'include',
 	})
 
-	const scrollToBottom = () => {
-		if (scrollElement) {
-			scrollElement.scrollTop = scrollElement.scrollHeight
-		}
-	}
+	$effect(() => {
+		if (!($status === 'streaming' || $status === 'submitted')) return
 
-	onMount(() => {
-		scrollToBottom()
+		if ($messages) autoScroll.scrollToBottom()
 	})
-
-	$: ($status === 'streaming' || $status === 'submitted') &&
-		$messages &&
-		scrollToBottom()
 </script>
 
 <ScrollArea
-	bind:vp={scrollElement}
+	bind:vp={autoScroll.ref}
 	class="flex flex-1 flex-col items-center p-4">
 	<div class="flex w-full flex-col items-center pb-40 pt-20">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
@@ -118,4 +113,5 @@
 	status={$status}
 	imageUpload={true}
 	enableSearch={true}
-	customData={() => ({ transcript: transcript })} />
+	customData={() => ({ transcript: transcript })}
+	{autoScroll} />

@@ -10,10 +10,11 @@
 	import type { Tabulator } from 'tabulator-tables'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
+	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 
-	export let table: Tabulator | undefined
+	let { table }: { table: Tabulator | undefined } = $props()
 
-	let scrollElement: HTMLDivElement | null = null
+	const autoScroll = new UseAutoScroll()
 
 	const getCustomData = () => {
 		if (!table) return
@@ -44,7 +45,7 @@
 		initialMessages: [],
 		api: PUBLIC_API_URL + `/documents/sheets`,
 		onFinish: () => {
-			scrollToBottom()
+			autoScroll.scrollToBottom()
 			useUser().getUser()
 		},
 		onError: (error) => {
@@ -226,23 +227,15 @@
 		credentials: 'include',
 	})
 
-	const scrollToBottom = () => {
-		if (scrollElement) {
-			scrollElement.scrollTop = scrollElement.scrollHeight
-		}
-	}
+	$effect(() => {
+		if (!($status === 'streaming' || $status === 'submitted')) return
 
-	onMount(() => {
-		scrollToBottom()
+		if ($messages) autoScroll.scrollToBottom()
 	})
-
-	$: ($status === 'streaming' || $status === 'submitted') &&
-		$messages &&
-		scrollToBottom()
 </script>
 
 <ScrollArea
-	bind:vp={scrollElement}
+	bind:vp={autoScroll.ref}
 	class="flex flex-1 flex-col items-center p-4">
 	<div class="flex w-full flex-col items-center pb-40">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
@@ -293,4 +286,5 @@
 	{setData}
 	{setMessages}
 	status={$status}
-	customData={getCustomData} />
+	customData={getCustomData}
+	{autoScroll} />
