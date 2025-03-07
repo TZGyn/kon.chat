@@ -45,10 +45,6 @@
 						title: 'Access to Web Search and Image upload',
 					},
 					{
-						title:
-							'Access to all upcoming features (youtube/pdf summarizer, deep researcher, etc)',
-					},
-					{
 						title: '3000 Standard Chats/month',
 					},
 					{
