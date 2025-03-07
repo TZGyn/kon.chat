@@ -20,3 +20,7 @@ processes = ['app']
 memory = '1gb'
 cpu_kind = 'shared'
 cpus = 1
+
+[[statics]]
+guest_path = "/app/build"
+url_prefix = "/"
