@@ -267,7 +267,7 @@
 		</div>
 	{/if}
 	<div class="flex justify-between">
-		<div class="flex items-center gap-2">
+		<div class="flex items-center gap-1">
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger
 					class={buttonVariants({ variant: 'outline' })}>
@@ -420,7 +420,9 @@
 							<Toggle
 								aria-label="toggle search"
 								bind:pressed={search}
-								disabled={plan === 'free' || plan === undefined}>
+								disabled={plan === 'free' ||
+									plan === 'trial' ||
+									plan === undefined}>
 								<GlobeIcon />
 							</Toggle>
 						</Tooltip.Trigger>
@@ -448,7 +450,7 @@
 					</Tooltip.Root>
 				</Tooltip.Provider>
 			{/if}
-			{#if imageUpload}
+			{#if imageUpload && selectedModel.capabilities.image}
 				<input
 					bind:this={imageInput}
 					type="file"
@@ -469,6 +471,7 @@
 								class=""
 								disabled={!selectedModel.capabilities.image ||
 									plan === 'free' ||
+									plan === 'trial' ||
 									plan === undefined}>
 								<ImageIcon />
 							</Button>
@@ -497,7 +500,7 @@
 					</Tooltip.Root>
 				</Tooltip.Provider>
 			{/if}
-			{#if fileUpload}
+			{#if fileUpload && selectedModel.capabilities.file}
 				<input
 					bind:this={fileInput}
 					type="file"
@@ -518,6 +521,8 @@
 								class=""
 								disabled={!selectedModel.capabilities.file ||
 									plan === 'free' ||
+									plan === 'trial' ||
+									plan === 'basic' ||
 									plan === undefined}>
 								<PaperclipIcon />
 							</Button>

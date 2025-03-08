@@ -143,7 +143,7 @@
 						</div>
 					{/if}
 				</DropdownMenu.Label>
-				{#if user === null || user.plan === 'free'}
+				{#if user === null || user.plan === 'free' || user.plan === 'trial'}
 					<DropdownMenu.Separator />
 					<DropdownMenu.Group>
 						<a href="/billing/plan">

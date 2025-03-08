@@ -33,7 +33,8 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined || plan === 'free',
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
 		},
 		{
 			name: 'GPT 4o',
@@ -47,7 +48,8 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined || plan === 'free',
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
 		},
 		{
 			name: 'o3 mini',
@@ -61,7 +63,8 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined || plan === 'free',
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
 		},
 		{
 			name: 'Grok 2',
@@ -75,7 +78,8 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined || plan === 'free',
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
 		},
 		{
 			name: 'Grok 2 Vision',
@@ -89,7 +93,8 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined || plan === 'free',
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
 		},
 		{
 			name: 'DeepSeek R1 (Groq)',
@@ -103,7 +108,8 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined || plan === 'free',
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
 		},
 		{
 			name: 'Qwen QwQ (Groq)',
@@ -117,7 +123,8 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined || plan === 'free',
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
 		},
 		{
 			name: 'Llama 3.3 (Groq)',
@@ -131,7 +138,8 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined || plan === 'free',
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
 		},
 	] as const)
 
