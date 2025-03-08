@@ -10,9 +10,11 @@
 		ArrowDownIcon,
 		BrainIcon,
 		ChevronDownIcon,
+		FileTextIcon,
 		GlobeIcon,
 		ImageIcon,
 		Loader2Icon,
+		PaperclipIcon,
 		SearchIcon,
 		SendIcon,
 		ZapIcon,
@@ -44,6 +46,7 @@
 		handleSubmit,
 		customData,
 		imageUpload = false,
+		fileUpload = false,
 		enableSearch = false,
 		autoScroll,
 	}: {
@@ -70,6 +73,7 @@
 		) => void
 		customData?: () => any
 		imageUpload?: boolean
+		fileUpload?: boolean
 		enableSearch?: boolean
 		autoScroll?: UseAutoScroll
 	} = $props()
@@ -82,6 +86,9 @@
 	let inputElement: HTMLTextAreaElement | null = $state(null)
 
 	let imageInput: HTMLInputElement | null = $state(null)
+	let imageInputs: FileList | undefined = $state()
+
+	let fileInput: HTMLInputElement | null = $state(null)
 	let fileInputs: FileList | undefined = $state()
 
 	let attachments: {
@@ -96,6 +103,21 @@
 	])
 
 	$effect(() => {
+		if (!imageInputs) return
+
+		const items = Array.from(imageInputs).map((file) => ({
+			file: file,
+			url: '',
+			status: 'submitted' as const,
+		}))
+
+		imageInputs = undefined
+
+		attachments.push(...items)
+		attachments = attachments
+	})
+
+	$effect(() => {
 		if (!fileInputs) return
 
 		const items = Array.from(fileInputs).map((file) => ({
@@ -103,6 +125,8 @@
 			url: '',
 			status: 'submitted' as const,
 		}))
+
+		fileInputs = undefined
 
 		attachments.push(...items)
 		attachments = attachments
@@ -114,6 +138,7 @@
 		id: 'gemini-2.0-flash-001',
 		capabilities: {
 			image: true,
+			file: false,
 			fast: false,
 			reasoning: false,
 			searchGrounding: true,
@@ -226,7 +251,7 @@
 			}
 		}} />
 	{#if attachments.length > 0}
-		<div class="flex flex-wrap items-center gap-2 px-4">
+		<div class="flex flex-wrap items-center gap-2">
 			{#each attachments as attachment, index (attachment)}
 				<UploadFileCard
 					file={attachment.file}
@@ -428,7 +453,7 @@
 					bind:this={imageInput}
 					type="file"
 					accept="image/*"
-					bind:files={fileInputs}
+					bind:files={imageInputs}
 					multiple={true}
 					hidden />
 
@@ -446,6 +471,55 @@
 									plan === 'free' ||
 									plan === undefined}>
 								<ImageIcon />
+							</Button>
+						</Tooltip.Trigger>
+						<Tooltip.Content class="max-w-[300px]">
+							{#if plan === 'free' || plan === undefined}
+								<div class="flex flex-col gap-4 p-2">
+									<div class="flex flex-col gap-1">
+										<span class="text-lg">
+											Upgrade to basic or higher plan
+										</span>
+										<p
+											class="text-muted-foreground text-wrap text-sm">
+											Get access to image upload and more by upgrading
+											your plan
+										</p>
+									</div>
+									<Button href={'/billing/plan'} class="w-full">
+										Checkout plans
+									</Button>
+								</div>
+							{:else}
+								<p>Image Upload</p>
+							{/if}
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+			{/if}
+			{#if fileUpload}
+				<input
+					bind:this={fileInput}
+					type="file"
+					accept="application/pdf"
+					bind:files={fileInputs}
+					multiple={true}
+					hidden />
+
+				<Tooltip.Provider>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<Button
+								onclick={() => {
+									fileInput?.click()
+								}}
+								variant="ghost"
+								size="icon"
+								class=""
+								disabled={!selectedModel.capabilities.file ||
+									plan === 'free' ||
+									plan === undefined}>
+								<PaperclipIcon />
 							</Button>
 						</Tooltip.Trigger>
 						<Tooltip.Content class="max-w-[300px]">
@@ -505,6 +579,7 @@
 	reasoning: boolean
 	searchGrounding: boolean
 	image: boolean
+	file: boolean
 })}
 	{#if capabilities.searchGrounding}
 		<div
@@ -528,6 +603,12 @@
 		<div
 			class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
 			<ImageIcon />
+		</div>
+	{/if}
+	{#if capabilities.file}
+		<div
+			class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
+			<FileTextIcon />
 		</div>
 	{/if}
 {/snippet}

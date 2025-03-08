@@ -12,6 +12,7 @@ export const useModels = () => {
 			id: 'gemini-2.0-flash-001',
 			capabilities: {
 				image: true,
+				file: false,
 				fast: false,
 				reasoning: false,
 				searchGrounding: true,
@@ -27,6 +28,7 @@ export const useModels = () => {
 			id: 'gpt-4o-mini',
 			capabilities: {
 				image: true,
+				file: false,
 				fast: false,
 				reasoning: false,
 				searchGrounding: false,
@@ -40,6 +42,7 @@ export const useModels = () => {
 			id: 'gpt-4o',
 			capabilities: {
 				image: true,
+				file: false,
 				fast: false,
 				reasoning: false,
 				searchGrounding: false,
@@ -53,6 +56,7 @@ export const useModels = () => {
 			id: 'o3-mini',
 			capabilities: {
 				image: false,
+				file: false,
 				fast: false,
 				reasoning: true,
 				searchGrounding: false,
@@ -66,6 +70,7 @@ export const useModels = () => {
 			id: 'grok-2-1212',
 			capabilities: {
 				image: false,
+				file: false,
 				fast: false,
 				reasoning: false,
 				searchGrounding: false,
@@ -79,6 +84,7 @@ export const useModels = () => {
 			id: 'grok-2-vision-1212',
 			capabilities: {
 				image: true,
+				file: false,
 				fast: false,
 				reasoning: false,
 				searchGrounding: false,
@@ -92,6 +98,7 @@ export const useModels = () => {
 			id: 'deepseek-r1-distill-llama-70b',
 			capabilities: {
 				image: false,
+				file: false,
 				fast: true,
 				reasoning: true,
 				searchGrounding: false,
@@ -105,6 +112,7 @@ export const useModels = () => {
 			id: 'qwen-qwq-32b',
 			capabilities: {
 				image: false,
+				file: false,
 				fast: true,
 				reasoning: true,
 				searchGrounding: false,
@@ -118,6 +126,7 @@ export const useModels = () => {
 			id: 'llama-3.3-70b-versatile',
 			capabilities: {
 				image: false,
+				file: false,
 				fast: true,
 				reasoning: false,
 				searchGrounding: false,
@@ -134,6 +143,7 @@ export const useModels = () => {
 			id: 'claude-3-5-sonnet-latest',
 			capabilities: {
 				image: true,
+				file: true,
 				fast: false,
 				reasoning: false,
 				searchGrounding: false,
@@ -148,6 +158,7 @@ export const useModels = () => {
 			id: 'claude-3-7-sonnet-20250219',
 			capabilities: {
 				image: true,
+				file: true,
 				fast: false,
 				reasoning: true,
 				searchGrounding: false,

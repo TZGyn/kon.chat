@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { customFetch } from '$lib/fetch'
-	import { RotateCwIcon, XIcon } from 'lucide-svelte'
+	import {
+		FileTextIcon,
+		Loader2Icon,
+		RotateCwIcon,
+		XIcon,
+	} from 'lucide-svelte'
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 
@@ -137,9 +142,24 @@
 </Card.Root> -->
 
 <div
-	class="bg-background group relative min-h-16 min-w-16 overflow-hidden rounded-lg border">
-	{#if url}
-		<img src={url} class="h-16" alt="upload" />
+	class="bg-background group relative flex min-h-16 min-w-16 overflow-hidden rounded-lg border">
+	{#if status === 'uploading'}
+		<div class="flex flex-1 items-center justify-center">
+			<Loader2Icon class="animate-spin" />
+		</div>
+	{:else if file.type.startsWith('image/')}
+		{#if url}
+			<img src={url} class="h-16" alt="upload" />
+		{/if}
+	{:else if url}
+		<a
+			class="flex flex-1 flex-col items-center gap-2 p-4"
+			href={url}
+			aria-label="doc"
+			target="_blank">
+			<FileTextIcon class="min-h-8" />
+			<span>{file.name}</span>
+		</a>
 	{/if}
 	<XIcon
 		onclick={deleteCard}
