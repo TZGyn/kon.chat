@@ -70,11 +70,24 @@
 									url: content.image,
 									contentType: `image/${filetype}`,
 									name: filename.substring(
-										filename.indexOf('-'),
+										filename.indexOf('-') + 1,
 										filename.length,
 									),
 								})
 							}
+						} else if (content.type === 'file') {
+							const filename = (content.data as string)
+								.split('/')
+								.pop()
+							if (!filename) continue
+							attachments.push({
+								url: content.data,
+								contentType: content.mimeType,
+								name: filename.substring(
+									filename.indexOf('-') + 1,
+									filename.length,
+								),
+							})
 						}
 					}
 				}

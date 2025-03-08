@@ -9,6 +9,7 @@
 	import {
 		ChevronDownIcon,
 		CopyIcon,
+		FileTextIcon,
 		Loader2Icon,
 	} from 'lucide-svelte'
 	import { copy } from '$lib/clipboard'
@@ -224,6 +225,19 @@
 								alt={attachment.name}
 								class="w-full" />
 						</div>
+					{/if}
+
+					{#if attachment.contentType === 'application/pdf'}
+						<a
+							href={attachment.url}
+							target="_blank"
+							class="bg-background min-h-16 w-fit min-w-16 overflow-hidden rounded-lg border">
+							<div
+								class="flex flex-col items-center justify-center p-4">
+								<FileTextIcon />
+								<span>{attachment.name}</span>
+							</div>
+						</a>
 					{/if}
 				{/each}
 			{/if}
