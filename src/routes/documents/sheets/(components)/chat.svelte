@@ -227,12 +227,6 @@
 		},
 		credentials: 'include',
 	})
-
-	$effect(() => {
-		if (!($status === 'streaming' || $status === 'submitted')) return
-
-		if ($messages) autoScroll.scrollToBottom()
-	})
 </script>
 
 <ScrollArea

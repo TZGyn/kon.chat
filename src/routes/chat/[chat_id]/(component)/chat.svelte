@@ -56,12 +56,6 @@
 		},
 		credentials: 'include',
 	})
-
-	$effect(() => {
-		if (!($status === 'streaming' || $status === 'submitted')) return
-
-		if ($messages) autoScroll.scrollToBottom()
-	})
 </script>
 
 <ScrollArea
@@ -120,5 +114,6 @@
 	{setMessages}
 	status={$status}
 	imageUpload={true}
+	fileUpload={true}
 	enableSearch={true}
 	{autoScroll} />
