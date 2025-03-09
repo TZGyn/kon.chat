@@ -12,12 +12,10 @@
 			const hours = parseInt(matches[1], 10)
 			const minutes = parseInt(matches[2], 10)
 			const seconds = parseInt(matches[3], 10)
-			const text = matches[4].trim()
+			const text = matches[4]
 
 			// Extract the text before the timestamp
-			const precedingText = str
-				.substring(lastIndex, matches.index)
-				.trim()
+			const precedingText = str.substring(lastIndex, matches.index)
 
 			results.push({
 				precedingText: precedingText,
@@ -31,7 +29,7 @@
 		}
 
 		// Handle any remaining text after the last timestamp
-		const remainingText = str.substring(lastIndex).trim()
+		const remainingText = str.substring(lastIndex)
 		if (remainingText) {
 			results.push({
 				precedingText: remainingText,
@@ -65,9 +63,9 @@
 			{/if}
 		</a>
 	{/if}
-	{#if result.text}
+	<!-- {#if result.text}
 		<span>
 			{result.text}
 		</span>
-	{/if}
+	{/if} -->
 {/each}

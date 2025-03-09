@@ -50,7 +50,7 @@
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 		<code
-			class="bg-secondary text-muted-foreground mr-1 cursor-pointer rounded px-2 py-1 before:content-none after:content-none"
+			class="bg-secondary text-muted-foreground cursor-pointer rounded px-2 py-1 before:content-none after:content-none"
 			onclick={() => {
 				copy(unescapeHtml(token.text)!)
 				toast.success('Copied to clipboard')
