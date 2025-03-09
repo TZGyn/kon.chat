@@ -16,6 +16,8 @@
 	import { toast } from 'svelte-sonner'
 	import GoogleGroundingSection from '$lib/components/google-grounding-section.svelte'
 	import Markdown from './markdown.svelte'
+	import Attachments from './message/attachments.svelte'
+	import CopyButton from './copy-button.svelte'
 
 	let {
 		isLast,
@@ -86,6 +88,16 @@
 							{/if}
 						{/if}
 					{/if}
+
+					{#each message.annotations ?? [] as annotation}
+						{/* @ts-ignore */ null}
+						{#if annotation['type'] === 'model' && annotation['model'] !== null}
+							<div class="text-muted-foreground">
+								{/* @ts-ignore */ null}
+								Model: {annotation.model}
+							</div>
+						{/if}
+					{/each}
 				</div>
 			{/if}
 			{#each annotations as annotation}
@@ -202,9 +214,9 @@
 					{#if part.type === 'text'}
 						<div
 							class={cn(
-								'rounded-xl',
+								'w-fit rounded-xl',
 								message.role === 'user'
-									? 'bg-secondary p-4'
+									? 'bg-secondary place-self-end p-4'
 									: 'bg-background',
 							)}>
 							<div
@@ -215,32 +227,7 @@
 					{/if}
 				{/each}
 			{/if}
-			{#if message.experimental_attachments}
-				{#each message.experimental_attachments as attachment}
-					{#if attachment.contentType?.startsWith('image/')}
-						<div
-							class="bg-background min-h-16 min-w-16 overflow-hidden rounded-lg border">
-							<img
-								src={attachment.url}
-								alt={attachment.name}
-								class="w-full" />
-						</div>
-					{/if}
-
-					{#if attachment.contentType === 'application/pdf'}
-						<a
-							href={attachment.url}
-							target="_blank"
-							class="bg-background min-h-16 w-fit min-w-16 overflow-hidden rounded-lg border">
-							<div
-								class="flex flex-col items-center justify-center p-4">
-								<FileTextIcon />
-								<span>{attachment.name}</span>
-							</div>
-						</a>
-					{/if}
-				{/each}
-			{/if}
+			<Attachments attachments={message.experimental_attachments} />
 
 			{#each message.annotations ?? [] as annotation}
 				{/* @ts-ignore */ null}
@@ -262,23 +249,8 @@
 							? 'visible'
 							: 'invisible',
 					)}>
-					<Button
-						variant="secondary"
-						onclick={() => {
-							copy(message.content)
-							toast.success('Copied Response to Clipboard')
-						}}>
-						<CopyIcon />
-						Copy Response
-					</Button>
+					<CopyButton text={message.content} />
 					{#each message.annotations ?? [] as annotation}
-						{/* @ts-ignore */ null}
-						{#if annotation['type'] === 'model' && annotation['model'] !== null}
-							<div class="text-muted-foreground">
-								{/* @ts-ignore */ null}
-								Model: {annotation.model}
-							</div>
-						{/if}
 						{/* @ts-ignore */ null}
 						{#if annotation['type'] === 'search-error'}
 							<div class="text-destructive">
