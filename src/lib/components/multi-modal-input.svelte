@@ -536,7 +536,7 @@
 										</span>
 										<p
 											class="text-muted-foreground text-wrap text-sm">
-											Get access to image upload and more by upgrading
+											Get access to file upload and more by upgrading
 											your plan
 										</p>
 									</div>
