@@ -45,6 +45,7 @@ let user = $state<{
 	email: string
 	name: string
 	plan: 'pro' | 'basic' | 'free' | 'owner' | 'trial'
+	avatar: string
 	freeChatLimit: number
 	standardChatLimit: number
 	premiumChatLimit: number
@@ -62,6 +63,7 @@ export const useUser = () => {
 					email: string
 					name: string
 					plan: 'free' | 'basic' | 'pro' | 'trial'
+					avatar: string
 					freeChatLimit: number
 					standardChatLimit: number
 					premiumChatLimit: number
