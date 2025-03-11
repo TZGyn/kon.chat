@@ -36,9 +36,7 @@
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 	</Sidebar.Header>
-	<Sidebar.Content>
-		<NavChats />
-		<Sidebar.Separator />
+	<Sidebar.Content class="overflow-hidden">
 		<Sidebar.Group>
 			<Sidebar.GroupLabel>Tools</Sidebar.GroupLabel>
 			<Sidebar.Menu>
@@ -70,6 +68,8 @@
 				</Sidebar.MenuItem>
 			</Sidebar.Menu>
 		</Sidebar.Group>
+		<Sidebar.Separator />
+		<NavChats />
 	</Sidebar.Content>
 	<Sidebar.Footer>
 		<NavUser />
