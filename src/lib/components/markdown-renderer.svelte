@@ -11,7 +11,7 @@
 	import katex from 'katex'
 	import type { Token } from 'marked'
 	import { browser } from '$app/environment'
-	import Code from './code.svelte'
+	import Code from './markdown/code.svelte'
 	import Self from './markdown-renderer.svelte'
 
 	let {

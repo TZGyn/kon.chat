@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { codeToHtml } from 'shiki'
-	import CopyButton from './copy-button.svelte'
-	import Button from './ui/button/button.svelte'
+	import { codeToHtml, isPlainLang, bundledLanguages } from 'shiki'
+	import CopyButton from '../copy-button.svelte'
+	import Button from '../ui/button/button.svelte'
 	import { loadPyodide } from 'pyodide'
 	import { TerminalIcon, TriangleIcon } from 'lucide-svelte'
 	let { code, lang }: { code: string; lang: string } = $props()
@@ -10,7 +10,7 @@
 
 	const updateHTML = async (code: string) => {
 		const html = await codeToHtml(code, {
-			lang: lang,
+			lang: lang in bundledLanguages ? lang : 'text',
 			theme: 'dark-plus',
 		})
 		codeHTML = html
