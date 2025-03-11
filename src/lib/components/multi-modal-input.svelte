@@ -35,6 +35,7 @@
 	import SpeechToText from './speech-to-text.svelte'
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
 	import type { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
+	import TwitterLogo from '$lib/components/icons/twitter-logo.svelte'
 
 	let {
 		input = $bindable(),
@@ -162,6 +163,7 @@
 
 	let search = $state(false)
 	let searchGrounding = $state(false)
+	let x_search = $state(false)
 
 	function customSubmit(event: Event) {
 		let custom = undefined
@@ -197,6 +199,7 @@
 					...custom,
 					search,
 					searchGrounding,
+					mode: x_search ? 'x_search' : 'chat',
 				},
 				experimental_attachments: attachments
 					.filter(
@@ -450,6 +453,40 @@
 					</Tooltip.Root>
 				</Tooltip.Provider>
 			{/if}
+			<Tooltip.Provider>
+				<Tooltip.Root>
+					<Tooltip.Trigger>
+						<Toggle
+							aria-label="toggle x search"
+							bind:pressed={x_search}
+							disabled={plan === 'free' ||
+								plan === 'trial' ||
+								plan === undefined}>
+							<TwitterLogo />
+						</Toggle>
+					</Tooltip.Trigger>
+					<Tooltip.Content class="max-w-[300px]">
+						{#if plan === 'free' || plan === undefined}
+							<div class="flex flex-col gap-4 p-2">
+								<div class="flex flex-col gap-1">
+									<span class="text-lg">
+										Upgrade to basic or higher plan
+									</span>
+									<p class="text-muted-foreground text-wrap text-sm">
+										Get access to X search and more by upgrading your
+										plan
+									</p>
+								</div>
+								<Button href={'/billing/plan'} class="w-full">
+									Checkout plans
+								</Button>
+							</div>
+						{:else}
+							<p>X Search</p>
+						{/if}
+					</Tooltip.Content>
+				</Tooltip.Root>
+			</Tooltip.Provider>
 			{#if imageUpload && selectedModel.capabilities.image}
 				<input
 					bind:this={imageInput}

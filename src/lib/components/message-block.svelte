@@ -18,6 +18,7 @@
 	import Markdown from './markdown.svelte'
 	import Attachments from './message/attachments.svelte'
 	import CopyButton from './copy-button.svelte'
+	import ToolInvocation from './message/tool-invocation.svelte'
 
 	let {
 		isLast,
@@ -43,6 +44,10 @@
 	)
 	let reasoningPart = $derived(
 		message.parts.find((part) => part.type === 'reasoning'),
+	)
+
+	let toolInvocations = $derived(
+		message.parts.filter((part) => part.type === 'tool-invocation'),
 	)
 </script>
 
@@ -193,6 +198,11 @@
 					{/if}
 				{/if}
 			{/each}
+			{#each toolInvocations as toolInvocation}
+				<ToolInvocation
+					toolInvocation={toolInvocation.toolInvocation} />
+			{/each}
+
 			{#if hasReasoning}
 				<Toggle
 					size="sm"

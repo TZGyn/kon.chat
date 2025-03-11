@@ -238,7 +238,6 @@
 		setMessages,
 	} = $derived(
 		useChat({
-			maxSteps: 1,
 			initialMessages: [],
 			api: PUBLIC_API_URL + `/chat/${chat_id}`,
 			generateId: () => chat_id,
