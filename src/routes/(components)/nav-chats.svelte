@@ -28,7 +28,7 @@
 	<Sidebar.GroupLabel>Chat</Sidebar.GroupLabel>
 
 	{#if sidebar.open || sidebar.isMobile}
-		<ScrollArea class="flex-1 overflow-hidden">
+		<ScrollArea class="overflow-hidden">
 			<Sidebar.Menu class="">
 				{#each chats.chats.value as chat}
 					<Sidebar.MenuItem class="group/menu-button">
