@@ -8,12 +8,14 @@
 		MessageCircleIcon,
 		PlusIcon,
 		Trash2Icon,
+		XIcon,
 	} from 'lucide-svelte'
 	import { page } from '$app/state'
 	import { useChats } from '../state.svelte.js'
 	import { customFetch } from '$lib/fetch.js'
 	import { cn } from '$lib/utils.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
+	import { ScrollAreaScrollbar } from '$lib/components/ui/scroll-area/index.js'
 
 	const sidebar = Sidebar.useSidebar()
 
@@ -28,7 +30,7 @@
 	<Sidebar.GroupLabel>Chat</Sidebar.GroupLabel>
 
 	{#if sidebar.open || sidebar.isMobile}
-		<ScrollArea class="overflow-hidden">
+		<ScrollArea class="overflow-hidden" scrollbarYClasses={'hidden'}>
 			<Sidebar.Menu class="">
 				{#each chats.chats.value as chat}
 					<Sidebar.MenuItem class="group/menu-button">
@@ -41,59 +43,20 @@
 									{...props}
 									class={cn(
 										props.class as string,
-										'group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-8 group-has-data-[sidebar=menu-action]/menu-item:pr-0 transition-[width,height]',
+										'group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-6 group-has-data-[sidebar=menu-action]/menu-item:pr-2 h-12 rounded transition-[width,height]',
 									)}>
 									<!-- <span>{item.emoji}</span> -->
-									<span>{chat.title}</span>
+									<span class="">{chat.title}</span>
 								</a>
 							{/snippet}
 						</Sidebar.MenuButton>
-						<DropdownMenu.Root>
-							<DropdownMenu.Trigger
-								class={'hidden group-hover:block'}>
-								{#snippet child({ props })}
-									<Sidebar.MenuAction showOnHover {...props}>
-										<Ellipsis />
-										<span class="sr-only">More</span>
-									</Sidebar.MenuAction>
-								{/snippet}
-							</DropdownMenu.Trigger>
-							<DropdownMenu.Content
-								class="w-56 rounded-lg"
-								side={sidebar.isMobile ? 'bottom' : 'right'}
-								align={sidebar.isMobile ? 'end' : 'start'}>
-								<!-- <DropdownMenu.Item>
-							<StarOff class="text-muted-foreground" />
-							<span>Remove from Favorites</span>
-						</DropdownMenu.Item>
-						<DropdownMenu.Separator /> -->
-								<!-- <DropdownMenu.Item
-							onclick={() => regenerateChatTitle(chat.id)}>
-							<RefreshCwIcon class="text-muted-foreground" />
-							<span>
-								Regenerate Title <span
-									class="text-muted-foreground text-sm">
-									(1 credit)
-								</span>
-							</span>
-						</DropdownMenu.Item> -->
-								<!-- <DropdownMenu.Item>
-							<Link class="text-muted-foreground" />
-							<span>Copy Link</span>
-						</DropdownMenu.Item>
-						<DropdownMenu.Item>
-							<ArrowUpRight class="text-muted-foreground" />
-							<span>Open in New Tab</span>
-						</DropdownMenu.Item> -->
-								<!-- <DropdownMenu.Separator /> -->
-								<DropdownMenu.Item
-									onclick={() => chats.deleteChats(chat.id)}
-									class="text-destructive data-[highlighted]:bg-destructive data-[highlighted]:text-white">
-									<Trash2Icon />
-									<span>Delete</span>
-								</DropdownMenu.Item>
-							</DropdownMenu.Content>
-						</DropdownMenu.Root>
+						<Sidebar.MenuAction
+							showOnHover
+							class="top-1/2"
+							onclick={() => chats.deleteChats(chat.id)}>
+							<XIcon />
+							<span class="sr-only">Delete</span>
+						</Sidebar.MenuAction>
 					</Sidebar.MenuItem>
 				{/each}
 			</Sidebar.Menu>
