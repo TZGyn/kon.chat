@@ -1,6 +1,6 @@
 import type { Attachment, CoreToolMessage } from 'ai'
 import { type Message } from '@ai-sdk/svelte'
-import { type ToolInvocation } from '@ai-sdk/ui-utils'
+import { type ToolInvocation, type UIMessage } from '@ai-sdk/ui-utils'
 import { type GoogleGenerativeAIProviderMetadata } from '@ai-sdk/google'
 
 export function convertToUIMessages(
@@ -105,6 +105,7 @@ export function convertToUIMessages(
 				},
 			],
 			experimental_attachments: attachments,
+			createdAt: new Date(message.createdAt),
 		})
 
 		return chatMessages
@@ -145,4 +146,13 @@ export function convertToUIMessages(
 			return message
 		})
 	}
+}
+
+export function getMostRecentUserMessageIndex(
+	messages: Array<UIMessage>,
+) {
+	const userMessagesIndex = messages.findLastIndex(
+		(message) => message.role === 'user',
+	)
+	return userMessagesIndex
 }

@@ -20,7 +20,10 @@
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 	import { onMount } from 'svelte'
 	import { isEqual, unionWith } from 'lodash'
-	import { convertToUIMessages } from '$lib/utils/chat.js'
+	import {
+		convertToUIMessages,
+		getMostRecentUserMessageIndex,
+	} from '$lib/utils/chat.js'
 
 	let chat_id = $derived(page.params.chat_id)
 
@@ -50,9 +53,16 @@
 		chat.value = data?.messages || []
 		if (chat_id !== id) return
 		const serverMessages = convertToUIMessages(chat.value)
-		setMessages(
-			unionWith(fillMessageParts(serverMessages), $messages, isEqual),
-		)
+		if ($status === 'ready' || $status === 'error') {
+			setMessages(fillMessageParts(serverMessages))
+		} else {
+			const latestUserMessageIndex =
+				getMostRecentUserMessageIndex($messages)
+			setMessages([
+				...fillMessageParts(serverMessages),
+				...$messages.slice(latestUserMessageIndex),
+			])
+		}
 	}
 
 	let chat = $derived(
