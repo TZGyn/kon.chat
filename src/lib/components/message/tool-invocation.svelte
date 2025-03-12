@@ -3,12 +3,44 @@
 	import Twitter from './tool/twitter.svelte'
 	import TwitterLogo from './tool/icons/twitter-logo.svelte'
 	import { Skeleton } from '$lib/components/ui/skeleton'
+	import WebSearch from './tool/web-search.svelte'
+	import type { UIMessage } from 'ai'
 
-	let { toolInvocation }: { toolInvocation: ToolInvocation } =
-		$props()
+	let {
+		toolInvocation,
+		message,
+	}: { toolInvocation: ToolInvocation; message: UIMessage } = $props()
+
+	type QueryCompletion = {
+		type: 'query_completion'
+		data: {
+			query: string
+			index: number
+			total: number
+			status: 'completed'
+			resultsCount: number
+			imagesCount: number
+		}
+	}
+
+	let args = $derived(JSON.parse(JSON.stringify(toolInvocation.args)))
+	let result = $derived(
+		'result' in toolInvocation
+			? JSON.parse(JSON.stringify(toolInvocation.result))
+			: null,
+	)
 </script>
 
-{#if 'result' in toolInvocation}
+{#if toolInvocation.toolName === 'web_search'}
+	<div class="mt-4">
+		<WebSearch
+			{result}
+			{args}
+			annotations={(message?.annotations?.filter(
+				(a: any) => a.type === 'query_completion',
+			) as QueryCompletion[]) || []} />
+	</div>
+{:else if 'result' in toolInvocation}
 	{#if toolInvocation.toolName === 'x_search'}
 		<Twitter {toolInvocation} />
 	{/if}

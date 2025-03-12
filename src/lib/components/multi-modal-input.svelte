@@ -8,12 +8,17 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import {
 		ArrowDownIcon,
+		BookIcon,
 		BrainIcon,
 		ChevronDownIcon,
+		CodeXmlIcon,
 		FileTextIcon,
+		Globe,
 		GlobeIcon,
 		ImageIcon,
 		Loader2Icon,
+		MemoryStick,
+		MessageCircleIcon,
 		PaperclipIcon,
 		SearchIcon,
 		SendIcon,
@@ -163,7 +168,6 @@
 
 	let search = $state(false)
 	let searchGrounding = $state(false)
-	let x_search = $state(false)
 
 	function customSubmit(event: Event) {
 		let custom = undefined
@@ -199,7 +203,7 @@
 					...custom,
 					search,
 					searchGrounding,
-					mode: x_search ? 'x_search' : 'chat',
+					mode: selectedMode.id,
 				},
 				experimental_attachments: attachments
 					.filter(
@@ -227,6 +231,53 @@
 	$effect(() => {
 		input && adjustInputHeight()
 	})
+
+	const modes = [
+		{
+			id: 'chat',
+			name: 'Chat',
+			description: 'Talk to the model directly.',
+			icon: MessageCircleIcon,
+			show: true,
+		},
+		{
+			id: 'web_search',
+			name: 'Web',
+			description: 'Search across the entire internet',
+			icon: GlobeIcon,
+			show: true,
+		},
+		{
+			id: 'x_search',
+			name: 'X',
+			description: 'Search X posts and content powered by Exa',
+			icon: TwitterLogo,
+			show: true,
+		},
+		// {
+		// 	id: 'analysis',
+		// 	name: 'Analysis',
+		// 	description: 'Code, stock and currency stuff',
+		// 	icon: CodeXmlIcon,
+		// 	show: true,
+		// },
+		// {
+		// 	id: 'academic',
+		// 	name: 'Academic',
+		// 	description: 'Search academic papers powered by Exa',
+		// 	icon: BookIcon,
+		// 	show: true,
+		// },
+		//   {
+		//     id: 'youtube' as const,
+		//     name: 'YouTube',
+		//     description: 'Search YouTube videos in real-time powered by Exa',
+		//     icon: YoutubeIcon,
+		//     show: true,
+		//   },
+	] as const
+
+	let selectedMode = $state<(typeof modes)[number]>(modes[0])
 </script>
 
 <form
@@ -245,7 +296,7 @@
 		bind:value={input}
 		bind:ref={inputElement}
 		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pb-0 pt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-		placeholder="Send a message..."
+		placeholder="Send a message... (ctrl-enter to send)"
 		onkeydown={(event) => {
 			if (event.key === 'Enter' && event.ctrlKey) {
 				event.preventDefault()
@@ -416,77 +467,6 @@
 					</Tooltip.Root>
 				</Tooltip.Provider>
 			{/if}
-			{#if enableSearch}
-				<Tooltip.Provider>
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<Toggle
-								aria-label="toggle search"
-								bind:pressed={search}
-								disabled={plan === 'free' ||
-									plan === 'trial' ||
-									plan === undefined}>
-								<GlobeIcon />
-							</Toggle>
-						</Tooltip.Trigger>
-						<Tooltip.Content class="max-w-[300px]">
-							{#if plan === 'free' || plan === undefined}
-								<div class="flex flex-col gap-4 p-2">
-									<div class="flex flex-col gap-1">
-										<span class="text-lg">
-											Upgrade to basic or higher plan
-										</span>
-										<p
-											class="text-muted-foreground text-wrap text-sm">
-											Get access to web search and more by upgrading
-											your plan
-										</p>
-									</div>
-									<Button href={'/billing/plan'} class="w-full">
-										Checkout plans
-									</Button>
-								</div>
-							{:else}
-								<p>Web Search</p>
-							{/if}
-						</Tooltip.Content>
-					</Tooltip.Root>
-				</Tooltip.Provider>
-			{/if}
-			<Tooltip.Provider>
-				<Tooltip.Root>
-					<Tooltip.Trigger>
-						<Toggle
-							aria-label="toggle x search"
-							bind:pressed={x_search}
-							disabled={plan === 'free' ||
-								plan === 'trial' ||
-								plan === undefined}>
-							<TwitterLogo />
-						</Toggle>
-					</Tooltip.Trigger>
-					<Tooltip.Content class="max-w-[300px]">
-						{#if plan === 'free' || plan === undefined}
-							<div class="flex flex-col gap-4 p-2">
-								<div class="flex flex-col gap-1">
-									<span class="text-lg">
-										Upgrade to basic or higher plan
-									</span>
-									<p class="text-muted-foreground text-wrap text-sm">
-										Get access to X search and more by upgrading your
-										plan
-									</p>
-								</div>
-								<Button href={'/billing/plan'} class="w-full">
-									Checkout plans
-								</Button>
-							</div>
-						{:else}
-							<p>X Search</p>
-						{/if}
-					</Tooltip.Content>
-				</Tooltip.Root>
-			</Tooltip.Provider>
 			{#if imageUpload && selectedModel.capabilities.image}
 				<input
 					bind:this={imageInput}
@@ -591,6 +571,42 @@
 			<SpeechToText bind:input />
 		</div>
 		<div class="flex items-center gap-2">
+			{#if enableSearch}
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger
+						class={buttonVariants({ variant: 'outline' })}
+						disabled={plan !== 'pro' && plan !== 'basic'}>
+						<selectedMode.icon />
+						<ChevronDownIcon />
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content>
+						<DropdownMenu.Group>
+							<DropdownMenu.GroupHeading>
+								Mode
+							</DropdownMenu.GroupHeading>
+							<DropdownMenu.Separator />
+							{#each modes as mode}
+								<DropdownMenu.Item
+									class="p-3"
+									onclick={() => (selectedMode = mode)}>
+									<div
+										class="flex w-full items-center justify-between">
+										<div class="flex flex-col gap-2">
+											<div class="flex items-center gap-2">
+												<mode.icon />
+												{mode.name}
+											</div>
+											<div class="text-muted-foreground text-sm">
+												{mode.description}
+											</div>
+										</div>
+									</div>
+								</DropdownMenu.Item>
+							{/each}
+						</DropdownMenu.Group>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+			{/if}
 			<Button type="submit" class="" size="icon">
 				{#if status === 'submitted' || status === 'streaming'}
 					<Loader2Icon class="animate-spin" />

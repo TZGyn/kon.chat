@@ -200,7 +200,8 @@
 			{/each}
 			{#each toolInvocations as toolInvocation}
 				<ToolInvocation
-					toolInvocation={toolInvocation.toolInvocation} />
+					toolInvocation={toolInvocation.toolInvocation}
+					{message} />
 			{/each}
 
 			{#if hasReasoning}
