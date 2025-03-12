@@ -116,7 +116,7 @@
 <div class="flex flex-1 overflow-hidden">
 	<ScrollArea
 		bind:vp={autoScroll.ref}
-		class="flex flex-1 flex-col items-center p-4">
+		class="@container flex flex-1 flex-col items-center p-4">
 		<div class="flex w-full flex-col items-center pb-40 pt-20">
 			<div class="flex w-full max-w-[600px] flex-col gap-4">
 				{#each $messages as message, index (index)}
