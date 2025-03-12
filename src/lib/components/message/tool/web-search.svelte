@@ -14,6 +14,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import * as Dialog from '$lib/components/ui/dialog'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
+
 	type SearchImage = {
 		url: string
 		description: string
@@ -250,59 +251,62 @@
 					{/each}
 				{/if}
 			</div>
-			<Dialog.Root>
-				<Dialog.Trigger
-					class={cn(
-						buttonVariants({ variant: 'outline' }),
-						'mt-4 w-full',
-					)}>
-					View All Sources
-					<span class="text-muted-foreground">
-						(+{result.searches.flatMap((search) => search.results)
-							.length - 2})
-					</span>
-				</Dialog.Trigger>
-				<Dialog.Content>
-					<Dialog.Header>
-						<Dialog.Title>Sources and links</Dialog.Title>
-					</Dialog.Header>
-					<ScrollArea>
-						<div
-							class="grid max-h-[calc(100vh-10rem)] grid-cols-1 gap-2">
-							{#each result.searches as search}
-								{#each search.results as data, resultIndex}
-									<a href={data.url} target="_blank">
-										<div
-											class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
-											<span
-												class="text-primary-foreground line-clamp-1">
-												{data.title}
-											</span>
-											<div class="flex items-center gap-2">
-												<Avatar.Root class="size-4 overflow-visible">
-													<Avatar.Image
-														src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
-															data.url}
-														alt="favicon"
-														class="size-4" />
-													<Avatar.Fallback
-														class="size-4 bg-opacity-0">
-														<img src="/logo.png" alt="favicon" />
-													</Avatar.Fallback>
-												</Avatar.Root>
+			{#if result.searches.flatMap((search) => search.results).length > 2}
+				<Dialog.Root>
+					<Dialog.Trigger
+						class={cn(
+							buttonVariants({ variant: 'outline' }),
+							'mt-4 w-full',
+						)}>
+						View All Sources
+						<span class="text-muted-foreground">
+							(+{result.searches.flatMap((search) => search.results)
+								.length - 2})
+						</span>
+					</Dialog.Trigger>
+					<Dialog.Content>
+						<Dialog.Header>
+							<Dialog.Title>Sources and links</Dialog.Title>
+						</Dialog.Header>
+						<ScrollArea>
+							<div
+								class="grid max-h-[calc(100vh-10rem)] grid-cols-1 gap-2">
+								{#each result.searches as search}
+									{#each search.results as data, resultIndex}
+										<a href={data.url} target="_blank">
+											<div
+												class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
 												<span
-													class="text-muted-foreground line-clamp-1 text-sm">
-													{data.url}
+													class="text-primary-foreground line-clamp-1">
+													{data.title}
 												</span>
+												<div class="flex items-center gap-2">
+													<Avatar.Root
+														class="size-4 overflow-visible">
+														<Avatar.Image
+															src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
+																data.url}
+															alt="favicon"
+															class="size-4" />
+														<Avatar.Fallback
+															class="size-4 bg-opacity-0">
+															<img src="/logo.png" alt="favicon" />
+														</Avatar.Fallback>
+													</Avatar.Root>
+													<span
+														class="text-muted-foreground line-clamp-1 text-sm">
+														{data.url}
+													</span>
+												</div>
 											</div>
-										</div>
-									</a>
+										</a>
+									{/each}
 								{/each}
-							{/each}
-						</div>
-					</ScrollArea>
-				</Dialog.Content>
-			</Dialog.Root>
+							</div>
+						</ScrollArea>
+					</Dialog.Content>
+				</Dialog.Root>
+			{/if}
 		{/if}
 	</div>
 	{#if allImages}
