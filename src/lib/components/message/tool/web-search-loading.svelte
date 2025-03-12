@@ -33,7 +33,7 @@
 </script>
 
 <div class="w-full space-y-4">
-	<Accordion.Root type="single" class="w-full">
+	<Accordion.Root value="search" type="single" class="w-full">
 		<Accordion.Item value="search" class="border-none">
 			<Accordion.Trigger
 				class={cn(
