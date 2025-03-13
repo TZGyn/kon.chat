@@ -26,7 +26,6 @@
 		status,
 		role,
 		data = [],
-		annotations = [],
 		halfSize = false,
 	}: {
 		role: 'system' | 'user' | 'assistant' | 'data'
@@ -34,7 +33,6 @@
 		isLast: boolean
 		status: 'submitted' | 'streaming' | 'ready' | 'error'
 		data?: JSONValue[]
-		annotations?: JSONValue[]
 		halfSize?: boolean
 	} = $props()
 
@@ -105,99 +103,6 @@
 					{/each}
 				</div>
 			{/if}
-			{#each annotations as annotation}
-				{/* @ts-ignore */ null}
-				{#if annotation['type'] === 'search'}
-					{/* @ts-ignore */ null}
-					{#if annotation?.data}
-						<div class="grid grid-cols-2 gap-2">
-							{/* @ts-ignore */ null}
-							{#each annotation?.data.slice(0, 4) as data}
-								<a href={data.url} target="_blank">
-									<div
-										class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
-										<span class="line-clamp-1">
-											{data.title}
-										</span>
-										<div class="flex items-center gap-2">
-											<Avatar.Root class="size-4 overflow-visible">
-												<Avatar.Image
-													src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
-														data.url}
-													alt="favicon"
-													class="size-4" />
-												<Avatar.Fallback class="size-4 bg-opacity-0">
-													<img src="/logo.png" alt="favicon" />
-												</Avatar.Fallback>
-											</Avatar.Root>
-											<span
-												class="text-muted-foreground line-clamp-1 text-sm">
-												{data.url}
-											</span>
-										</div>
-									</div>
-								</a>
-							{/each}
-						</div>
-
-						{/* @ts-ignore */ null}
-						{#if annotation?.data.length > 4}
-							<Dialog.Root>
-								<Dialog.Trigger
-									class={cn(
-										buttonVariants({ variant: 'outline' }),
-										'w-full',
-									)}>
-									View All Sources
-								</Dialog.Trigger>
-								<Dialog.Content>
-									<Dialog.Header>
-										<Dialog.Title>Sources and links</Dialog.Title>
-										<Dialog.Description>
-											<ScrollArea>
-												<div
-													class="grid max-h-[calc(100vh-10rem)] grid-cols-1 gap-2">
-													{/* @ts-ignore */ null}
-													{#each annotation?.data as data}
-														<a href={data.url} target="_blank">
-															<div
-																class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
-																<span class="line-clamp-1">
-																	{data.title}
-																</span>
-																<div class="flex items-center gap-2">
-																	<Avatar.Root
-																		class="size-4 overflow-visible">
-																		<Avatar.Image
-																			src={'https://www.google.com/s2/favicons?sz=128&domain_url=' +
-																				data.url}
-																			alt="favicon"
-																			class="size-4" />
-																		<Avatar.Fallback
-																			class="size-4 bg-opacity-0">
-																			<img
-																				src="/logo.png"
-																				alt="favicon" />
-																		</Avatar.Fallback>
-																	</Avatar.Root>
-																	<span
-																		class="text-muted-foreground line-clamp-1 text-sm">
-																		{data.url}
-																	</span>
-																</div>
-															</div>
-														</a>
-													{/each}
-												</div>
-											</ScrollArea>
-										</Dialog.Description>
-									</Dialog.Header>
-								</Dialog.Content>
-							</Dialog.Root>
-						{/if}
-					{/if}
-				{/if}
-			{/each}
 			{#each toolInvocations as toolInvocation}
 				<ToolInvocation
 					toolInvocation={toolInvocation.toolInvocation}
@@ -261,15 +166,6 @@
 							: 'invisible',
 					)}>
 					<CopyButton text={message.content} />
-					{#each message.annotations ?? [] as annotation}
-						{/* @ts-ignore */ null}
-						{#if annotation['type'] === 'search-error'}
-							<div class="text-destructive">
-								{/* @ts-ignore */ null}
-								Error: {annotation.message}
-							</div>
-						{/if}
-					{/each}
 				</div>
 			{/if}
 		</div>

@@ -13,7 +13,6 @@ export function convertToUIMessages(
 		role: string
 		providerMetadata: any
 		chatId: string
-		braveData: any
 	}>,
 ): Array<Message> {
 	return messages.reduce((chatMessages: Array<Message>, message) => {
@@ -86,22 +85,9 @@ export function convertToUIMessages(
 			toolInvocations,
 			annotations: [
 				{ type: 'model', model: message.model },
-				{
-					type: 'search',
-					data:
-						message.braveData?.web?.results?.map((result: any) => {
-							return {
-								url: result.url,
-								description: result.description,
-								title: result.title,
-								pageAge: result.page_age,
-							}
-						}) || [],
-				},
 				message.provider === 'google' && {
 					type: 'google-grounding',
-					data: message.providerMetadata
-						?.google as GoogleGenerativeAIProviderMetadata,
+					data: message.providerMetadata?.google,
 				},
 			],
 			experimental_attachments: attachments,

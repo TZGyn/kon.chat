@@ -236,7 +236,6 @@
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
 			{#each $messages as message, index}
 				<MessageBlock
-					annotations={message.annotations}
 					data={$data}
 					{message}
 					role={message.role}

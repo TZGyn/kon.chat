@@ -19,7 +19,6 @@
 	import { Loader2Icon } from 'lucide-svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 	import { onMount } from 'svelte'
-	import { isEqual, unionWith } from 'lodash'
 	import {
 		convertToUIMessages,
 		getMostRecentUserMessageIndex,
@@ -43,7 +42,6 @@
 						content: unknown
 						model: string | null
 						providerMetadata: any
-						braveData: any
 						provider: string | null
 					}[]
 				} | null
@@ -121,7 +119,6 @@
 			<div class="flex w-full max-w-[600px] flex-col gap-4">
 				{#each $messages as message, index (index)}
 					<MessageBlock
-						annotations={message.annotations}
 						data={$data}
 						{message}
 						role={message.role}
