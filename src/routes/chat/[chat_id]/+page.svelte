@@ -98,8 +98,10 @@
 					page.url.searchParams.delete('type')
 					replaceState(page.url, page.state)
 				}
-				chats.getChats()
-				useUser().getUser()
+				setTimeout(() => {
+					chats.getChats()
+					useUser().getUser()
+				}, 3000)
 				chat.value = $messages
 			},
 			onError: (error) => {

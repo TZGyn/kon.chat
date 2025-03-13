@@ -160,7 +160,7 @@
 			{#if message.role !== 'user'}
 				<div
 					class={cn(
-						'flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100',
+						'flex items-center gap-2',
 						status !== 'streaming' || !isLast
 							? 'visible'
 							: 'invisible',

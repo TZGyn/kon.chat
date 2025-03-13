@@ -261,13 +261,13 @@
 		// 	icon: CodeXmlIcon,
 		// 	show: true,
 		// },
-		// {
-		// 	id: 'academic',
-		// 	name: 'Academic',
-		// 	description: 'Search academic papers powered by Exa',
-		// 	icon: BookIcon,
-		// 	show: true,
-		// },
+		{
+			id: 'academic_search',
+			name: 'Academic',
+			description: 'Search academic papers (PDF)',
+			icon: BookIcon,
+			show: true,
+		},
 		//   {
 		//     id: 'youtube' as const,
 		//     name: 'YouTube',
