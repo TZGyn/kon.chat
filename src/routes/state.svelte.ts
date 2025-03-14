@@ -1,5 +1,6 @@
 import { customFetch } from '$lib/fetch'
 import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
+import { onMount } from 'svelte'
 
 export function useChats() {
 	let chats = useLocalStorage<{ id: string; title: string }[]>(
@@ -57,6 +58,7 @@ let user = $state<{
 
 export const useUser = () => {
 	const getUser = async () => {
+		user = JSON.parse(localStorage.getItem('user') || '{}')
 		user = (
 			await customFetch<{
 				user: {
@@ -74,6 +76,7 @@ export const useUser = () => {
 				} | null
 			}>('/auth/me')
 		).user
+		localStorage.setItem('user', JSON.stringify(user || {}))
 	}
 
 	return {

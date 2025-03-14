@@ -203,7 +203,7 @@
 					...custom,
 					search,
 					searchGrounding,
-					mode: selectedMode.id,
+					mode: selectedMode?.id || 'chat',
 				},
 				experimental_attachments: attachments
 					.filter(
@@ -232,27 +232,31 @@
 		input && adjustInputHeight()
 	})
 
-	const modes = [
+	let user = $derived(userState.user)
+
+	let modes = $derived([
 		{
 			id: 'chat',
 			name: 'Chat',
 			description: 'Standard prompt and response',
 			icon: MessageCircleIcon,
-			show: true,
+			disable: false,
 		},
 		{
 			id: 'web_search',
 			name: 'Web',
 			description: 'Search the web',
 			icon: GlobeIcon,
-			show: true,
+			disable:
+				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
 		{
 			id: 'x_search',
 			name: 'X',
 			description: 'Search X posts',
 			icon: TwitterLogo,
-			show: true,
+			disable:
+				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
 		// {
 		// 	id: 'analysis',
@@ -266,7 +270,8 @@
 			name: 'Academic',
 			description: 'Search academic papers (PDF)',
 			icon: BookIcon,
-			show: true,
+			disable:
+				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
 		//   {
 		//     id: 'youtube' as const,
@@ -275,9 +280,13 @@
 		//     icon: YoutubeIcon,
 		//     show: true,
 		//   },
-	] as const
+	] as const)
 
-	let selectedMode = $state<(typeof modes)[number]>(modes[0])
+	let selectedMode = $state<(typeof modes)[number]>()
+
+	$effect(() => {
+		selectedMode = modes[0]
+	})
 </script>
 
 <form
@@ -574,9 +583,10 @@
 			{#if enableSearch}
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger
-						class={buttonVariants({ variant: 'outline' })}
-						disabled={plan !== 'pro' && plan !== 'basic'}>
-						<selectedMode.icon />
+						class={buttonVariants({ variant: 'outline' })}>
+						{#if selectedMode}
+							<selectedMode.icon />
+						{/if}
 						<ChevronDownIcon />
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content>
@@ -588,7 +598,8 @@
 							{#each modes as mode}
 								<DropdownMenu.Item
 									class="p-3"
-									onclick={() => (selectedMode = mode)}>
+									onclick={() => (selectedMode = mode)}
+									disabled={mode.disable}>
 									<div
 										class="flex w-full items-center justify-between">
 										<div class="flex flex-col gap-2">
