@@ -11,7 +11,7 @@
 			]
 		},
 		{
-			"source": "/(.*)",
+			"source": "/:path*",
 			"headers": [{ "key": "Cache-Control", "value": "max-age=3600" }]
 		}
 	]
