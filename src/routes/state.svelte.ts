@@ -1,35 +1,33 @@
 import { customFetch } from '$lib/fetch'
-import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
-import { onMount } from 'svelte'
+
+let chats = $state<{ id: string; title: string }[]>([])
 
 export function useChats() {
-	let chats = useLocalStorage<{ id: string; title: string }[]>(
-		'chats',
-		[],
-	)
 	async function getChats() {
-		chats.value = (
+		chats = JSON.parse(localStorage.getItem('chats') || '[]')
+		chats = (
 			await customFetch<{ chats: { id: string; title: string }[] }>(
 				'/chat',
 			)
 		).chats
+		localStorage.setItem('chats', JSON.stringify(chats || []))
 	}
 
 	async function deleteChats(id: string) {
-		const prev = chats.value
+		const prev = chats
 
 		try {
-			chats.value = chats.value.filter((chat) => chat.id !== id)
+			chats = chats.filter((chat) => chat.id !== id)
 			const success = (
 				await customFetch<{ success: boolean }>(`/chat/${id}`, {
 					method: 'DELETE',
 				})
 			).success
 			if (!success) {
-				chats.value = prev
+				localStorage.setItem('chats', JSON.stringify(prev || []))
 			}
 		} catch (error) {
-			chats.value = prev
+			chats = prev
 		}
 	}
 

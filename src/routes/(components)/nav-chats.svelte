@@ -2,20 +2,11 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js'
 	import { onMount } from 'svelte'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
-	import {
-		Ellipsis,
-		MessageCircleCodeIcon,
-		MessageCircleIcon,
-		PlusIcon,
-		Trash2Icon,
-		XIcon,
-	} from 'lucide-svelte'
+	import { MessageCircleIcon, PlusIcon, XIcon } from 'lucide-svelte'
 	import { page } from '$app/state'
 	import { useChats } from '../state.svelte.js'
-	import { customFetch } from '$lib/fetch.js'
 	import { cn } from '$lib/utils.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
-	import { ScrollAreaScrollbar } from '$lib/components/ui/scroll-area/index.js'
 
 	const sidebar = Sidebar.useSidebar()
 
@@ -32,7 +23,7 @@
 	{#if sidebar.open || sidebar.isMobile}
 		<ScrollArea class="overflow-hidden" scrollbarYClasses={'hidden'}>
 			<Sidebar.Menu class="">
-				{#each chats.chats.value as chat}
+				{#each chats.chats as chat}
 					<Sidebar.MenuItem class="group/menu-button">
 						<Sidebar.MenuButton
 							isActive={page.url.pathname === `/chat/${chat.id}`}>
@@ -99,7 +90,7 @@
 								Chats
 							</DropdownMenu.GroupHeading>
 							<DropdownMenu.Separator />
-							{#each chats.chats.value as chat}
+							{#each chats.chats as chat}
 								<DropdownMenu.Item>
 									{#snippet child({ props })}
 										<a
