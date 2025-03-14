@@ -258,7 +258,6 @@
 		tabDiv?.addEventListener(
 			'click',
 			(event) => {
-				console.log(event)
 				// @ts-ignore
 				const target = event.target as HTMLElement
 				const classNames = target.getAttribute('class')

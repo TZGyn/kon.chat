@@ -9,7 +9,6 @@
 		fetch(`https://react-tweet.vercel.app/api/tweet/${tweet_id}`)
 			.then((data) => data.json())
 			.then((data) => {
-				console.log(data.data)
 				return enrichTweet(data.data)
 			}) as Promise<EnrichedTweet>,
 	)
