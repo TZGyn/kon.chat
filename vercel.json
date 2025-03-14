@@ -2,6 +2,10 @@
 	"$schema": "https://openapi.vercel.sh/vercel.json",
 	"headers": [
 		{
+			"source": "/",
+			"headers": [{ "key": "Cache-Control", "value": "max-age=3600" }]
+		},
+		{
 			"source": "/:path*",
 			"headers": [{ "key": "Cache-Control", "value": "max-age=3600" }]
 		}
