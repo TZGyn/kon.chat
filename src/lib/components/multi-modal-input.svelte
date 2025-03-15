@@ -16,6 +16,7 @@
 		Globe,
 		GlobeIcon,
 		ImageIcon,
+		LibraryBigIcon,
 		Loader2Icon,
 		MemoryStick,
 		MessageCircleIcon,
@@ -273,13 +274,14 @@
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
-		//   {
-		//     id: 'youtube' as const,
-		//     name: 'YouTube',
-		//     description: 'Search YouTube videos in real-time powered by Exa',
-		//     icon: YoutubeIcon,
-		//     show: true,
-		//   },
+		{
+			id: 'web_reader',
+			name: 'Web Reader',
+			description: 'Read articles from the web',
+			icon: LibraryBigIcon,
+			disable:
+				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
+		},
 	] as const)
 
 	let selectedMode = $state<(typeof modes)[number]>()

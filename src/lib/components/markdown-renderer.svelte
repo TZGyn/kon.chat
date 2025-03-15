@@ -6,6 +6,7 @@
 	import MarkdownInline from './markdown-inline.svelte'
 	import * as Tooltip from '$lib/components/ui/tooltip'
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js'
+	import * as Table from '$lib/components/ui/table/index.js'
 	import { ChevronsUpDownIcon, DownloadIcon } from 'lucide-svelte'
 	import { buttonVariants } from './ui/button'
 	import katex from 'katex'
@@ -45,69 +46,31 @@
 		<div class="group relative w-full">
 			<div
 				class="scrollbar-hidden relative max-w-full overflow-x-auto rounded-lg">
-				<table
-					class=" w-full max-w-full rounded-xl text-left text-sm text-gray-500 dark:text-gray-400">
-					<thead
-						class="dark:bg-gray-850 border-none bg-gray-50 text-xs uppercase text-gray-700 dark:text-gray-400">
-						<tr class="">
+				<Table.Root>
+					<!-- <Table.Caption>
+						A list of your recent invoices.
+					</Table.Caption> -->
+					<Table.Header>
+						<Table.Row>
 							{#each token.header as header, headerIdx}
-								<th
-									scope="col"
-									class="px-3! py-1.5! dark:border-gray-850 cursor-pointer border border-gray-100"
-									style={token.align[headerIdx]
-										? ''
-										: `text-align: ${token.align[headerIdx]}`}>
-									<div class="flex flex-col gap-1.5 text-left">
-										<div class="shrink-0 break-normal">
-											<MarkdownInline tokens={header.tokens} />
-										</div>
-									</div>
-								</th>
+								<Table.Head>
+									<MarkdownInline tokens={header.tokens} />
+								</Table.Head>
 							{/each}
-						</tr>
-					</thead>
-					<tbody>
+						</Table.Row>
+					</Table.Header>
+					<Table.Body>
 						{#each token.rows as row, rowIdx}
-							<tr
-								class="dark:border-gray-850 bg-white text-xs dark:bg-gray-900">
+							<Table.Row>
 								{#each row ?? [] as cell, cellIdx}
-									<td
-										class="px-3! py-1.5! dark:border-gray-850 w-max border border-gray-100 text-gray-900 dark:text-white"
-										style={token.align[cellIdx]
-											? ''
-											: `text-align: ${token.align[cellIdx]}`}>
-										<div class="flex flex-col break-normal">
-											<MarkdownInline tokens={cell.tokens} />
-										</div>
-									</td>
+									<Table.Cell>
+										<MarkdownInline tokens={cell.tokens} />
+									</Table.Cell>
 								{/each}
-							</tr>
+							</Table.Row>
 						{/each}
-					</tbody>
-				</table>
-			</div>
-
-			<div
-				class=" invisible absolute right-1.5 top-1 z-20 group-hover:visible">
-				<Tooltip.Provider>
-					<Tooltip.Root>
-						<Tooltip.Trigger>
-							<button
-								class="rounded-lg bg-transparent p-1 transition"
-								onclick={(e) => {
-									e.stopPropagation()
-									// exportTableToCSVHandler(token, tokenIdx)
-								}}>
-								<DownloadIcon
-									className=" size-3.5"
-									strokeWidth="1.5" />
-							</button>
-						</Tooltip.Trigger>
-						<Tooltip.Content>
-							<p>Export to CSV</p>
-						</Tooltip.Content>
-					</Tooltip.Root>
-				</Tooltip.Provider>
+					</Table.Body>
+				</Table.Root>
 			</div>
 		</div>
 	{:else if token.type === 'blockquote'}

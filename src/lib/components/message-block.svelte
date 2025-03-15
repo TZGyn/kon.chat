@@ -165,7 +165,9 @@
 							? 'visible'
 							: 'invisible',
 					)}>
-					<CopyButton text={message.content} />
+					{#if message.content}
+						<CopyButton text={message.content} />
+					{/if}
 				</div>
 			{/if}
 		</div>
