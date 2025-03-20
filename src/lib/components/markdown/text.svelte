@@ -63,9 +63,9 @@
 			{/if}
 		</a>
 	{/if}
-	<!-- {#if result.text}
+	{#if result.text}
 		<span>
 			{result.text}
 		</span>
-	{/if} -->
+	{/if}
 {/each}
