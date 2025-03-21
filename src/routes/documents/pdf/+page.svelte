@@ -94,14 +94,16 @@
 	const deletePDF = async (pdf_id: string) => {
 		const prev = pdfs.value
 		pdfs.value = pdfs.value.filter((pdf) => pdf.id !== pdf_id)
-		const response = await customFetchRaw(
-			`/documents/pdf/${pdf_id}`,
-			{
-				method: 'DELETE',
-			},
-		)
+		const success = (
+			await customFetch<{ success: boolean }>(
+				`/documents/pdf/${pdf_id}`,
+				{
+					method: 'DELETE',
+				},
+			)
+		).success
 
-		if (response.ok) {
+		if (success) {
 			toast.success('PDF Deleted')
 		} else {
 			pdfs.value = prev
