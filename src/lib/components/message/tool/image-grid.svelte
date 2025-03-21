@@ -3,14 +3,8 @@
 	import { MediaQuery } from 'svelte/reactivity'
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
 	import * as Drawer from '$lib/components/ui/drawer/index.js'
-	import { Button } from '$lib/components/ui/button'
 	import * as Carousel from '$lib/components/ui/carousel/index.js'
 	import * as Card from '$lib/components/ui/card/index.js'
-	import {
-		ChevronLeftIcon,
-		ChevronRightIcon,
-		XIcon,
-	} from 'lucide-svelte'
 	import type { CarouselAPI } from '$lib/components/ui/carousel/context'
 	const PREVIEW_IMAGE_COUNT = {
 		MOBILE: 4,
@@ -48,8 +42,8 @@
 				: PREVIEW_IMAGE_COUNT.MOBILE),
 	)
 	let api = $state<CarouselAPI>()
-	const count = $derived(api ? api.scrollSnapList().length : 0)
 	let current = $state(0)
+
 	$effect(() => {
 		if (api) {
 			current = api.selectedScrollSnap() + 1
@@ -89,8 +83,7 @@
 			<button
 				class={cn(
 					'group/image relative overflow-hidden rounded-xl',
-					'transition-all duration-200',
-					'bg-primary/5 dark:bg-primary/10 shadow-sm hover:cursor-pointer',
+					'bg-primary/10 shadow-sm hover:cursor-pointer',
 				)}
 				onclick={() => {
 					isOpen = true

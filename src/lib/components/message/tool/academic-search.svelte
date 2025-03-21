@@ -88,7 +88,8 @@
 								<div class="flex gap-2">
 									<Button
 										variant="secondary"
-										onclick={() => window.open(paper.url, '_blank')}
+										href={paper.url}
+										target="_blank"
 										class="flex-1">
 										<FileTextIcon class="mr-2 h-4 w-4" />
 										View Paper
@@ -98,11 +99,8 @@
 										<Button
 											variant="secondary"
 											size="icon"
-											onclick={() =>
-												window.open(
-													paper.url.replace('abs', 'pdf'),
-													'_blank',
-												)}>
+											href={paper.url.replace('abs', 'pdf')}
+											target="_blank">
 											<DownloadIcon />
 										</Button>
 									{/if}

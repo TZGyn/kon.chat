@@ -125,10 +125,9 @@
 		</div>
 	{/if}
 
-	<div
-		class="py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+	<div class="bg-background flex flex-col gap-2 py-3 pb-6 shadow-sm">
 		{#if !result}
-			<div class="mb-3 flex gap-2 overflow-x-auto pb-1">
+			<div class="flex gap-2 overflow-x-auto">
 				{#each args.queries as query, i}
 					{@const annotation = (annotations ?? []).find(
 						(a) => a.data.query === query,
@@ -153,7 +152,7 @@
 				{/each}
 			</div>
 		{:else}
-			<div class="mb-3 flex gap-2 overflow-x-auto pb-1">
+			<div class="flex gap-2 overflow-x-auto">
 				{#each result.searches as search, i}
 					<Badge
 						variant="secondary"
@@ -256,7 +255,7 @@
 					<Dialog.Trigger
 						class={cn(
 							buttonVariants({ variant: 'outline' }),
-							'mt-4 w-full',
+							'w-full',
 						)}>
 						View All Sources
 						<span class="text-muted-foreground">
