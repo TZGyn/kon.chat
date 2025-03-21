@@ -6,13 +6,13 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import { cn } from '$lib/utils'
-	import { Skeleton } from '$lib/components/ui/skeleton'
 	import Chat from './(components)/chat.svelte'
 	import { customFetchRaw } from '$lib/fetch'
 	import { toast } from 'svelte-sonner'
 	import { processDataStream } from '@ai-sdk/ui-utils'
 	import { onMount } from 'svelte'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
+	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
 
 	const autoScroll = new UseAutoScroll()
 	const autoScrollMarkdown = new UseAutoScroll()
@@ -26,9 +26,18 @@
 	>('loading')
 	let markdownStatus = $state<'loading' | 'streaming' | 'done'>()
 
-	let url = $state('')
-	let summary = $state('')
-	let markdown = $state('')
+	let pdf = $derived(
+		useLocalStorage<{
+			type: 'pdf'
+			url: string
+			name: string
+			id: string
+			createdAt: number
+			userId: string
+			summary: string | null
+			markdown: string | null
+		} | null>(`pdf:data:${page.params.pdf_id}`, null),
+	)
 
 	const getPDFData = async () => {
 		status = 'loading'
@@ -52,8 +61,7 @@
 				markdown: string | null
 			}
 		}
-
-		url = data.url
+		pdf.value = data
 
 		status = 'ready'
 	}
@@ -73,7 +81,9 @@
 				markdown: string
 			}
 
-			markdown = data
+			if (pdf.value) {
+				pdf.value.markdown = data
+			}
 
 			markdownStatus = 'done'
 			return
@@ -87,31 +97,12 @@
 		await processDataStream({
 			stream: response.body,
 			onTextPart: (value) => {
-				markdown += value
-			},
-			onDataPart: (value) => {
-				value.map((value) => {
-					// @ts-ignore
-					if (value.type === 'pdf_info') {
-						// @ts-ignore
-						const data = value.info as {
-							type: 'pdf'
-							url: string
-							name: string
-							id: string
-							createdAt: number
-							userId: string
-							summary: null
-							markdown: null
-						}
-						url = data.url
+				if (pdf.value) {
+					if (pdf.value.markdown === null) {
+						pdf.value.markdown = ''
 					}
-					// @ts-ignore
-					if (value.type === 'markdown-data') {
-						// @ts-ignore
-						markdown = value.message as string
-					}
-				})
+					pdf.value.markdown += value
+				}
 			},
 		})
 
@@ -133,7 +124,9 @@
 				summary: string
 			}
 
-			summary = data
+			if (pdf.value) {
+				pdf.value.summary = data
+			}
 
 			status = 'ready'
 			return
@@ -147,31 +140,12 @@
 		await processDataStream({
 			stream: response.body,
 			onTextPart: (value) => {
-				summary += value
-			},
-			onDataPart: (value) => {
-				value.map((value) => {
-					// @ts-ignore
-					if (value.type === 'pdf_info') {
-						// @ts-ignore
-						const data = value.info as {
-							type: 'pdf'
-							url: string
-							name: string
-							id: string
-							createdAt: number
-							userId: string
-							summary: null
-							markdown: null
-						}
-						url = data.url
+				if (pdf.value) {
+					if (pdf.value.summary === null) {
+						pdf.value.summary = ''
 					}
-					// @ts-ignore
-					if (value.type === 'markdown-data') {
-						// @ts-ignore
-						markdown = value.message as string
-					}
-				})
+					pdf.value.summary += value
+				}
 			},
 		})
 
@@ -189,7 +163,8 @@
 	class="@container flex flex-1 flex-col justify-center overflow-hidden">
 	<div class="@6xl:flex-row flex flex-1 flex-col overflow-hidden">
 		<div class="flex flex-1 overflow-hidden">
-			<iframe title="pdf" class="flex-1" src={url}></iframe>
+			<iframe title="pdf" class="flex-1" src={pdf.value?.url}>
+			</iframe>
 		</div>
 		<div class="flex flex-1 overflow-hidden">
 			<Tabs.Root
@@ -213,7 +188,9 @@
 						class="flex flex-1 flex-col items-center">
 						<div
 							class="prose prose-neutral dark:prose-invert prose-p:my-0 pb-4 pt-2">
-							<Markdown id="pdf-summary" content={summary} />
+							<Markdown
+								id="pdf-summary"
+								content={pdf.value?.summary || ''} />
 						</div>
 						{#if status === 'loading' || status === 'streaming'}
 							<div
@@ -252,7 +229,9 @@
 						class="flex flex-1 flex-col items-center">
 						<div
 							class="prose prose-neutral dark:prose-invert prose-p:my-0 pb-4 pt-2">
-							<Markdown id="pdf-markdown" content={markdown} />
+							<Markdown
+								id="pdf-markdown"
+								content={pdf.value?.markdown || ''} />
 						</div>
 						{#if markdownStatus === 'loading' || markdownStatus === 'streaming'}
 							<div
@@ -287,7 +266,9 @@
 					value="chat"
 					class="flex flex-1 overflow-hidden">
 					<div class="relative flex flex-1 overflow-hidden">
-						<Chat pdf_id={page.params.pdf_id} {markdown} />
+						<Chat
+							pdf_id={page.params.pdf_id}
+							markdown={pdf.value?.markdown || ''} />
 					</div>
 				</Tabs.Content>
 			</Tabs.Root>
