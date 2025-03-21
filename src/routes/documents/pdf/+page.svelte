@@ -191,7 +191,7 @@
 							onclick={submit}
 							class="flex w-full items-center gap-2">
 							{#if uploadStatus === 'submitting'}
-								<Loader2Icon />
+								<Loader2Icon class="animate-spin" />
 							{/if}
 							Upload
 						</Button>
@@ -235,7 +235,7 @@
 								onclick={submit}
 								class="flex w-full items-center gap-2">
 								{#if uploadStatus === 'submitting'}
-									<Loader2Icon />
+									<Loader2Icon class="animate-spin" />
 								{/if}
 								Upload
 							</Button>

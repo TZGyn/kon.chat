@@ -87,7 +87,6 @@
 		await processDataStream({
 			stream: response.body,
 			onTextPart: (value) => {
-				console.log(value)
 				markdown += value
 			},
 			onDataPart: (value) => {
@@ -219,7 +218,7 @@
 						{#if status === 'loading' || status === 'streaming'}
 							<div
 								class={cn(
-									'flex min-h-[calc(100vh-25rem)] gap-2 place-self-start',
+									'flex min-h-[25rem] gap-2 place-self-start',
 								)}>
 								<div class="group flex flex-col gap-2">
 									<div class="flex items-center gap-4">
@@ -258,7 +257,7 @@
 						{#if markdownStatus === 'loading' || markdownStatus === 'streaming'}
 							<div
 								class={cn(
-									'flex min-h-[calc(100vh-25rem)] gap-2 place-self-start',
+									'flex min-h-[25rem] gap-2 place-self-start',
 								)}>
 								<div class="group flex flex-col gap-2">
 									<div class="flex items-center gap-4">
