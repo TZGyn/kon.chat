@@ -7,13 +7,13 @@
 
 <div class="flex flex-1 items-center justify-center p-4">
 	<div class="flex flex-wrap justify-center gap-8">
-		<!-- <a href="/documents/pdf" data-sveltekit-preload-code="eager">
+		<a href="/documents/pdf">
 			<div
 				class="bg-secondary hover:bg-accent flex h-48 w-44 flex-col items-center justify-center gap-8 rounded-lg border p-8">
 				<PdfIcon class="size-16" />
 				PDF
 			</div>
-		</a> -->
+		</a>
 		<a href="/documents/sheets">
 			<div
 				class="bg-secondary hover:bg-accent flex h-48 w-44 flex-col items-center justify-center gap-8 rounded-lg border p-8">
