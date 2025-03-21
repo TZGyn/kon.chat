@@ -57,7 +57,11 @@
 							'data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:cursor-pointer',
 						)}
 						variant="outline">
-						<Avatar.Root class="h-8 w-8 rounded-lg">
+						<Avatar.Root
+							class={cn(
+								'rounded-lg',
+								sidebar.open ? 'h-8 w-8' : 'h-4 w-4',
+							)}>
 							<Avatar.Image src={user?.avatar} alt={user?.name} />
 							<Avatar.Fallback class="rounded-lg">
 								{user?.name[0] || 'K'}
