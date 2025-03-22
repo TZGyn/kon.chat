@@ -51,7 +51,7 @@ let user = $state<{
 
 export const useUser = () => {
 	const getUser = async () => {
-		user = JSON.parse(localStorage.getItem('user') || '{}')
+		user = JSON.parse(localStorage.getItem('user') || 'null')
 		user = (
 			await customFetch<{
 				user: {
@@ -64,7 +64,7 @@ export const useUser = () => {
 				} | null
 			}>('/auth/me')
 		).user
-		localStorage.setItem('user', JSON.stringify(user || {}))
+		localStorage.setItem('user', JSON.stringify(user || null))
 	}
 
 	return {

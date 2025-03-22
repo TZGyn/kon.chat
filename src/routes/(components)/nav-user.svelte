@@ -88,7 +88,7 @@
 					<div
 						class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 						<Avatar.Root class="h-8 w-8 rounded-lg">
-							<Avatar.Image src={''} alt={user?.name} />
+							<Avatar.Image src={''} alt={user?.name || ''} />
 							<Avatar.Fallback class="rounded-lg">
 								{user?.name[0] || 'K'}
 							</Avatar.Fallback>

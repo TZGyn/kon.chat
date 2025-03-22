@@ -240,6 +240,7 @@
 			id: 'chat',
 			name: 'Chat',
 			description: 'Standard prompt and response',
+			credits: 0,
 			icon: MessageCircleIcon,
 			disable: false,
 		},
@@ -248,6 +249,7 @@
 			name: 'Web',
 			description: 'Search the web',
 			icon: GlobeIcon,
+			credits: 5,
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
@@ -256,6 +258,7 @@
 			name: 'X',
 			description: 'Search X posts',
 			icon: TwitterLogo,
+			credits: 5,
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
@@ -271,6 +274,7 @@
 			name: 'Academic',
 			description: 'Search academic papers (PDF)',
 			icon: BookIcon,
+			credits: 5,
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
@@ -279,6 +283,7 @@
 			name: 'Web Reader',
 			description: 'Read articles from the web',
 			icon: LibraryBigIcon,
+			credits: 5,
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
@@ -393,7 +398,14 @@
 								<div class="flex w-full items-center justify-between">
 									<div class="flex items-center gap-2">
 										{@render modelIcon(model.provider)}
-										<div>{model.name}</div>
+										<div class="flex flex-col items-start gap-1">
+											<span>
+												{model.name}
+											</span>
+											<span class="text-muted-foreground text-xs">
+												Credits: {model.credits}
+											</span>
+										</div>
 										{#if model.info}
 											<Tooltip.Provider>
 												<Tooltip.Root>
@@ -431,7 +443,14 @@
 								<div class="flex w-full items-center justify-between">
 									<div class="flex items-center gap-2">
 										{@render modelIcon(model.provider)}
-										<div>{model.name}</div>
+										<div class="flex flex-col items-start gap-1">
+											<span>
+												{model.name}
+											</span>
+											<span class="text-muted-foreground text-xs">
+												Credits: {model.credits}
+											</span>
+										</div>
 										{#if model.info}
 											<Tooltip.Provider>
 												<Tooltip.Root>
@@ -612,6 +631,11 @@
 											<div class="text-muted-foreground text-sm">
 												{mode.description}
 											</div>
+											{#if mode.credits !== 0}
+												<div class="text-muted-foreground text-xs">
+													Credits: +{mode.credits}
+												</div>
+											{/if}
 										</div>
 									</div>
 								</DropdownMenu.Item>

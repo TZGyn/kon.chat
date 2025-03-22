@@ -18,6 +18,7 @@ export const useModels = () => {
 				searchGrounding: true,
 			},
 			disabled: false,
+			credits: 0,
 		},
 	] as const)
 	let standardModels = $derived([
@@ -35,6 +36,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 1,
 		},
 		{
 			name: 'GPT 4o',
@@ -50,6 +52,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 5,
 		},
 		{
 			name: 'o3 mini',
@@ -65,6 +68,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 2,
 		},
 		{
 			name: 'Grok 2',
@@ -80,6 +84,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 2,
 		},
 		{
 			name: 'Grok 2 Vision',
@@ -95,6 +100,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 2,
 		},
 		{
 			name: 'DeepSeek R1 (Groq)',
@@ -110,6 +116,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 2,
 		},
 		{
 			name: 'Qwen QwQ (Groq)',
@@ -125,6 +132,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 2,
 		},
 		{
 			name: 'Llama 3.3 (Groq)',
@@ -140,6 +148,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 1,
 		},
 	] as const)
 
@@ -158,6 +167,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'basic',
+			credits: 15,
 		},
 		{
 			name: 'Clause 3.7 Sonnet',
@@ -173,6 +183,7 @@ export const useModels = () => {
 			},
 			disabled:
 				plan === undefined || plan === 'free' || plan === 'basic',
+			credits: 15,
 		},
 	] as const)
 	return {
