@@ -105,47 +105,17 @@
 				</DropdownMenu.Label>
 				<DropdownMenu.Separator />
 				<DropdownMenu.Label class="p-0 font-normal">
-					{#if user}
-						<div
-							class="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
-							<div
-								class="grid flex-1 text-left text-sm leading-tight">
-								{#if user.plan === 'trial'}
-									<span
-										class="text-muted-foreground truncate text-xs font-semibold">
-										Free Chat Limit: {user.freeChatLimit}
-									</span>
-								{:else}
-									<span
-										class="text-muted-foreground truncate text-xs font-semibold">
-										Standard Chat Limit: {user.standardChatLimit +
-											user.standardChatCredit}
-									</span>
-									<span
-										class="text-muted-foreground truncate text-xs font-semibold">
-										Premium Chat Limit: {user.premiumChatLimit +
-											user.premiumChatCredit}
-									</span>
-									<span
-										class="text-muted-foreground truncate text-xs font-semibold">
-										Web Search Limit: {user.searchLimit +
-											user.searchCredit}
-									</span>
-								{/if}
-							</div>
+					<div
+						class="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
+						<div class="grid flex-1 text-left text-sm leading-tight">
+							<span
+								class="text-muted-foreground truncate text-xs font-semibold">
+								Credits: {user
+									? user.credits + user.purchased_credits
+									: 0}
+							</span>
 						</div>
-					{:else}
-						<div
-							class="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
-							<div
-								class="grid flex-1 text-left text-sm leading-tight">
-								<span
-									class="text-muted-foreground truncate text-xs font-semibold">
-									Free Chat Limit: 10
-								</span>
-							</div>
-						</div>
-					{/if}
+					</div>
 				</DropdownMenu.Label>
 				{#if user === null || user.plan === 'free' || user.plan === 'trial'}
 					<DropdownMenu.Separator />

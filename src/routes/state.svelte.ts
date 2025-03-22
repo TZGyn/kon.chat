@@ -45,13 +45,8 @@ let user = $state<{
 	name: string
 	plan: 'pro' | 'basic' | 'free' | 'owner' | 'trial'
 	avatar: string
-	freeChatLimit: number
-	standardChatLimit: number
-	premiumChatLimit: number
-	standardChatCredit: number
-	premiumChatCredit: number
-	searchLimit: number
-	searchCredit: number
+	credits: number
+	purchased_credits: number
 } | null>(null)
 
 export const useUser = () => {
@@ -64,13 +59,8 @@ export const useUser = () => {
 					name: string
 					plan: 'free' | 'basic' | 'pro' | 'trial'
 					avatar: string
-					freeChatLimit: number
-					standardChatLimit: number
-					premiumChatLimit: number
-					standardChatCredit: number
-					premiumChatCredit: number
-					searchLimit: number
-					searchCredit: number
+					credits: number
+					purchased_credits: number
 				} | null
 			}>('/auth/me')
 		).user

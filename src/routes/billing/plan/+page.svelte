@@ -17,16 +17,10 @@
 				link: PUBLIC_API_URL + '/billing/plan/basic',
 				included: [
 					{
-						title: 'Access to all standard models',
+						title: '1000 Credits/month',
 					},
 					{
-						title: 'Access to Web Search and Image upload',
-					},
-					{
-						title: '1000 Standard Chats/month',
-					},
-					{
-						title: '100 Web Searches/month',
+						title: 'Access to Web Search and Image/File upload',
 					},
 				],
 				notIncluded: [],
@@ -39,19 +33,13 @@
 				link: PUBLIC_API_URL + '/billing/plan/pro',
 				included: [
 					{
-						title: 'Access to all standard and premium models',
+						title: '3000 Credits/month',
 					},
 					{
-						title: 'Access to Web Search and Image upload',
+						title: 'Access to Web Search and Image/File upload',
 					},
 					{
-						title: '3000 Standard Chats/month',
-					},
-					{
-						title: '200 Premium Chats/month',
-					},
-					{
-						title: '400 Web Searches/month',
+						title: 'Higher upload limits',
 					},
 				],
 				notIncluded: [],
