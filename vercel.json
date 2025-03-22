@@ -3,11 +3,15 @@
 	"headers": [
 		{
 			"source": "/",
-			"headers": [{ "key": "Cache-Control", "value": "max-age=3600" }]
+			"headers": [
+				{ "key": "Cache-Control", "value": "max-age=86400" }
+			]
 		},
 		{
 			"source": "/:path*",
-			"headers": [{ "key": "Cache-Control", "value": "max-age=3600" }]
+			"headers": [
+				{ "key": "Cache-Control", "value": "max-age=86400" }
+			]
 		}
 	]
 }
