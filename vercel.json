@@ -4,13 +4,13 @@
 		{
 			"source": "/",
 			"headers": [
-				{ "key": "Cache-Control", "value": "max-age=86400" }
+				{ "key": "Cache-Control", "value": "max-age=2592000" }
 			]
 		},
 		{
 			"source": "/:path*",
 			"headers": [
-				{ "key": "Cache-Control", "value": "max-age=86400" }
+				{ "key": "Cache-Control", "value": "max-age=2592000" }
 			]
 		}
 	]
