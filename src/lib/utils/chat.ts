@@ -1,7 +1,13 @@
 import type { Attachment, CoreToolMessage } from 'ai'
 import { type Message } from '@ai-sdk/svelte'
-import { type ToolInvocation, type UIMessage } from '@ai-sdk/ui-utils'
-import { type GoogleGenerativeAIProviderMetadata } from '@ai-sdk/google'
+import {
+	type ReasoningUIPart,
+	type SourceUIPart,
+	type TextUIPart,
+	type ToolInvocation,
+	type ToolInvocationUIPart,
+	type UIMessage,
+} from '@ai-sdk/ui-utils'
 
 export function convertToUIMessages(
 	messages: Array<{
@@ -13,6 +19,13 @@ export function convertToUIMessages(
 		role: string
 		providerMetadata: any
 		chatId: string
+		experimental_attachments?: Attachment[]
+		parts?: (
+			| TextUIPart
+			| ToolInvocationUIPart
+			| ReasoningUIPart
+			| SourceUIPart
+		)[]
 	}>,
 ): Array<Message> {
 	return messages.reduce((chatMessages: Array<Message>, message) => {
@@ -26,8 +39,8 @@ export function convertToUIMessages(
 
 		let textContent = ''
 		let reasoningContent = ''
-		const toolInvocations: Array<ToolInvocation> = []
-		const attachments: Array<Attachment> = []
+		let toolInvocations: Array<ToolInvocation> = []
+		let attachments: Array<Attachment> = []
 
 		if (typeof message.content === 'string') {
 			textContent = message.content
@@ -77,6 +90,13 @@ export function convertToUIMessages(
 			}
 		}
 
+		if (message.experimental_attachments !== undefined) {
+			attachments = [
+				...attachments,
+				...message.experimental_attachments,
+			]
+		}
+
 		chatMessages.push({
 			id: message.id,
 			role: message.role as Message['role'],
@@ -90,6 +110,7 @@ export function convertToUIMessages(
 					data: message.providerMetadata?.google,
 				},
 			],
+			parts: message.parts,
 			experimental_attachments: attachments,
 			createdAt: new Date(message.createdAt),
 		})
