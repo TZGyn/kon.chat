@@ -23,6 +23,7 @@
 		PaperclipIcon,
 		SearchIcon,
 		SendIcon,
+		SquareIcon,
 		ZapIcon,
 	} from 'lucide-svelte'
 	import { useUser } from '../../routes/state.svelte'
@@ -56,6 +57,7 @@
 		fileUpload = false,
 		enableSearch = false,
 		autoScroll,
+		stop,
 	}: {
 		input: string
 		selectedModelLocator: string
@@ -83,6 +85,7 @@
 		fileUpload?: boolean
 		enableSearch?: boolean
 		autoScroll?: UseAutoScroll
+		stop?: () => void
 	} = $props()
 
 	let modelState = useModels()
@@ -644,13 +647,23 @@
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			{/if}
-			<Button type="submit" class="" size="icon">
-				{#if status === 'submitted' || status === 'streaming'}
-					<Loader2Icon class="animate-spin" />
-				{:else}
-					<SendIcon />
-				{/if}
-			</Button>
+			{#if stop !== undefined}
+				<Button onclick={() => stop()} class="" size="icon">
+					{#if status === 'submitted' || status === 'streaming'}
+						<SquareIcon />
+					{:else}
+						<SendIcon />
+					{/if}
+				</Button>
+			{:else}
+				<Button type="submit" class="" size="icon">
+					{#if status === 'submitted' || status === 'streaming'}
+						<Loader2Icon class="animate-spin" />
+					{:else}
+						<SendIcon />
+					{/if}
+				</Button>
+			{/if}
 		</div>
 	</div>
 </form>

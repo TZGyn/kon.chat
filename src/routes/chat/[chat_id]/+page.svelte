@@ -88,6 +88,7 @@
 		data,
 		setData,
 		setMessages,
+		stop,
 	} = $derived(
 		useChat({
 			initialMessages: [],
@@ -171,4 +172,5 @@
 	imageUpload={true}
 	fileUpload={true}
 	enableSearch={true}
-	{autoScroll} />
+	{autoScroll}
+	{stop} />

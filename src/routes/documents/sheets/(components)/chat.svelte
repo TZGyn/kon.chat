@@ -41,6 +41,7 @@
 		data,
 		setData,
 		setMessages,
+		stop,
 	} = useChat({
 		maxSteps: 1,
 		initialMessages: [],
@@ -284,4 +285,5 @@
 	{setMessages}
 	status={$status}
 	customData={getCustomData}
-	{autoScroll} />
+	{autoScroll}
+	{stop} />

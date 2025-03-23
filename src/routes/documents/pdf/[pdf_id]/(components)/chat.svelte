@@ -28,6 +28,7 @@
 		data,
 		setData,
 		setMessages,
+		stop,
 	} = useChat({
 		maxSteps: 1,
 		initialMessages: browser
@@ -107,4 +108,5 @@
 	imageUpload={true}
 	enableSearch={false}
 	customData={() => ({ markdown: markdown })}
-	{autoScroll} />
+	{autoScroll}
+	{stop} />
