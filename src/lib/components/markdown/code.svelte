@@ -29,7 +29,7 @@
 	const updateHTML = async (code: string) => {
 		const html = await codeToHtml(code, {
 			lang: lang in bundledLanguages ? lang : 'text',
-			theme: 'dark-plus',
+			theme: 'one-dark-pro',
 		})
 		codeHTML = html
 	}
@@ -236,7 +236,9 @@
 	</div>
 </div>
 {#key codeHTML}
-	{@html codeHTML}
+	<div class="*:[pre]:!bg-[#1e1e1e]">
+		{@html codeHTML}
+	</div>
 {/key}
 
 <!-- class={cn('w-12 shrink-0', {

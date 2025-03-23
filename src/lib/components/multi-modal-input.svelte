@@ -225,6 +225,10 @@
 		}
 	}
 
+	$effect(() => {
+		status && autoScroll?.scrollToBottom()
+	})
+
 	const adjustInputHeight = () => {
 		if (inputElement) {
 			inputElement.style.height = 'auto'
