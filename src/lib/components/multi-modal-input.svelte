@@ -647,21 +647,19 @@
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			{/if}
-			{#if stop !== undefined}
-				<Button onclick={() => stop()} class="" size="icon">
-					{#if status === 'submitted' || status === 'streaming'}
+			{#if status === 'submitted' || status === 'streaming'}
+				{#if stop !== undefined}
+					<Button onclick={() => stop()} class="" size="icon">
 						<SquareIcon />
-					{:else}
-						<SendIcon />
-					{/if}
-				</Button>
-			{:else}
-				<Button type="submit" class="" size="icon">
-					{#if status === 'submitted' || status === 'streaming'}
+					</Button>
+				{:else}
+					<Button disabled size="icon">
 						<Loader2Icon class="animate-spin" />
-					{:else}
-						<SendIcon />
-					{/if}
+					</Button>
+				{/if}
+			{:else}
+				<Button type="submit" size="icon">
+					<SendIcon />
 				</Button>
 			{/if}
 		</div>
