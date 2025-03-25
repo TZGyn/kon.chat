@@ -80,6 +80,12 @@
 			return
 		}
 
+		if (response.headers.get('Content-Type') === 'text/plain') {
+			toast.error(await response.text())
+			isSubmitting = false
+			return
+		}
+
 		const body = (await response.json()) as {
 			images: {
 				base64Data: string
