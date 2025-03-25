@@ -13,6 +13,7 @@
 	import { onMount } from 'svelte'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
+	import { env } from '$env/dynamic/public'
 
 	const autoScroll = new UseAutoScroll()
 	const autoScrollMarkdown = new UseAutoScroll()
@@ -29,7 +30,7 @@
 	let pdf = $derived(
 		useLocalStorage<{
 			type: 'pdf'
-			url: string
+			uploadId: string
 			name: string
 			id: string
 			createdAt: number
@@ -52,7 +53,7 @@
 		const { pdf: data } = (await response.json()) as {
 			pdf: {
 				type: 'pdf'
-				url: string
+				uploadId: string
 				name: string
 				id: string
 				createdAt: number
@@ -163,7 +164,12 @@
 	class="@container flex flex-1 flex-col justify-center overflow-hidden">
 	<div class="@6xl:flex-row flex flex-1 flex-col overflow-hidden">
 		<div class="flex flex-1 overflow-hidden">
-			<iframe title="pdf" class="flex-1" src={pdf.value?.url}>
+			<iframe
+				title="pdf"
+				class="flex-1"
+				src={env.PUBLIC_API_URL +
+					'/file-upload/' +
+					pdf.value?.uploadId}>
 			</iframe>
 		</div>
 		<div class="flex flex-1 overflow-hidden">

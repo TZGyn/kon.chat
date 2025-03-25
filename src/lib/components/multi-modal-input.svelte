@@ -58,6 +58,7 @@
 		enableSearch = false,
 		autoScroll,
 		stop,
+		upload_url,
 	}: {
 		input: string
 		selectedModelLocator: string
@@ -85,6 +86,7 @@
 		fileUpload?: boolean
 		enableSearch?: boolean
 		autoScroll?: UseAutoScroll
+		upload_url?: string
 		stop?: () => void
 	} = $props()
 
@@ -332,6 +334,7 @@
 			{#each attachments as attachment, index (attachment)}
 				<UploadFileCard
 					file={attachment.file}
+					{upload_url}
 					bind:url={attachment.url}
 					bind:status={attachment.status}
 					delete={() => {

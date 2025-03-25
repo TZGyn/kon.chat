@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { env } from '$env/dynamic/public'
 	import { customFetch } from '$lib/fetch'
 	import {
 		FileTextIcon,
@@ -11,11 +12,13 @@
 
 	let {
 		file,
+		upload_url,
 		url = $bindable(''),
 		delete: deleteCard,
 		status = $bindable(),
 	}: {
 		file: File
+		upload_url?: string
 		url?: string
 		status: 'submitted' | 'uploading' | 'error' | 'ready'
 		delete: () => void
@@ -36,14 +39,14 @@
 			toast.info(`Uploading: ${file.name}`)
 			const formdata = new FormData()
 			formdata.append('file', file)
-			const body = await customFetch<{ link: string }>(
-				'/file-upload',
+			const body = await customFetch<{ id: string }>(
+				upload_url ?? '/file-upload',
 				{
 					method: 'POST',
 					body: formdata,
 				},
 			)
-			url = body.link
+			url = env.PUBLIC_API_URL + '/file-upload/' + body.id
 			toast.success(`File Uploaded: ${file.name}`)
 			status = 'ready'
 		} catch (error) {

@@ -109,8 +109,8 @@
 	{setData}
 	{setMessages}
 	status={$status}
-	imageUpload={true}
-	enableSearch={true}
+	imageUpload={false}
+	enableSearch={false}
 	customData={() => ({ transcript: transcript })}
 	{autoScroll}
 	{stop} />

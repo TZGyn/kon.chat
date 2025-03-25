@@ -105,7 +105,7 @@
 	{setData}
 	{setMessages}
 	status={$status}
-	imageUpload={true}
+	imageUpload={false}
 	enableSearch={false}
 	customData={() => ({ markdown: markdown })}
 	{autoScroll}
