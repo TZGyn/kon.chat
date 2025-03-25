@@ -80,7 +80,10 @@
 			return
 		}
 
-		if (response.headers.get('Content-Type') === 'text/plain') {
+		if (
+			response.headers.get('Content-Type') ===
+			'text/plain; charset=UTF-8'
+		) {
 			toast.error(await response.text())
 			isSubmitting = false
 			return
