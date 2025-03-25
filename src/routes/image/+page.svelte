@@ -54,12 +54,7 @@
 		aspect_ratio: (typeof aspect_ratios)[number]['value']
 	}) => {
 		isSubmitting = true
-		const response = await customFetch<{
-			images: {
-				base64Data: string
-				mimeType: 'image/png'
-			}[]
-		}>('/image/imagen/generate', {
+		const response = await customFetchRaw('/image/imagen/generate', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -73,7 +68,24 @@
 			}),
 		})
 
-		generated_images = response.images
+		if (response.status === 401) {
+			toast.error('You must be logged in to use this feature')
+			return
+		}
+
+		if (response.status !== 200) {
+			toast.error('Unexpected Error Occurred')
+			return
+		}
+
+		const body = (await response.json()) as {
+			images: {
+				base64Data: string
+				mimeType: 'image/png'
+			}[]
+		}
+
+		generated_images = body.images
 		selected_image = generated_images[0]
 		isSubmitting = false
 	}
