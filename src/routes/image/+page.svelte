@@ -70,11 +70,13 @@
 
 		if (response.status === 401) {
 			toast.error('You must be logged in to use this feature')
+			isSubmitting = false
 			return
 		}
 
 		if (response.status !== 200) {
 			toast.error('Unexpected Error Occurred')
+			isSubmitting = false
 			return
 		}
 
