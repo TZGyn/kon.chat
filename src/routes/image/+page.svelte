@@ -103,132 +103,144 @@
 </script>
 
 <div
-	class="flex h-screen flex-1 items-center justify-center overflow-hidden">
-	<div class="flex w-2/5 flex-col gap-4 p-6">
-		<div class="flex flex-col gap-2">
-			<Label for="prompt">Prompt (max 1920 characters)</Label>
-			<div class="relative">
-				<Textarea
-					id="prompt"
-					placeholder={'Prompt'}
-					maxlength={1920}
-					bind:value={prompt}>
-				</Textarea>
-				<div
-					class="text-muted-foreground absolute bottom-2 right-2 text-xs">
-					{prompt.length}/1920
+	class="flex h-screen flex-1 flex-col-reverse items-center justify-center overflow-hidden lg:flex-row">
+	<div
+		class="flex w-full flex-1 flex-col-reverse gap-4 overflow-scroll p-6 lg:h-auto lg:w-2/5 lg:flex-none lg:flex-col">
+		<div class="flex flex-1 flex-col gap-4">
+			<div class="flex flex-col gap-2">
+				<Label for="prompt">Prompt (max 1920 characters)</Label>
+				<div class="relative">
+					<Textarea
+						id="prompt"
+						placeholder={'Prompt'}
+						maxlength={1920}
+						bind:value={prompt}>
+					</Textarea>
+					<div
+						class="text-muted-foreground absolute bottom-2 right-2 text-xs">
+						{prompt.length}/1920
+					</div>
+				</div>
+			</div>
+			<div class="flex flex-col gap-2">
+				<Label for="negative_prompt">
+					Negative Prompt (max 1920 characters)
+				</Label>
+				<div class="relative">
+					<Textarea
+						id="negative_prompt"
+						placeholder={'Negative Prompt'}
+						maxlength={1920}
+						bind:value={negative_prompt} />
+					<div
+						class="text-muted-foreground absolute bottom-2 right-2 text-xs">
+						{negative_prompt.length}/1920
+					</div>
+				</div>
+			</div>
+			<div class="flex items-center gap-2">
+				<div class="flex w-full flex-col gap-2">
+					<Label for="count">Count</Label>
+					<Select.Root
+						type="single"
+						name="count"
+						bind:value={
+							() => count.toString(),
+							(value) => (count = parseInt(value))
+						}>
+						<Select.Trigger id="count" class="w-full">
+							{count}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								{#each [1, 2, 3, 4] as count, index}
+									<Select.Item
+										value={count.toString()}
+										label={count.toString()}>
+										{count}
+									</Select.Item>
+								{/each}
+							</Select.Group>
+						</Select.Content>
+					</Select.Root>
+				</div>
+				<div class="flex w-full flex-col gap-2">
+					<Label for="aspect_ratio">Aspect Ratio</Label>
+					<Select.Root
+						type="single"
+						name="aspect_ratio"
+						bind:value={selected_aspect_ratio}>
+						<Select.Trigger id="aspect_ratio" class="w-full">
+							{triggerContent}
+						</Select.Trigger>
+						<Select.Content>
+							<Select.Group>
+								{#each aspect_ratios as ratio (ratio.value)}
+									<Select.Item
+										value={ratio.value}
+										label={ratio.label}>
+										{ratio.label}
+									</Select.Item>
+								{/each}
+							</Select.Group>
+						</Select.Content>
+					</Select.Root>
 				</div>
 			</div>
 		</div>
-		<div class="flex flex-col gap-2">
-			<Label for="negative_prompt">
-				Negative Prompt (max 1920 characters)
-			</Label>
-			<div class="relative">
-				<Textarea
-					id="negative_prompt"
-					placeholder={'Negative Prompt'}
-					maxlength={1920}
-					bind:value={negative_prompt} />
-				<div
-					class="text-muted-foreground absolute bottom-2 right-2 text-xs">
-					{negative_prompt.length}/1920
-				</div>
-			</div>
+		<div class="flex w-full">
+			<Button
+				onclick={() =>
+					submit({
+						count,
+						negative_prompt,
+						prompt,
+						aspect_ratio: selected_aspect_ratio,
+					})}
+				disabled={isSubmitting}
+				class="min-h-10 w-full">
+				{#if isSubmitting}
+					<Loader2Icon class="animate-spin" />
+				{/if}
+				Submit
+			</Button>
 		</div>
-		<div class="flex items-center gap-2">
-			<div class="flex w-full flex-col gap-2">
-				<Label for="count">Count</Label>
-				<Select.Root
-					type="single"
-					name="count"
-					bind:value={
-						() => count.toString(),
-						(value) => (count = parseInt(value))
-					}>
-					<Select.Trigger id="count" class="w-full">
-						{count}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Group>
-							{#each [1, 2, 3, 4] as count, index}
-								<Select.Item
-									value={count.toString()}
-									label={count.toString()}>
-									{count}
-								</Select.Item>
-							{/each}
-						</Select.Group>
-					</Select.Content>
-				</Select.Root>
-			</div>
-			<div class="flex w-full flex-col gap-2">
-				<Label for="aspect_ratio">Aspect Ratio</Label>
-				<Select.Root
-					type="single"
-					name="aspect_ratio"
-					bind:value={selected_aspect_ratio}>
-					<Select.Trigger id="aspect_ratio" class="w-full">
-						{triggerContent}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Group>
-							{#each aspect_ratios as ratio (ratio.value)}
-								<Select.Item value={ratio.value} label={ratio.label}>
-									{ratio.label}
-								</Select.Item>
-							{/each}
-						</Select.Group>
-					</Select.Content>
-				</Select.Root>
-			</div>
-		</div>
-		<Button
-			onclick={() =>
-				submit({
-					count,
-					negative_prompt,
-					prompt,
-					aspect_ratio: selected_aspect_ratio,
-				})}
-			disabled={isSubmitting}>
-			{#if isSubmitting}
-				<Loader2Icon class="animate-spin" />
-			{/if}
-			Submit
-		</Button>
 	</div>
 	<div
-		class="flex h-full flex-1 flex-col items-center justify-center overflow-hidden border p-6">
-		<div class="flex flex-col items-center gap-4">
-			{#if selected_image}
-				<img
-					class="h-96"
-					src={`data:image/png;base64,${selected_image.base64Data}`}
-					alt="selected_image" />
-			{:else}
-				<div class="bg-muted aspect-square w-96 rounded"></div>
-			{/if}
-			{#if generated_images.length > 0}
-				<div class="flex items-center gap-2">
-					<Button
-						variant="outline"
-						onclick={() => {
-							if (!selected_image) {
-								toast.error('Select an image first')
-								return
-							}
-							const link = document.createElement('a')
-							link.href = `data:image/png;base64,${selected_image.base64Data}`
-							link.download = 'image.png'
-							link.click()
-						}}>
-						Download
-					</Button>
-					<!-- <Button variant="outline">Download All</Button> -->
-				</div>
-			{/if}
-			<div class="flex max-w-96 flex-wrap justify-center gap-4">
+		class="flex h-fit w-full flex-col items-center justify-center overflow-hidden border p-6 lg:h-full lg:flex-1">
+		<div class="flex flex-row items-center gap-4 lg:flex-col">
+			<div class="flex flex-col items-center gap-4">
+				{#if selected_image}
+					<img
+						class="h-64 lg:h-96"
+						src={`data:image/png;base64,${selected_image.base64Data}`}
+						alt="selected_image" />
+				{:else}
+					<div class="bg-muted aspect-square w-64 rounded lg:w-96">
+					</div>
+				{/if}
+				{#if generated_images.length > 0}
+					<div class="flex items-center gap-2">
+						<Button
+							variant="outline"
+							onclick={() => {
+								if (!selected_image) {
+									toast.error('Select an image first')
+									return
+								}
+								const link = document.createElement('a')
+								link.href = `data:image/png;base64,${selected_image.base64Data}`
+								link.download = 'image.png'
+								link.click()
+							}}>
+							Download
+						</Button>
+						<!-- <Button variant="outline">Download All</Button> -->
+					</div>
+				{/if}
+			</div>
+			<div
+				class="flex max-w-96 flex-col flex-wrap justify-center gap-4 lg:flex-row">
 				{#if generated_images.length > 0}
 					<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
