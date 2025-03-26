@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { env } from '$env/dynamic/public'
-	import { customFetch } from '$lib/fetch'
+	import { customFetch, customFetchRaw } from '$lib/fetch'
 	import {
 		FileTextIcon,
 		Loader2Icon,
@@ -39,13 +39,27 @@
 			toast.info(`Uploading: ${file.name}`)
 			const formdata = new FormData()
 			formdata.append('file', file)
-			const body = await customFetch<{ id: string }>(
+			const response = await customFetchRaw(
 				upload_url ?? '/file-upload',
 				{
 					method: 'POST',
 					body: formdata,
 				},
 			)
+
+			if (response.status !== 200) {
+				if (
+					response.headers.get('Content-Type') ===
+					'text/plain; charset=UTF-8'
+				) {
+					toast.error(await response.text())
+					return
+				}
+				toast.error('Upload Failed')
+				return
+			}
+
+			const body = (await response.json()) as { id: string }
 			url = env.PUBLIC_API_URL + '/file-upload/' + body.id
 			toast.success(`File Uploaded: ${file.name}`)
 			status = 'ready'

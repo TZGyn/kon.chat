@@ -12,7 +12,7 @@ export const useModels = () => {
 			id: 'gemini-2.0-flash-001',
 			capabilities: {
 				image: true,
-				file: false,
+				file: true,
 				fast: false,
 				reasoning: false,
 				searchGrounding: true,

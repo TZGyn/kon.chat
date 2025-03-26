@@ -370,7 +370,14 @@
 								<div class="flex w-full items-center justify-between">
 									<div class="flex items-center gap-2">
 										{@render modelIcon(model.provider)}
-										<div>{model.name}</div>
+										<div class="flex flex-col items-start gap-1">
+											<span>
+												{model.name}
+											</span>
+											<span class="text-muted-foreground text-xs">
+												Credits: free
+											</span>
+										</div>
 										{#if model.info}
 											<Tooltip.Provider>
 												<Tooltip.Root>
