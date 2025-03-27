@@ -82,6 +82,7 @@ export function convertToUIMessages(
 				}
 			}
 
+			let textContent = ''
 			let attachments: Array<Attachment> = []
 			let parts: (
 				| TextUIPart
@@ -91,6 +92,7 @@ export function convertToUIMessages(
 			)[] = []
 
 			if (typeof message.content === 'string') {
+				textContent += message.content
 				parts.push({
 					type: 'text',
 					text: message.content,
@@ -98,7 +100,7 @@ export function convertToUIMessages(
 			} else if (Array.isArray(message.content)) {
 				for (const content of message.content) {
 					if (content.type === 'text') {
-						// textContent += content.text
+						textContent += content.text
 						parts.push({
 							type: 'text' as const,
 							text: content.text,
@@ -173,7 +175,7 @@ export function convertToUIMessages(
 			chatMessages.push({
 				id: message.id,
 				role: message.role as Message['role'],
-				content: '',
+				content: textContent,
 				responseId: message.responseId,
 				annotations: [
 					{ type: 'model', model: message.model },
