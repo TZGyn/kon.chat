@@ -91,7 +91,6 @@ export function convertToUIMessages(
 				| ReasoningUIPart
 				| ToolInvocationUIPart
 				| SourceUIPart
-				| FileUIPart
 			)[] = []
 
 			if (typeof message.content === 'string') {
@@ -194,48 +193,6 @@ export function convertToUIMessages(
 		},
 		[],
 	)
-
-	function addToolMessageToChat({
-		toolMessage,
-		messages,
-	}: {
-		toolMessage: CoreToolMessage
-		messages: Array<Message>
-	}): Array<Message> {
-		return messages.map((message) => {
-			if (message.toolInvocations) {
-				return {
-					...message,
-					parts: [
-						...(message.parts ?? []),
-						...message.toolInvocations.map((toolInvocation) => {
-							const toolResult = toolMessage.content.find(
-								(tool) =>
-									tool.toolCallId === toolInvocation.toolCallId,
-							)
-
-							if (toolResult) {
-								return {
-									type: 'tool-invocation',
-									toolInvocation: {
-										...toolInvocation,
-										state: 'result',
-										result: toolResult.result,
-									},
-								} as ToolInvocationUIPart
-							}
-							return {
-								toolInvocation,
-								type: 'tool-invocation',
-							} as ToolInvocationUIPart
-						}),
-					],
-				}
-			}
-
-			return message
-		})
-	}
 }
 
 export function getMostRecentUserMessageIndex(
@@ -248,7 +205,7 @@ export function getMostRecentUserMessageIndex(
 }
 
 export function mergeMessages(
-	messages: (UIMessage & { responseId: string })[],
+	messages: (Message & { responseId: string })[],
 ) {
 	return messages.reduce(
 		(acc, curr, index, array) => {
@@ -262,9 +219,12 @@ export function mergeMessages(
 			const last = acc[acc.length - 1]
 			return [
 				...acc.slice(0, -1),
-				{ ...last, parts: [...last.parts, ...curr.parts] },
+				{
+					...last,
+					parts: [...(last.parts ?? []), ...(curr.parts ?? [])],
+				},
 			]
 		},
-		[] as (UIMessage & { responseId: string })[],
+		[] as (Message & { responseId: string })[],
 	)
 }

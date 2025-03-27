@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useChat } from '@ai-sdk/svelte'
+	import { Chat } from '@ai-sdk/svelte'
 	import { fillMessageParts } from '@ai-sdk/ui-utils'
 	import { customFetch, customFetchRaw } from '$lib/fetch'
 	import { page } from '$app/state'
@@ -70,17 +70,18 @@
 		// const filledPartsMessages = fillMessageParts(serverMessages)
 		const mergedMessages = mergeMessages(serverMessages)
 		// console.log(mergedMessages)
-		if ($status === 'ready' || $status === 'error') {
-			setMessages(mergedMessages)
+		if (useChat.status === 'ready' || useChat.status === 'error') {
+			useChat.messages = mergedMessages
 		} else {
-			const latestUserMessageIndex =
-				getMostRecentUserMessageIndex($messages)
-			setMessages([
+			const latestUserMessageIndex = getMostRecentUserMessageIndex(
+				useChat.messages,
+			)
+			useChat.messages = [
 				...mergedMessages,
-				...$messages.slice(latestUserMessageIndex),
-			])
+				...useChat.messages.slice(latestUserMessageIndex),
+			]
 		}
-		console.log('message', $messages)
+		console.log('message', useChat.messages)
 	}
 
 	let chat = $derived(
@@ -96,9 +97,11 @@
 
 		if (chatJSON) {
 			if ('isOwner' in chatJSON) {
-				setMessages(convertToUIMessages(chatJSON?.messages || []))
+				useChat.messages = convertToUIMessages(
+					chatJSON?.messages || [],
+				)
 			} else {
-				setMessages(convertToUIMessages(chatJSON || []))
+				useChat.messages = convertToUIMessages(chatJSON || [])
 			}
 		}
 		getChat(chat_id)
@@ -108,41 +111,37 @@
 
 	const chats = useChats()
 
-	const {
-		input,
-		handleSubmit,
-		messages,
-		status,
-		data,
-		setData,
-		setMessages,
-		stop,
-	} = $derived(
-		useChat({
-			initialMessages: [],
-			api: PUBLIC_API_URL + `/chat/${chat_id}`,
-			generateId: () => chat_id,
-			onFinish: () => {
-				if (page.url.searchParams) {
-					page.url.searchParams.delete('type')
-					replaceState(page.url, page.state)
+	let useChat = new Chat({
+		initialMessages: [],
+		get api() {
+			return PUBLIC_API_URL + `/chat/${chat_id}`
+		},
+		get id() {
+			return chat_id
+		},
+		onFinish: () => {
+			if (page.url.searchParams) {
+				page.url.searchParams.delete('type')
+				replaceState(page.url, page.state)
+			}
+			setTimeout(() => {
+				chats.getChats()
+				useUser().getUser()
+			}, 3000)
+			console.log(useChat.messages)
+			if (chat.value !== null) {
+				chat.value = {
+					...chat.value,
+					messages: useChat.messages as any,
 				}
-				setTimeout(() => {
-					chats.getChats()
-					useUser().getUser()
-				}, 3000)
-				console.log($messages)
-				if (chat.value !== null) {
-					chat.value = { ...chat.value, messages: $messages as any }
-				}
-			},
-			onError: (error) => {
-				console.log(error)
-				toast.error(error.message)
-			},
-			credentials: 'include',
-		}),
-	)
+			}
+		},
+		onError: (error) => {
+			console.log(error)
+			toast.error(error.message)
+		},
+		credentials: 'include',
+	})
 
 	let shareChatDialogOpen = $state(false)
 
@@ -163,15 +162,15 @@
 			class="@container flex flex-1 flex-col items-center p-4">
 			<div class="flex w-full flex-col items-center pb-40 pt-20">
 				<div class="flex w-full max-w-[600px] flex-col gap-4">
-					{#each $messages as message, index (index)}
+					{#each useChat.messages as message, index (index)}
 						<MessageBlock
-							data={$data}
+							data={useChat.data}
 							{message}
 							role={message.role}
-							status={$status}
-							isLast={index === $messages.length - 1} />
+							status={useChat.status}
+							isLast={index === useChat.messages.length - 1} />
 					{/each}
-					{#if $status === 'submitted'}
+					{#if useChat.status === 'submitted'}
 						<div
 							class={cn(
 								'flex min-h-[calc(100vh-25rem)] gap-2 place-self-start',
@@ -275,14 +274,13 @@
 
 {#if (chat.value && (!('isOwner' in chat.value) || chat.value.isOwner)) || isNew}
 	<MultiModalInput
-		bind:input={$input}
+		bind:input={useChat.input}
 		{upload_url}
 		selectedModelLocator={`model:chat:${chat_id}`}
-		{handleSubmit}
-		messages={$messages}
-		{setData}
-		{setMessages}
-		status={$status}
+		handleSubmit={useChat.handleSubmit}
+		bind:messages={useChat.messages}
+		bind:data={useChat.data}
+		status={useChat.status}
 		imageUpload={true}
 		fileUpload={true}
 		enableSearch={true}

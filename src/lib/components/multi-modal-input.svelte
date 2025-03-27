@@ -48,9 +48,8 @@
 		input = $bindable(),
 		selectedModelLocator,
 		status,
-		messages,
-		setMessages,
-		setData,
+		messages = $bindable(),
+		data = $bindable(),
 		handleSubmit,
 		customData,
 		imageUpload = false,
@@ -64,17 +63,7 @@
 		selectedModelLocator: string
 		status: 'submitted' | 'streaming' | 'ready' | 'error'
 		messages: UIMessage[]
-		setMessages: (
-			messages: Message[] | ((messages: Message[]) => Message[]),
-		) => void
-		setData: (
-			data:
-				| JSONValue[]
-				| undefined
-				| ((
-						data: JSONValue[] | undefined,
-				  ) => JSONValue[] | undefined),
-		) => void
+		data: JSONValue[] | undefined
 		handleSubmit: (
 			event?: {
 				preventDefault?: () => void
@@ -192,14 +181,14 @@
 		}
 
 		if (status === 'error') {
-			setMessages(messages.slice(0, -1)) // remove last message
+			messages = messages.slice(0, -1) // remove last message
 		}
 		if (status === 'streaming') {
 			toast.warning(
 				'Please wait for the model to finish its response',
 			)
 		} else {
-			setData([])
+			data = []
 			handleSubmit(event, {
 				body: {
 					provider: {

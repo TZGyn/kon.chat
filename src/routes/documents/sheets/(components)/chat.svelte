@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from '$env/static/public'
-	import { useChat } from '@ai-sdk/svelte'
+	import { Chat } from '@ai-sdk/svelte'
 	import { useUser } from '../../../state.svelte'
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
@@ -33,19 +33,12 @@
 		}
 	}
 
-	const {
-		input,
-		handleSubmit,
-		messages,
-		status,
-		data,
-		setData,
-		setMessages,
-		stop,
-	} = useChat({
+	const useChat = new Chat({
 		maxSteps: 1,
 		initialMessages: [],
-		api: PUBLIC_API_URL + `/documents/sheets`,
+		get api() {
+			return PUBLIC_API_URL + `/documents/sheets`
+		},
 		onFinish: () => {
 			autoScroll.scrollToBottom()
 			useUser().getUser()
@@ -235,16 +228,16 @@
 	class="flex flex-1 flex-col items-center p-4">
 	<div class="flex w-full flex-col items-center pb-40">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
-			{#each $messages as message, index}
+			{#each useChat.messages as message, index}
 				<MessageBlock
-					data={$data}
+					data={useChat.data}
 					{message}
 					role={message.role}
-					status={$status}
-					isLast={index === $messages.length - 1}
+					status={useChat.status}
+					isLast={index === useChat.messages.length - 1}
 					halfSize={true} />
 			{/each}
-			{#if $status === 'submitted'}
+			{#if useChat.status === 'submitted'}
 				<div
 					class={cn(
 						'@6xl:min-h-[calc(100svh-25rem)] flex min-h-[calc(50svh-25rem)] gap-2 place-self-start',
@@ -277,13 +270,12 @@
 	</div>
 </ScrollArea>
 <MultiModalInput
-	bind:input={$input}
+	bind:input={useChat.input}
 	selectedModelLocator={`model:sheets`}
-	{handleSubmit}
-	messages={$messages}
-	{setData}
-	{setMessages}
-	status={$status}
+	handleSubmit={useChat.handleSubmit}
+	bind:messages={useChat.messages}
+	bind:data={useChat.data}
+	status={useChat.status}
 	customData={getCustomData}
 	{autoScroll}
 	{stop} />

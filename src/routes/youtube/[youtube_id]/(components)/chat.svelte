@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useChat, type Message } from '@ai-sdk/svelte'
+	import { Chat, type Message } from '@ai-sdk/svelte'
 	import { cn } from '$lib/utils'
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
@@ -22,30 +22,26 @@
 
 	const autoScroll = new UseAutoScroll()
 
-	const {
-		input,
-		handleSubmit,
-		messages,
-		status,
-		data,
-		setData,
-		setMessages,
-		stop,
-	} = useChat({
+	const useChat = new Chat({
 		maxSteps: 1,
-		initialMessages: browser
-			? JSON.parse(
-					localStorage.getItem(`youtube:chat:${youtube_id}`) || '[]',
-				)
-			: [],
-		api: PUBLIC_API_URL + `/youtube/${youtube_id}`,
+		get initialMessages() {
+			return browser
+				? JSON.parse(
+						localStorage.getItem(`youtube:chat:${youtube_id}`) ||
+							'[]',
+					)
+				: []
+		},
+		get api() {
+			return PUBLIC_API_URL + `/youtube/${youtube_id}`
+		},
 		generateId: () => youtube_id,
 		onFinish: () => {
 			autoScroll.scrollToBottom()
 			useUser().getUser()
 			localStorage.setItem(
 				`youtube:chat:${youtube_id}`,
-				JSON.stringify($messages),
+				JSON.stringify(useChat.messages),
 			)
 		},
 		onError: (error) => {
@@ -60,15 +56,15 @@
 	class="flex flex-1 flex-col items-center p-4">
 	<div class="flex w-full flex-col items-center pb-40 pt-20">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
-			{#each $messages as message, index (index)}
+			{#each useChat.messages as message, index (index)}
 				<MessageBlock
-					data={$data}
+					data={useChat.data}
 					{message}
 					role={message.role}
-					status={$status}
-					isLast={index === $messages.length - 1} />
+					status={useChat.status}
+					isLast={index === useChat.messages.length - 1} />
 			{/each}
-			{#if $status === 'submitted'}
+			{#if useChat.status === 'submitted'}
 				<div
 					class={cn(
 						'flex min-h-[calc(100vh-25rem)] gap-2 place-self-start',
@@ -102,13 +98,12 @@
 </ScrollArea>
 
 <MultiModalInput
-	bind:input={$input}
+	bind:input={useChat.input}
 	selectedModelLocator={`model:youtube`}
-	{handleSubmit}
-	messages={$messages}
-	{setData}
-	{setMessages}
-	status={$status}
+	handleSubmit={useChat.handleSubmit}
+	bind:messages={useChat.messages}
+	bind:data={useChat.data}
+	status={useChat.status}
 	imageUpload={false}
 	enableSearch={false}
 	customData={() => ({ transcript: transcript })}
