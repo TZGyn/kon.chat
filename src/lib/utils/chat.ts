@@ -82,9 +82,6 @@ export function convertToUIMessages(
 				}
 			}
 
-			let textContent = ''
-			let reasoningContent = ''
-			let toolInvocations: Array<ToolInvocation> = []
 			let attachments: Array<Attachment> = []
 			let parts: (
 				| TextUIPart
@@ -94,7 +91,10 @@ export function convertToUIMessages(
 			)[] = []
 
 			if (typeof message.content === 'string') {
-				textContent = message.content
+				parts.push({
+					type: 'text',
+					text: message.content,
+				})
 			} else if (Array.isArray(message.content)) {
 				for (const content of message.content) {
 					if (content.type === 'text') {
@@ -173,10 +173,8 @@ export function convertToUIMessages(
 			chatMessages.push({
 				id: message.id,
 				role: message.role as Message['role'],
-				content: textContent,
+				content: '',
 				responseId: message.responseId,
-				reasoning: reasoningContent,
-				toolInvocations,
 				annotations: [
 					{ type: 'model', model: message.model },
 					message.provider === 'google' && {
@@ -209,7 +207,6 @@ export function mergeMessages(
 ) {
 	return messages.reduce(
 		(acc, curr, index, array) => {
-			console.log(acc)
 			if (
 				index === 0 ||
 				curr.responseId !== acc[acc.length - 1].responseId

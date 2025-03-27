@@ -66,10 +66,7 @@
 		const serverMessages = convertToUIMessages(
 			chat.value?.messages ?? [],
 		)
-		// console.log('server', serverMessages)
-		// const filledPartsMessages = fillMessageParts(serverMessages)
 		const mergedMessages = mergeMessages(serverMessages)
-		// console.log(mergedMessages)
 		if (useChat.status === 'ready' || useChat.status === 'error') {
 			useChat.messages = mergedMessages
 		} else {
@@ -81,7 +78,6 @@
 				...useChat.messages.slice(latestUserMessageIndex),
 			]
 		}
-		console.log('message', useChat.messages)
 	}
 
 	let chat = $derived(
@@ -128,7 +124,6 @@
 				chats.getChats()
 				useUser().getUser()
 			}, 3000)
-			console.log(useChat.messages)
 			if (chat.value !== null) {
 				chat.value = {
 					...chat.value,
@@ -137,7 +132,6 @@
 			}
 		},
 		onError: (error) => {
-			console.log(error)
 			toast.error(error.message)
 		},
 		credentials: 'include',
