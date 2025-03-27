@@ -47,7 +47,10 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton class="">
 						{#snippet child({ props })}
-							<a href="/documents" {...props}>
+							<a
+								href="/documents"
+								{...props}
+								data-sveltekit-preload-code="eager">
 								<NotepadTextIcon />
 								<span>Documents</span>
 							</a>
@@ -57,7 +60,10 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
-							<a href="/youtube" {...props}>
+							<a
+								href="/youtube"
+								{...props}
+								data-sveltekit-preload-code="eager">
 								<YoutubeIcon />
 								<span>Youtube</span>
 							</a>
@@ -67,7 +73,10 @@
 				<Sidebar.MenuItem>
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
-							<a href="/image" {...props}>
+							<a
+								href="/image"
+								{...props}
+								data-sveltekit-preload-code="eager">
 								<ImageIcon />
 								<span>Image Generator</span>
 							</a>

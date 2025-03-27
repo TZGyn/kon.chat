@@ -16,7 +16,7 @@
 		type FileDropZoneProps,
 	} from '$lib/components/ui/file-drop-zone'
 	import { customFetch, customFetchRaw } from '$lib/fetch'
-	import { goto } from '$app/navigation'
+	import { goto, preloadCode } from '$app/navigation'
 	import { onMount } from 'svelte'
 	import PdfIcon from '../(icons)/PDF-icon.svelte'
 	import { toast } from 'svelte-sonner'

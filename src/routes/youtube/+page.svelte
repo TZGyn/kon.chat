@@ -42,7 +42,8 @@
 			{#key youtubeId}
 				<Button
 					bind:ref={goButton}
-					href={!youtubeId ? '' : `/youtube/${youtubeId}`}>
+					href={!youtubeId ? '' : `/youtube/${youtubeId}`}
+					data-sveltekit-preload-code="eager">
 					Go
 				</Button>
 			{/key}
