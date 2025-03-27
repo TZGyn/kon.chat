@@ -21,7 +21,7 @@
 
 {#await tweet then tweet}
 	<a href={tweet.url} target="_blank" class="flex">
-		<Card.Root class="flex max-w-[500px] flex-col">
+		<Card.Root class="flex min-w-[300px] max-w-[500px] flex-col">
 			<Card.Header class="flex flex-row items-center gap-4">
 				<Avatar.Root>
 					<Avatar.Image
@@ -59,7 +59,6 @@
 								</a>
 							{:else if ['hashtag', 'mention', 'url'].includes(item.type)}{:else}
 								<span class="line-clamp-3 text-wrap">
-									bruh
 									{@html item.text}
 								</span>
 							{/if}

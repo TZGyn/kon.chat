@@ -28,6 +28,7 @@
 	import {
 		convertToUIMessages,
 		getMostRecentUserMessageIndex,
+		mergeMessages,
 	} from '$lib/utils/chat.js'
 	import { Button } from '$lib/components/ui/button/index.js'
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
@@ -40,6 +41,7 @@
 		id: string
 		createdAt: number
 		chatId: string
+		responseId: string
 		role: string
 		content: unknown
 		model: string | null
@@ -64,16 +66,21 @@
 		const serverMessages = convertToUIMessages(
 			chat.value?.messages ?? [],
 		)
+		// console.log('server', serverMessages)
+		// const filledPartsMessages = fillMessageParts(serverMessages)
+		const mergedMessages = mergeMessages(serverMessages)
+		// console.log(mergedMessages)
 		if ($status === 'ready' || $status === 'error') {
-			setMessages(fillMessageParts(serverMessages))
+			setMessages(mergedMessages)
 		} else {
 			const latestUserMessageIndex =
 				getMostRecentUserMessageIndex($messages)
 			setMessages([
-				...fillMessageParts(serverMessages),
+				...mergedMessages,
 				...$messages.slice(latestUserMessageIndex),
 			])
 		}
+		console.log('message', $messages)
 	}
 
 	let chat = $derived(
@@ -124,7 +131,8 @@
 					chats.getChats()
 					useUser().getUser()
 				}, 3000)
-				if (chat.value) {
+				console.log($messages)
+				if (chat.value !== null) {
 					chat.value = { ...chat.value, messages: $messages as any }
 				}
 			},

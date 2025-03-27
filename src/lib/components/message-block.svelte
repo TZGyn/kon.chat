@@ -43,10 +43,6 @@
 	let reasoningPart = $derived(
 		message.parts.find((part) => part.type === 'reasoning'),
 	)
-
-	let toolInvocations = $derived(
-		message.parts.filter((part) => part.type === 'tool-invocation'),
-	)
 </script>
 
 {#key message.id}
@@ -103,45 +99,42 @@
 					{/each}
 				</div>
 			{/if}
-			{#each toolInvocations as toolInvocation}
-				<ToolInvocation
-					toolInvocation={toolInvocation.toolInvocation}
-					{message} />
-			{/each}
 
-			{#if hasReasoning}
-				<Toggle
-					size="sm"
-					class="text-muted-foreground group peer w-fit border">
-					Reasoning
-					<ChevronDownIcon
-						class={'transition-transform group-data-[state="on"]:rotate-180'} />
-				</Toggle>
-			{/if}
-
-			{#if reasoningPart}
-				<div
-					class="text-muted-foreground hidden rounded-md border p-2 text-sm peer-data-[state='on']:block">
-					{reasoningPart.reasoning}
-				</div>
-			{/if}
 			{#if message.parts.length > 0}
-				{#each message.parts as part, index (index)}
-					{#if part.type === 'text'}
-						<div
-							class={cn(
-								'w-fit rounded-xl',
-								message.role === 'user'
-									? 'bg-secondary place-self-end p-4'
-									: 'bg-background',
-							)}>
+				<div class="flex w-full flex-col gap-5">
+					{#each message.parts as part, index (index)}
+						{#if part.type === 'tool-invocation'}
+							<ToolInvocation
+								toolInvocation={part.toolInvocation}
+								{message} />
+						{:else if part.type === 'reasoning'}
+							<Toggle
+								size="sm"
+								class="text-muted-foreground group peer w-fit border">
+								Reasoning
+								<ChevronDownIcon
+									class={'transition-transform group-data-[state="on"]:rotate-180'} />
+							</Toggle>
 							<div
-								class="prose prose-neutral dark:prose-invert prose-p:my-0">
-								<Markdown content={part.text} id={message.id} />
+								class="text-muted-foreground hidden rounded-md border p-2 text-sm peer-data-[state='on']:block">
+								{part.reasoning}
 							</div>
-						</div>
-					{/if}
-				{/each}
+						{:else if part.type === 'text'}
+							<div
+								class={cn(
+									'w-fit rounded-xl',
+									message.role === 'user'
+										? 'bg-secondary place-self-end p-4'
+										: 'bg-background',
+								)}>
+								<div
+									class="prose prose-neutral dark:prose-invert prose-p:my-0">
+									<Markdown content={part.text} id={message.id} />
+								</div>
+							</div>
+						{/if}
+					{/each}
+				</div>
 			{/if}
 			<Attachments attachments={message.experimental_attachments} />
 

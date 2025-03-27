@@ -1,6 +1,8 @@
 import type { Attachment, CoreToolMessage } from 'ai'
 import { type Message } from '@ai-sdk/svelte'
 import {
+	type CreateMessage,
+	type FileUIPart,
 	type ReasoningUIPart,
 	type SourceUIPart,
 	type TextUIPart,
@@ -14,6 +16,7 @@ export function convertToUIMessages(
 		model: string | null
 		provider: string | null
 		id: string
+		responseId: string
 		createdAt: number
 		content: unknown
 		role: string
@@ -27,96 +30,170 @@ export function convertToUIMessages(
 			| SourceUIPart
 		)[]
 	}>,
-): Array<Message> {
-	return messages.reduce((chatMessages: Array<Message>, message) => {
-		if (message.role === 'tool') {
-			return addToolMessageToChat({
-				toolMessage: message as CoreToolMessage,
+): Array<Message & { responseId: string }> {
+	return messages.reduce(
+		(
+			chatMessages: Array<Message & { responseId: string }>,
+			message,
+			index,
+		) => {
+			if (message.role === 'tool') {
+				// return addToolMessageToChat({
+				// 	toolMessage: message as CoreToolMessage,
+				// 	messages: chatMessages,
+				// })
+				{
+					const prev = chatMessages.pop()
+					if (prev) {
+						chatMessages.push({
+							...prev,
+							parts: prev.parts
+								? [
+										...prev.parts.map((part) => {
+											if (part.type !== 'tool-invocation') return part
 
-				messages: chatMessages,
-			})
-		}
+											const toolResult = (
+												message as CoreToolMessage
+											).content.find(
+												(tool) =>
+													tool.toolCallId ===
+													part.toolInvocation.toolCallId,
+											)
+											if (toolResult) {
+												return {
+													type: 'tool-invocation',
+													toolInvocation: {
+														...part.toolInvocation,
+														state: 'result',
+														result: toolResult.result,
+													},
+												} as ToolInvocationUIPart
+											}
+											return {
+												toolInvocation: part.toolInvocation,
+												type: 'tool-invocation',
+											} as ToolInvocationUIPart
+										}),
+									]
+								: undefined,
+						})
+					}
+					return chatMessages
+				}
+			}
 
-		let textContent = ''
-		let reasoningContent = ''
-		let toolInvocations: Array<ToolInvocation> = []
-		let attachments: Array<Attachment> = []
+			let textContent = ''
+			let reasoningContent = ''
+			let toolInvocations: Array<ToolInvocation> = []
+			let attachments: Array<Attachment> = []
+			let parts: (
+				| TextUIPart
+				| ReasoningUIPart
+				| ToolInvocationUIPart
+				| SourceUIPart
+				| FileUIPart
+			)[] = []
 
-		if (typeof message.content === 'string') {
-			textContent = message.content
-		} else if (Array.isArray(message.content)) {
-			for (const content of message.content) {
-				if (content.type === 'text') {
-					textContent += content.text
-				} else if (content.type === 'reasoning') {
-					reasoningContent += content.reasoning ?? ''
-				} else if (content.type === 'tool-call') {
-					toolInvocations.push({
-						state: 'call',
-						toolCallId: content.toolCallId,
-						toolName: content.toolName,
-						args: content.args,
-					})
-				} else if (content.type === 'image') {
-					const filename = (content.image as string).split('/').pop()
-					if (!filename) continue
-					const filetype = filename.split('.').pop()
-					if (
-						filetype === 'png' ||
-						filetype === 'jpg' ||
-						filetype === 'jpeg'
-					) {
+			if (typeof message.content === 'string') {
+				textContent = message.content
+			} else if (Array.isArray(message.content)) {
+				for (const content of message.content) {
+					if (content.type === 'text') {
+						// textContent += content.text
+						parts.push({
+							type: 'text' as const,
+							text: content.text,
+						})
+					} else if (content.type === 'reasoning') {
+						// reasoningContent += content.reasoning ?? ''
+						parts.push({
+							type: 'reasoning' as const,
+							reasoning: content.reasoning,
+							details: [
+								{ type: 'text' as const, text: content.reasoning },
+							],
+						})
+					} else if (content.type === 'tool-call') {
+						// toolInvocations.push({
+						// 	state: 'call',
+						// 	toolCallId: content.toolCallId,
+						// 	toolName: content.toolName,
+						// 	args: content.args,
+						// })
+						parts.push({
+							type: 'tool-invocation' as const,
+							toolInvocation: {
+								state: 'call',
+								toolCallId: content.toolCallId,
+								toolName: content.toolName,
+								args: content.args,
+							},
+						})
+					} else if (content.type === 'image') {
+						const filename = (content.image as string)
+							.split('/')
+							.pop()
+						if (!filename) continue
+						const filetype = filename.split('.').pop()
+						if (
+							filetype === 'png' ||
+							filetype === 'jpg' ||
+							filetype === 'jpeg'
+						) {
+							attachments.push({
+								url: content.image,
+								contentType: `image/${filetype}`,
+								name: filename.substring(
+									filename.indexOf('-') + 1,
+									filename.length,
+								),
+							})
+						}
+					} else if (content.type === 'file') {
+						const filename = (content.data as string).split('/').pop()
+						if (!filename) continue
 						attachments.push({
-							url: content.image,
-							contentType: `image/${filetype}`,
+							url: content.data,
+							contentType: content.mimeType,
 							name: filename.substring(
 								filename.indexOf('-') + 1,
 								filename.length,
 							),
 						})
 					}
-				} else if (content.type === 'file') {
-					const filename = (content.data as string).split('/').pop()
-					if (!filename) continue
-					attachments.push({
-						url: content.data,
-						contentType: content.mimeType,
-						name: filename.substring(
-							filename.indexOf('-') + 1,
-							filename.length,
-						),
-					})
 				}
 			}
-		}
 
-		if (message.experimental_attachments !== undefined) {
-			attachments = [
-				...attachments,
-				...message.experimental_attachments,
-			]
-		}
+			if (message.experimental_attachments !== undefined) {
+				attachments = [
+					...attachments,
+					...message.experimental_attachments,
+				]
+			}
 
-		chatMessages.push({
-			id: message.id,
-			role: message.role as Message['role'],
-			content: textContent,
-			reasoning: reasoningContent,
-			toolInvocations,
-			annotations: [
-				{ type: 'model', model: message.model },
-				message.provider === 'google' && {
-					type: 'google-grounding',
-					data: message.providerMetadata?.google,
-				},
-			],
-			parts: message.parts,
-			experimental_attachments: attachments,
-			createdAt: new Date(message.createdAt),
-		})
+			chatMessages.push({
+				id: message.id,
+				role: message.role as Message['role'],
+				content: textContent,
+				responseId: message.responseId,
+				reasoning: reasoningContent,
+				toolInvocations,
+				annotations: [
+					{ type: 'model', model: message.model },
+					message.provider === 'google' && {
+						type: 'google-grounding',
+						data: message.providerMetadata?.google,
+					},
+				],
+				parts: message.parts ?? parts,
+				experimental_attachments: attachments,
+				createdAt: new Date(message.createdAt),
+			})
 
-		return chatMessages
-	}, [])
+			return chatMessages
+		},
+		[],
+	)
 
 	function addToolMessageToChat({
 		toolMessage,
@@ -129,8 +206,9 @@ export function convertToUIMessages(
 			if (message.toolInvocations) {
 				return {
 					...message,
-					toolInvocations: message.toolInvocations.map(
-						(toolInvocation) => {
+					parts: [
+						...(message.parts ?? []),
+						...message.toolInvocations.map((toolInvocation) => {
 							const toolResult = toolMessage.content.find(
 								(tool) =>
 									tool.toolCallId === toolInvocation.toolCallId,
@@ -138,15 +216,20 @@ export function convertToUIMessages(
 
 							if (toolResult) {
 								return {
-									...toolInvocation,
-									state: 'result',
-									result: toolResult.result,
-								}
+									type: 'tool-invocation',
+									toolInvocation: {
+										...toolInvocation,
+										state: 'result',
+										result: toolResult.result,
+									},
+								} as ToolInvocationUIPart
 							}
-
-							return toolInvocation
-						},
-					),
+							return {
+								toolInvocation,
+								type: 'tool-invocation',
+							} as ToolInvocationUIPart
+						}),
+					],
 				}
 			}
 
@@ -162,4 +245,26 @@ export function getMostRecentUserMessageIndex(
 		(message) => message.role === 'user',
 	)
 	return userMessagesIndex
+}
+
+export function mergeMessages(
+	messages: (UIMessage & { responseId: string })[],
+) {
+	return messages.reduce(
+		(acc, curr, index, array) => {
+			console.log(acc)
+			if (
+				index === 0 ||
+				curr.responseId !== acc[acc.length - 1].responseId
+			) {
+				return [...acc, curr]
+			}
+			const last = acc[acc.length - 1]
+			return [
+				...acc.slice(0, -1),
+				{ ...last, parts: [...last.parts, ...curr.parts] },
+			]
+		},
+		[] as (UIMessage & { responseId: string })[],
+	)
 }
