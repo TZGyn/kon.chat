@@ -1,13 +1,127 @@
 <script lang="ts">
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
-	import { InfoIcon } from 'lucide-svelte'
+	import {
+		BookIcon,
+		GlobeIcon,
+		InfoIcon,
+		LibraryBigIcon,
+		MessageCircleIcon,
+	} from 'lucide-svelte'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
 	import { PUBLIC_API_URL } from '$env/static/public'
 	import { Button } from '$lib/components/ui/button'
+	import * as Table from '$lib/components/ui/table/index.js'
+	import XaiIcon from '$lib/icons/xai-icon.svelte'
+	import AnthropicIcon from '$lib/icons/anthropic-icon.svelte'
+	import GroqIcon from '$lib/icons/groq-icon.svelte'
+	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
+	import GoogleIcon from '$lib/icons/google-icon.svelte'
+	import TwitterLogo from '$lib/components/icons/twitter-logo.svelte'
+
+	const models = [
+		{
+			name: 'Gemini 2.0 Flash',
+			provider: 'google',
+			cost: 0,
+		},
+		{
+			name: 'GPT 4o mini',
+			provider: 'openai',
+			cost: 40,
+		},
+		{
+			name: 'GPT 4o',
+			provider: 'openai',
+			cost: 100,
+		},
+		{
+			name: 'o3 mini',
+			provider: 'openai',
+			cost: 40,
+		},
+		{
+			name: 'Grok 2',
+			provider: 'xai',
+			cost: 40,
+		},
+		{
+			name: 'Grok 2 Vision',
+			provider: 'xai',
+			cost: 40,
+		},
+		{
+			name: 'DeepSeek R1 (Groq)',
+			provider: 'groq',
+			cost: 50,
+		},
+		{
+			name: 'Qwen QwQ (Groq)',
+			provider: 'groq',
+			cost: 30,
+		},
+		{
+			name: 'Llama 3.3 (Groq)',
+			provider: 'groq',
+			cost: 30,
+		},
+		{
+			name: 'Clause 3.5 Sonnet',
+			provider: 'anthropic',
+			cost: 500,
+		},
+		{
+			name: 'Clause 3.7 Sonnet',
+			provider: 'anthropic',
+			cost: 500,
+		},
+	] as const
+
+	const tools = [
+		// {
+		// 	id: 'image',
+		// 	name: 'Image',
+		// 	description: 'Generate Image',
+		// 	icon: ImagesIcon,
+		// 	credits: 5,
+		// 	disable:
+		// 		!user || (user.plan !== 'basic' && user.plan !== 'pro'),
+		// },
+		{
+			name: 'Web',
+			description: 'Search the web',
+			icon: GlobeIcon,
+			cost: 200,
+		},
+		{
+			name: 'X',
+			description: 'Search X posts',
+			icon: TwitterLogo,
+			cost: 200,
+		},
+		// {
+		// 	id: 'analysis',
+		// 	name: 'Analysis',
+		// 	description: 'Code, stock and currency stuff',
+		// 	icon: CodeXmlIcon,
+		// 	show: true,
+		// },
+		{
+			name: 'Academic',
+			description: 'Search academic papers (PDF)',
+			icon: BookIcon,
+			cost: 200,
+		},
+		{
+			name: 'Web Reader',
+			description: 'Read articles from the web',
+			icon: LibraryBigIcon,
+			cost: 200,
+		},
+	] as const
 </script>
 
 <ScrollArea class="max-h-svh flex-1 p-4">
-	<div class="flex h-full w-full items-center justify-center">
+	<div class="flex w-full items-center justify-center pt-[10vh]">
 		<div class="flex flex-wrap justify-center gap-8">
 			{@render PricingCard({
 				name: 'Basic',
@@ -17,7 +131,7 @@
 				link: PUBLIC_API_URL + '/billing/plan/basic',
 				included: [
 					{
-						title: '1000 Credits/month',
+						title: '500 Credits/month',
 					},
 					{
 						title: 'Access to Web Search and Image/File upload',
@@ -33,7 +147,7 @@
 				link: PUBLIC_API_URL + '/billing/plan/pro',
 				included: [
 					{
-						title: '3000 Credits/month',
+						title: '1500 Credits/month',
 					},
 					{
 						title: 'Access to Web Search and Image/File upload',
@@ -44,6 +158,86 @@
 				],
 				notIncluded: [],
 			})}
+		</div>
+	</div>
+	<div class="flex flex-col items-center gap-20 pt-20">
+		<h1 class="text-3xl font-bold">Pricing Table</h1>
+
+		<div class="w-full max-w-xl">
+			<Table.Root>
+				<Table.Caption>Model pricings.</Table.Caption>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head class="w-full">Model</Table.Head>
+						<Table.Head class="text-nowrap text-right">
+							Cost (credit)
+						</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each models as model}
+						<Table.Row>
+							<Table.Cell class="font-medium">
+								<div class="flex items-center gap-2">
+									<div class="[&_svg]:size-4">
+										{@render modelIcon(model.provider)}
+									</div>
+									<div class="flex flex-col items-start gap-1">
+										<span>
+											{model.name}
+										</span>
+									</div>
+								</div>
+							</Table.Cell>
+							<Table.Cell class="text-center">
+								{model.cost / 100}
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+		</div>
+		<div class="w-full max-w-xl">
+			<Table.Root>
+				<Table.Caption>Tool pricings.</Table.Caption>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head class="w-full">Tool</Table.Head>
+						<Table.Head class="text-nowrap text-right">
+							Cost (credit)
+						</Table.Head>
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each tools as tool}
+						<Table.Row>
+							<Table.Cell class="font-medium">
+								<div class="flex items-center gap-2">
+									<div class="[&_svg]:size-4">
+										<tool.icon />
+									</div>
+									<span>
+										{tool.name}
+									</span>
+									<Tooltip.Provider>
+										<Tooltip.Root>
+											<Tooltip.Trigger>
+												<InfoIcon class="text-muted-foreground h-4" />
+											</Tooltip.Trigger>
+											<Tooltip.Content>
+												<p>{tool.description}</p>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+								</div>
+							</Table.Cell>
+							<Table.Cell class="text-center">
+								{tool.cost / 100}
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
 		</div>
 	</div>
 </ScrollArea>
@@ -157,4 +351,18 @@
 			</ul>
 		</div>
 	</div>
+{/snippet}
+
+{#snippet modelIcon(provider: string)}
+	{#if provider === 'google'}
+		<GoogleIcon />
+	{:else if provider === 'openai'}
+		<OpenaiIcon />
+	{:else if provider === 'groq'}
+		<GroqIcon />
+	{:else if provider === 'anthropic'}
+		<AnthropicIcon />
+	{:else if provider === 'xai'}
+		<XaiIcon />
+	{/if}
 {/snippet}
