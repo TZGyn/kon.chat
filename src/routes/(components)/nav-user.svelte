@@ -110,9 +110,9 @@
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span
 								class="text-muted-foreground truncate text-xs font-semibold">
-								Credits: {user
+								Credits: {(user
 									? user.credits + user.purchased_credits
-									: 0}
+									: 0) / 100}
 							</span>
 						</div>
 					</div>

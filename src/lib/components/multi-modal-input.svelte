@@ -16,6 +16,7 @@
 		Globe,
 		GlobeIcon,
 		ImageIcon,
+		ImagesIcon,
 		LibraryBigIcon,
 		Loader2Icon,
 		MemoryStick,
@@ -242,12 +243,21 @@
 			icon: MessageCircleIcon,
 			disable: false,
 		},
+		// {
+		// 	id: 'image',
+		// 	name: 'Image',
+		// 	description: 'Generate Image',
+		// 	icon: ImagesIcon,
+		// 	credits: 5,
+		// 	disable:
+		// 		!user || (user.plan !== 'basic' && user.plan !== 'pro'),
+		// },
 		{
 			id: 'web_search',
 			name: 'Web',
 			description: 'Search the web',
 			icon: GlobeIcon,
-			credits: 5,
+			credits: 200,
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
@@ -256,7 +266,7 @@
 			name: 'X',
 			description: 'Search X posts',
 			icon: TwitterLogo,
-			credits: 5,
+			credits: 200,
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
@@ -272,7 +282,7 @@
 			name: 'Academic',
 			description: 'Search academic papers (PDF)',
 			icon: BookIcon,
-			credits: 5,
+			credits: 200,
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
@@ -281,7 +291,7 @@
 			name: 'Web Reader',
 			description: 'Read articles from the web',
 			icon: LibraryBigIcon,
-			credits: 5,
+			credits: 200,
 			disable:
 				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
@@ -411,7 +421,7 @@
 												{model.name}
 											</span>
 											<span class="text-muted-foreground text-xs">
-												Credits: {model.credits}
+												Credits: {model.credits / 100}
 											</span>
 										</div>
 										{#if model.info}
@@ -456,7 +466,7 @@
 												{model.name}
 											</span>
 											<span class="text-muted-foreground text-xs">
-												Credits: {model.credits}
+												Credits: {model.credits / 100}
 											</span>
 										</div>
 										{#if model.info}
@@ -641,7 +651,7 @@
 											</div>
 											{#if mode.credits !== 0}
 												<div class="text-muted-foreground text-xs">
-													Credits: +{mode.credits}
+													Credits: +{mode.credits / 100}
 												</div>
 											{/if}
 										</div>
