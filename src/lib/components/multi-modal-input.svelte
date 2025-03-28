@@ -290,7 +290,9 @@
 	let selectedMode = $state<(typeof modes)[number]>()
 
 	$effect(() => {
-		selectedMode = modes[0]
+		if (!selectedMode) {
+			selectedMode = modes[0]
+		}
 	})
 </script>
 
