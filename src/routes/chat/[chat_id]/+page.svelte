@@ -129,6 +129,14 @@
 					...chat.value,
 					messages: useChat.messages as any,
 				}
+			} else {
+				chat.value = {
+					id: 'new chat',
+					title: 'new chat',
+					isOwner: true,
+					createdAt: Date.now(),
+					messages: useChat.messages as any,
+				}
 			}
 		},
 		onError: (error) => {
