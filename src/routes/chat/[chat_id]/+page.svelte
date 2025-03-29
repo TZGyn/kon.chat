@@ -61,8 +61,9 @@
 		const data = (await customFetch<{ chat: Chat }>(`/chat/${id}`))
 			.chat
 
-		chat.value = data ?? null
+		localStorage.setItem(`chat:${id}`, JSON.stringify(data))
 		if (chat_id !== id) return
+		chat.value = data ?? null
 		const serverMessages = convertToUIMessages(
 			chat.value?.messages ?? [],
 		)
