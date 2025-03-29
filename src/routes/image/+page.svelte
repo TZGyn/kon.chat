@@ -7,8 +7,12 @@
 	import { AspectRatio } from '$lib/components/ui/aspect-ratio'
 	import { customFetch, customFetchRaw } from '$lib/fetch'
 	import { Button } from '$lib/components/ui/button'
-	import { Loader2Icon } from 'lucide-svelte'
+	import { Loader2Icon, XIcon } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
+	import {
+		FileDropZone,
+		type FileDropZoneProps,
+	} from '$lib/components/ui/file-drop-zone'
 
 	const aspect_ratios = [
 		{ value: '1:1', label: '1:1' },
@@ -54,18 +58,40 @@
 		aspect_ratio: (typeof aspect_ratios)[number]['value']
 	}) => {
 		isSubmitting = true
-		const response = await customFetchRaw('/image/imagen/generate', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
+		const url = file ? '/image/imagen/edit' : '/image/imagen/generate'
+		let payload
+		if (file) {
+			const formdata = new FormData()
+			console.log(file)
+			formdata.append('file', file)
+			formdata.append('prompt', prompt)
+			formdata.append('negative_prompt', negative_prompt)
+			formdata.append('count', count.toString())
+			formdata.append('aspect_ratio', aspect_ratio)
+			formdata.append('model', 'imagen-3.0-generate-001')
+			payload = formdata
+		} else {
+			payload = JSON.stringify({
 				prompt,
 				negative_prompt,
 				count,
 				aspect_ratio,
 				model: 'imagen-3.0-generate-001',
-			}),
+			})
+		}
+
+		let headers
+		if (file) {
+			headers = {}
+		} else {
+			headers = {
+				'Content-Type': 'application/json',
+			}
+		}
+		const response = await customFetchRaw(url, {
+			method: 'POST',
+			headers: { ...headers },
+			body: payload,
 		})
 
 		if (response.status === 401) {
@@ -99,6 +125,15 @@
 		generated_images = body.images
 		selected_image = generated_images[0]
 		isSubmitting = false
+	}
+
+	let file = $state<File>()
+
+	const onUpload: FileDropZoneProps['onUpload'] = async (
+		uploadedFiles,
+	) => {
+		// we use set instead of an assignment since it accepts a File[]
+		file = uploadedFiles[0]
 	}
 </script>
 
@@ -188,6 +223,27 @@
 				</div>
 			</div>
 		</div>
+		{#if file}
+			<div
+				class="relative flex min-h-32 items-center justify-center rounded border">
+				<img src={URL.createObjectURL(file)} alt={file.name} />
+				<Button
+					variant="outline"
+					size="icon"
+					class="absolute right-2 top-2"
+					onclick={() => {
+						file = undefined
+					}}>
+					<XIcon />
+				</Button>
+			</div>
+		{:else}
+			<FileDropZone
+				accept="image/jpg,image/jpeg,image/png"
+				maxFiles={1}
+				maxFileSize={4_000_000}
+				{onUpload} />
+		{/if}
 		<div class="flex w-full">
 			<Button
 				onclick={() =>
