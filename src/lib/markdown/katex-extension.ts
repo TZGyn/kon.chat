@@ -1,17 +1,15 @@
-import katex from 'katex'
-
 const DELIMITER_LIST = [
 	{ left: '$$', right: '$$', display: true },
-	{ left: '$', right: '$', display: false },
-	{ left: '\\pu{', right: '}', display: false },
-	{ left: '\\ce{', right: '}', display: false },
-	{ left: '\\(', right: '\\)', display: false },
-	{ left: '\\[', right: '\\]', display: true },
-	{
-		left: '\\begin{equation}',
-		right: '\\end{equation}',
-		display: true,
-	},
+	// { left: '$', right: '$', display: false },
+	// { left: '\\pu{', right: '}', display: false },
+	// { left: '\\ce{', right: '}', display: false },
+	// { left: '\\(', right: '\\)', display: false },
+	// { left: '\\[', right: '\\]', display: true },
+	// {
+	// 	left: '\\begin{equation}',
+	// 	right: '\\end{equation}',
+	// 	display: true,
+	// },
 ]
 
 // const DELIMITER_LIST = [
@@ -22,14 +20,14 @@ const DELIMITER_LIST = [
 // const inlineRule = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])*?(?:\\.|[^\\\n\$]))\1(?=[\s?!\.,:？！。，：]|$)/;
 // const blockRule = /^(\${1,2})\n((?:\\[^]|[^\\])+?)\n\1(?:\n|$)/;
 
-let inlinePatterns = []
-let blockPatterns = []
+let inlinePatterns: string[] = []
+let blockPatterns: string[] = []
 
-function escapeRegex(string) {
+function escapeRegex(string: string) {
 	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
-function generateRegexRules(delimiters) {
+function generateRegexRules(delimiters: any[]) {
 	delimiters.forEach((delimiter) => {
 		const { left, right, display } = delimiter
 		// Ensure regex-safe delimiters
@@ -78,7 +76,7 @@ export const markedKatexExtension = (options = {}) => {
 	}
 }
 
-function katexStart(src, displayMode: boolean) {
+function katexStart(src: string, displayMode: boolean) {
 	let ruleReg = displayMode ? blockRule : inlineRule
 
 	let indexSrc = src
@@ -126,7 +124,11 @@ function katexStart(src, displayMode: boolean) {
 	}
 }
 
-function katexTokenizer(src, tokens, displayMode: boolean) {
+function katexTokenizer(
+	src: string,
+	tokens: any,
+	displayMode: boolean,
+) {
 	let ruleReg = displayMode ? blockRule : inlineRule
 	let type = displayMode ? 'blockKatex' : 'inlineKatex'
 
@@ -147,33 +149,33 @@ function katexTokenizer(src, tokens, displayMode: boolean) {
 	}
 }
 
-function inlineKatex(options) {
+function inlineKatex(options: any) {
 	return {
 		name: 'inlineKatex',
 		level: 'inline',
-		start(src) {
+		start(src: string) {
 			return katexStart(src, false)
 		},
-		tokenizer(src, tokens) {
+		tokenizer(src: string, tokens: any) {
 			return katexTokenizer(src, tokens, false)
 		},
-		renderer(token) {
+		renderer(token: any) {
 			return `${token?.text ?? ''}`
 		},
 	}
 }
 
-function blockKatex(options) {
+function blockKatex(options: any) {
 	return {
 		name: 'blockKatex',
 		level: 'block',
-		start(src) {
+		start(src: string) {
 			return katexStart(src, true)
 		},
-		tokenizer(src, tokens) {
+		tokenizer(src: string, tokens: any) {
 			return katexTokenizer(src, tokens, true)
 		},
-		renderer(token) {
+		renderer(token: any) {
 			return `${token?.text ?? ''}`
 		},
 	}
