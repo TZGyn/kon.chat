@@ -166,7 +166,7 @@
 		<Dialog.Header>
 			<Dialog.Title class="text-2xl">Login/Signup</Dialog.Title>
 			<Dialog.Description>
-				Sign up and get 50 standard chat credits for free
+				Sign up and get 50 credits for free
 			</Dialog.Description>
 		</Dialog.Header>
 		<div class="grid gap-4">
