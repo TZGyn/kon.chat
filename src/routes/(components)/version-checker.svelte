@@ -19,6 +19,11 @@
 			'/version/app/latest-deployment',
 		)
 
+		if (latestDeploymentLocal.value === '') {
+			latestDeploymentLocal.value = latestDeployment
+			return
+		}
+
 		latestDeployment = deployment.deployment_id
 
 		if (latestDeployment !== latestDeploymentLocal.value) {
