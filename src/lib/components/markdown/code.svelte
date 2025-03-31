@@ -13,6 +13,7 @@
 	import { onMount } from 'svelte'
 	import { ScrollArea } from '../ui/scroll-area'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
+	import * as Tabs from '$lib/components/ui/tabs/index.js'
 	import { cn } from '$lib/utils'
 
 	let { code, lang }: { code: string; lang: string } = $props()
@@ -205,43 +206,60 @@
 	}
 </script>
 
-<div
-	class="bg-secondary flex items-center justify-between rounded-t px-2">
-	<span class="py-1 text-sm">{lang}</span>
-	<div>
-		<CopyButton
-			variant="ghost"
-			class="hover:bg-transparent"
-			text={code} />
-		{#if lang === 'python'}
-			<Button
-				loading={runningCode}
-				size="icon"
-				variant="ghost"
-				class="hover:bg-transparent"
-				onclick={() => runPython(code)}>
-				<TriangleIcon class="rotate-90" />
-			</Button>
-		{/if}
-		{#if lang === 'mermaid'}
-			<Button
-				loading={runningCode}
-				size="icon"
-				variant="ghost"
-				class="hover:bg-transparent"
-				onclick={() => drawMermaidDiagram(code)}>
-				<TriangleIcon class="rotate-90" />
-			</Button>
-		{/if}
-	</div>
-</div>
-{#key codeHTML}
-	<div class="*:[pre]:!bg-[#1e1e1e]">
-		{@html codeHTML}
-	</div>
-{/key}
+<Tabs.Root value="code" class="">
+	{#if lang === 'html'}
+		<Tabs.List
+			class="bg-background grid w-full grid-cols-2 border p-0">
+			<Tabs.Trigger
+				value="code"
+				class="data-[state=active]:bg-secondary h-full rounded-none rounded-l-md">
+				Code
+			</Tabs.Trigger>
+			<Tabs.Trigger
+				value="preview"
+				class="data-[state=active]:bg-secondary h-full rounded-none rounded-r-md">
+				Preview
+			</Tabs.Trigger>
+		</Tabs.List>
+	{/if}
+	<Tabs.Content value="code">
+		<div
+			class="bg-secondary flex items-center justify-between rounded-t px-2">
+			<span class="py-1 text-sm">{lang}</span>
+			<div>
+				<CopyButton
+					variant="ghost"
+					class="hover:bg-transparent"
+					text={code} />
+				{#if lang === 'python'}
+					<Button
+						loading={runningCode}
+						size="icon"
+						variant="ghost"
+						class="hover:bg-transparent"
+						onclick={() => runPython(code)}>
+						<TriangleIcon class="rotate-90" />
+					</Button>
+				{/if}
+				{#if lang === 'mermaid'}
+					<Button
+						loading={runningCode}
+						size="icon"
+						variant="ghost"
+						class="hover:bg-transparent"
+						onclick={() => drawMermaidDiagram(code)}>
+						<TriangleIcon class="rotate-90" />
+					</Button>
+				{/if}
+			</div>
+		</div>
+		{#key codeHTML}
+			<div class="*:[pre]:!bg-[#1e1e1e]">
+				{@html codeHTML}
+			</div>
+		{/key}
 
-<!-- class={cn('w-12 shrink-0', {
+		<!-- class={cn('w-12 shrink-0', {
                   'text-muted-foreground': [
                     'in_progress',
                     'loading_packages',
@@ -250,87 +268,96 @@
                   'text-red-400': consoleOutput.status === 'failed',
                 })} -->
 
-{#if mermaidHtml}
-	<div
-		class="bg-secondary flex items-center justify-between rounded-t px-2">
-		<span class="py-1 text-sm">Mermaid SVG</span>
-		<div>
-			<CopyButton
-				variant="ghost"
-				class="hover:bg-transparent"
-				text={mermaidHtml} />
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger
-					class={cn(
-						buttonVariants({
-							variant: 'ghost',
-							class: 'hover:bg-transparent',
-							size: 'icon',
-						}),
-					)}>
-					<DownloadIcon />
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content>
-					<DropdownMenu.Group>
-						<DropdownMenu.GroupHeading>
-							Theme
-						</DropdownMenu.GroupHeading>
-						<DropdownMenu.Separator />
-						<DropdownMenu.Item
-							onclick={() => downloadMermaidDiagram('default')}>
-							Light
-						</DropdownMenu.Item>
-						<DropdownMenu.Item
-							onclick={() => downloadMermaidDiagram('dark')}>
-							Dark
-						</DropdownMenu.Item>
-					</DropdownMenu.Group>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
-		</div>
-	</div>
-	<div class="flex border hover:cursor-pointer">
-		<ScrollArea orientation="both" class="max-h-96 w-full">
-			<div class="*:[svg]:w-full flex min-h-64 justify-center">
-				{@html mermaidHtml}
-			</div>
-		</ScrollArea>
-	</div>
-{/if}
-{#if consoleOutput.length > 0}
-	<div
-		class="bg-muted sticky top-0 z-50 mt-2 flex h-fit w-full flex-row items-center justify-between border-b border-zinc-200 px-2 py-1 dark:border-zinc-700">
-		<div
-			class="dark:bg-secondary flex flex-row items-center gap-3 pl-2 text-sm">
-			<div class="text-muted-foreground">
-				<TerminalIcon class="size-4" />
-			</div>
-			<div>Console</div>
-		</div>
-	</div>
-	{#each consoleOutput as output, index}
-		<div
-			class="flex flex-row border-b border-zinc-200 bg-zinc-50 px-4 py-2 font-mono text-sm dark:border-zinc-700 dark:bg-zinc-900">
-			<div class="w-12 shrink-0 text-emerald-500">
-				{'>'}
-			</div>
+		{#if mermaidHtml}
 			<div
-				class="flex w-full flex-col gap-2 text-zinc-900 dark:text-zinc-50">
-				{#each output as content, index}
-					{#if content.type === 'image'}
-						<picture>
-							<img
-								src={content.value}
-								alt="output"
-								class="max-w-screen-toast-mobile w-full rounded-md" />
-						</picture>
-					{:else}
-						<div class="w-full whitespace-pre-line break-words">
-							{content.value}
-						</div>
-					{/if}
-				{/each}
+				class="bg-secondary flex items-center justify-between rounded-t px-2">
+				<span class="py-1 text-sm">Mermaid SVG</span>
+				<div>
+					<CopyButton
+						variant="ghost"
+						class="hover:bg-transparent"
+						text={mermaidHtml} />
+					<DropdownMenu.Root>
+						<DropdownMenu.Trigger
+							class={cn(
+								buttonVariants({
+									variant: 'ghost',
+									class: 'hover:bg-transparent',
+									size: 'icon',
+								}),
+							)}>
+							<DownloadIcon />
+						</DropdownMenu.Trigger>
+						<DropdownMenu.Content>
+							<DropdownMenu.Group>
+								<DropdownMenu.GroupHeading>
+									Theme
+								</DropdownMenu.GroupHeading>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Item
+									onclick={() => downloadMermaidDiagram('default')}>
+									Light
+								</DropdownMenu.Item>
+								<DropdownMenu.Item
+									onclick={() => downloadMermaidDiagram('dark')}>
+									Dark
+								</DropdownMenu.Item>
+							</DropdownMenu.Group>
+						</DropdownMenu.Content>
+					</DropdownMenu.Root>
+				</div>
 			</div>
-		</div>
-	{/each}
-{/if}
+			<div class="flex border hover:cursor-pointer">
+				<ScrollArea orientation="both" class="max-h-96 w-full">
+					<div class="*:[svg]:w-full flex min-h-64 justify-center">
+						{@html mermaidHtml}
+					</div>
+				</ScrollArea>
+			</div>
+		{/if}
+		{#if consoleOutput.length > 0}
+			<div
+				class="bg-muted sticky top-0 z-50 mt-2 flex h-fit w-full flex-row items-center justify-between border-b border-zinc-200 px-2 py-1 dark:border-zinc-700">
+				<div
+					class="dark:bg-secondary flex flex-row items-center gap-3 pl-2 text-sm">
+					<div class="text-muted-foreground">
+						<TerminalIcon class="size-4" />
+					</div>
+					<div>Console</div>
+				</div>
+			</div>
+			{#each consoleOutput as output, index}
+				<div
+					class="flex flex-row border-b border-zinc-200 bg-zinc-50 px-4 py-2 font-mono text-sm dark:border-zinc-700 dark:bg-zinc-900">
+					<div class="w-12 shrink-0 text-emerald-500">
+						{'>'}
+					</div>
+					<div
+						class="flex w-full flex-col gap-2 text-zinc-900 dark:text-zinc-50">
+						{#each output as content, index}
+							{#if content.type === 'image'}
+								<picture>
+									<img
+										src={content.value}
+										alt="output"
+										class="max-w-screen-toast-mobile w-full rounded-md" />
+								</picture>
+							{:else}
+								<div class="w-full whitespace-pre-line break-words">
+									{content.value}
+								</div>
+							{/if}
+						{/each}
+					</div>
+				</div>
+			{/each}
+		{/if}
+	</Tabs.Content>
+	<Tabs.Content value="preview">
+		<iframe
+			srcdoc={code}
+			title="preview_html"
+			class="min-h-[75vh] w-full">
+		</iframe>
+	</Tabs.Content>
+</Tabs.Root>
