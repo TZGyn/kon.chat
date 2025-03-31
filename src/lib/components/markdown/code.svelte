@@ -254,7 +254,8 @@
 			</div>
 		</div>
 		{#key codeHTML}
-			<div class="*:[pre]:!bg-[#1e1e1e]">
+			<div
+				class="*:[pre]:!bg-[#1e1e1e] *:[pre]:text-wrap max-h-[60vh] overflow-scroll">
 				{@html codeHTML}
 			</div>
 		{/key}
@@ -357,7 +358,7 @@
 		<iframe
 			srcdoc={code}
 			title="preview_html"
-			class="min-h-[75vh] w-full">
+			class="max-h-[calc(60vh+40px)] min-h-[calc(60vh+40px)] w-full">
 		</iframe>
 	</Tabs.Content>
 </Tabs.Root>
