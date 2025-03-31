@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { codeToHtml, isPlainLang, bundledLanguages } from 'shiki'
 	import CopyButton from '../copy-button.svelte'
-	import Button, { buttonVariants } from '../ui/button/button.svelte'
+	import { Button, buttonVariants } from '../ui/button'
 	import { loadPyodide } from 'pyodide'
 	import {
 		DownloadIcon,
@@ -43,6 +43,14 @@
 		type: 'text' | 'image'
 		value: string
 	}
+
+	let iframehtml = $derived.by(() => {
+		if (lang !== 'html') return ''
+		if (!code) return ``
+		const htmlLines = code.split('\n')
+		htmlLines.splice(2, 0, `    <base href='about:srcdoc'>`)
+		return htmlLines.join('\n')
+	})
 
 	let consoleOutput = $state<ConsoleOutputContent[][]>([])
 
@@ -238,7 +246,8 @@
 						variant="ghost"
 						class="hover:bg-transparent"
 						onclick={() => runPython(code)}>
-						<TriangleIcon class="rotate-90" />
+						<TriangleIcon
+							class={cn('rotate-90', runningCode && 'invisible')} />
 					</Button>
 				{/if}
 				{#if lang === 'mermaid'}
@@ -248,7 +257,8 @@
 						variant="ghost"
 						class="hover:bg-transparent"
 						onclick={() => drawMermaidDiagram(code)}>
-						<TriangleIcon class="rotate-90" />
+						<TriangleIcon
+							class={cn('rotate-90', runningCode && 'invisible')} />
 					</Button>
 				{/if}
 			</div>
@@ -326,6 +336,15 @@
 					</div>
 					<div>Console</div>
 				</div>
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<div
+					class="px-2 text-sm hover:cursor-pointer hover:underline"
+					onclick={() => {
+						consoleOutput = []
+					}}>
+					clear
+				</div>
 			</div>
 			{#each consoleOutput as output, index}
 				<div
@@ -356,9 +375,10 @@
 	</Tabs.Content>
 	<Tabs.Content value="preview">
 		<iframe
-			srcdoc={code}
+			srcdoc={iframehtml}
 			title="preview_html"
-			class="max-h-[calc(60vh+40px)] min-h-[calc(60vh+40px)] w-full">
+			class="max-h-[calc(60vh+40px)] min-h-[calc(60vh+40px)] w-full"
+			sandbox="allow-scripts">
 		</iframe>
 	</Tabs.Content>
 </Tabs.Root>
