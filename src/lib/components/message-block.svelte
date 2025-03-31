@@ -53,8 +53,8 @@
 			isLast &&
 				status !== 'submitted' &&
 				(halfSize
-					? '@6xl:min-h-[calc(100svh-25rem)] min-h-[calc(50svh-25rem)]'
-					: 'min-h-[calc(100svh-25rem)]'),
+					? '@6xl:min-h-[calc(100svh-18rem)] min-h-[calc(50svh-18rem)]'
+					: 'min-h-[calc(100svh-18rem)]'),
 		)}>
 		<div class="group flex flex-col gap-2">
 			{#if role !== 'user'}

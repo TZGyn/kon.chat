@@ -61,6 +61,7 @@
 					{message}
 					role={message.role}
 					status={useChat.status}
+					halfSize={true}
 					isLast={index === useChat.messages.length - 1} />
 			{/each}
 			{#if useChat.status === 'submitted'}
