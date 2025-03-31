@@ -107,6 +107,10 @@ export class UseAutoScroll {
 		// don't auto scroll if user has scrolled
 		if (auto && this.#userHasScrolled) return
 
-		this.#ref.scrollTo(0, this.#ref.scrollHeight)
+		this.#ref.scrollTo({
+			left: 0,
+			top: this.#ref.scrollHeight,
+			behavior: 'smooth',
+		})
 	}
 }
