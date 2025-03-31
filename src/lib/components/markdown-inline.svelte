@@ -52,10 +52,10 @@
 		<code
 			class="bg-secondary text-muted-foreground cursor-pointer rounded px-2 py-1 before:content-none after:content-none"
 			onclick={() => {
-				copy(unescapeHtml(token.text)!)
+				copy(token.text!)
 				toast.success('Copied to clipboard')
 			}}>
-			{unescapeHtml(token.text)}
+			{token.text}
 		</code>
 	{:else if token.type === 'br'}
 		<br />
