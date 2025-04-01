@@ -63,6 +63,7 @@
 	} | null
 
 	const getChat = async (id: string) => {
+		if (page.url.searchParams.get('type') === 'new_branch') return
 		const data = (await customFetch<{ chat: Chat }>(`/chat/${id}`))
 			.chat
 
@@ -236,7 +237,7 @@
 			...chats.chats,
 		]
 
-		goto(`/chat/${newChatId}`)
+		goto(`/chat/${newChatId}?type=new_branch`)
 
 		const response = await customFetchRaw('/chat/branch', {
 			method: 'POST',
