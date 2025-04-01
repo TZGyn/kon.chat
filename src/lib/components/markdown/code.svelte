@@ -15,8 +15,11 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import * as Tabs from '$lib/components/ui/tabs/index.js'
 	import { cn } from '$lib/utils'
+	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 
 	let { code, lang }: { code: string; lang: string } = $props()
+
+	const autoScroll = new UseAutoScroll()
 
 	let codeHTML = $state('')
 	onMount(() => {
@@ -263,12 +266,14 @@
 				{/if}
 			</div>
 		</div>
-		{#key codeHTML}
-			<div
-				class="*:[pre]:!bg-[#1e1e1e] *:[pre]:text-wrap max-h-[60vh] overflow-scroll">
+
+		<div
+			bind:this={autoScroll.ref}
+			class="*:[pre]:!bg-[#1e1e1e] *:[pre]:text-wrap max-h-[60vh] overflow-scroll">
+			{#key codeHTML}
 				{@html codeHTML}
-			</div>
-		{/key}
+			{/key}
+		</div>
 
 		<!-- class={cn('w-12 shrink-0', {
                   'text-muted-foreground': [

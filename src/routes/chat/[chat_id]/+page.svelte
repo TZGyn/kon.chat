@@ -272,7 +272,7 @@
 					{#if useChat.status === 'submitted'}
 						<div
 							class={cn(
-								'flex min-h-[calc(100vh-25rem)] gap-2 place-self-start',
+								'flex min-h-[calc(100vh-18rem)] gap-2 place-self-start',
 							)}>
 							<div class="group flex flex-col gap-2">
 								<div class="flex items-center gap-4">
