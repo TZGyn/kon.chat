@@ -110,7 +110,7 @@ export class UseAutoScroll {
 		this.#ref.scrollTo({
 			left: 0,
 			top: this.#ref.scrollHeight,
-			behavior: 'smooth',
+			// behavior: 'smooth',
 		})
 	}
 }
