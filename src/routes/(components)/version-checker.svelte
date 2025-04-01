@@ -20,7 +20,7 @@
 		)
 
 		if (latestDeploymentLocal.value === '') {
-			latestDeploymentLocal.value = latestDeployment
+			latestDeploymentLocal.value = deployment.deployment_id
 			return
 		}
 
