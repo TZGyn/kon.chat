@@ -20,6 +20,21 @@ export const useModels = () => {
 			disabled: false,
 			credits: 0,
 		},
+		{
+			name: 'Gemini 2.5 Pro Exp',
+			info: '',
+			provider: 'google',
+			id: 'gemini-2.5-pro-exp-03-25',
+			capabilities: {
+				image: true,
+				file: true,
+				fast: false,
+				reasoning: false,
+				searchGrounding: true,
+			},
+			disabled: false,
+			credits: 0,
+		},
 	] as const)
 	let standardModels = $derived([
 		{
