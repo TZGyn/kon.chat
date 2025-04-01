@@ -1,19 +1,14 @@
 <script lang="ts">
 	import * as Avatar from '$lib/components/ui/avatar'
-	import * as Dialog from '$lib/components/ui/dialog'
-	import { ScrollArea } from '$lib/components/ui/scroll-area'
 	import { Toggle } from '$lib/components/ui/toggle/index.js'
 	import { cn } from '$lib/utils'
 	import type { JSONValue, UIMessage } from 'ai'
-	import { Button, buttonVariants } from '$lib/components/ui/button'
+	import { Button } from '$lib/components/ui/button'
 	import {
 		ChevronDownIcon,
-		CopyIcon,
-		FileTextIcon,
 		Loader2Icon,
+		SplitIcon,
 	} from 'lucide-svelte'
-	import { copy } from '$lib/clipboard'
-	import { toast } from 'svelte-sonner'
 	import GoogleGroundingSection from '$lib/components/google-grounding-section.svelte'
 	import Markdown from './markdown.svelte'
 	import Attachments from './message/attachments.svelte'
@@ -27,6 +22,7 @@
 		role,
 		data = [],
 		halfSize = false,
+		branch,
 	}: {
 		role: 'system' | 'user' | 'assistant' | 'data'
 		message: UIMessage
@@ -34,15 +30,8 @@
 		status: 'submitted' | 'streaming' | 'ready' | 'error'
 		data?: JSONValue[]
 		halfSize?: boolean
+		branch?: () => void
 	} = $props()
-
-	let hasReasoning = $derived(
-		message.parts.find((part) => part.type === 'reasoning') !==
-			undefined,
-	)
-	let reasoningPart = $derived(
-		message.parts.find((part) => part.type === 'reasoning'),
-	)
 </script>
 
 {#key message.id}
@@ -153,13 +142,21 @@
 			{#if message.role !== 'user'}
 				<div
 					class={cn(
-						'flex items-center gap-2',
+						'flex items-center',
 						status !== 'streaming' || !isLast
 							? 'visible'
 							: 'invisible',
 					)}>
 					{#if message.content}
 						<CopyButton text={message.content} />
+					{/if}
+					{#if branch}
+						<Button
+							size="icon"
+							variant="ghost"
+							onclick={() => branch()}>
+							<SplitIcon class="rotate-180" />
+						</Button>
 					{/if}
 				</div>
 			{/if}

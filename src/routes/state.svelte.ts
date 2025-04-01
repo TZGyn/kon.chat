@@ -35,6 +35,9 @@ export function useChats() {
 		get chats() {
 			return chats
 		},
+		set chats(new_chats) {
+			chats = new_chats
+		},
 		getChats,
 		deleteChats,
 	}

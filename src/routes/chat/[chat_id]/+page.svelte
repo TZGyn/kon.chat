@@ -35,6 +35,7 @@
 	import { Button } from '$lib/components/ui/button/index.js'
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
+	import { nanoid } from '$lib/nanoid.js'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -205,6 +206,50 @@
 		chats.getChats()
 		toast.success('Chat Copied')
 	}
+
+	const branch = async (index: number, chat_id: string) => {
+		const chat = localStorage.getItem(`chat:${chat_id}`)
+
+		const chatJSON = JSON.parse(chat || 'null') as Chat
+		if (!chatJSON) {
+			toast.error('Invalid Chat')
+			return
+		}
+
+		const newChatId = nanoid()
+
+		const newBranch = {
+			...chatJSON,
+			title: chatJSON.title + ' (branch)',
+			createdAt: Date.now(),
+			id: newChatId,
+			messages: chatJSON.messages.slice(0, index + 1),
+		} as Chat
+
+		localStorage.setItem(
+			`chat:${newChatId}`,
+			JSON.stringify(newBranch),
+		)
+
+		chats.chats = [
+			{ id: newChatId, title: chatJSON.title + ' (branch)' },
+			...chats.chats,
+		]
+
+		goto(`/chat/${newChatId}`)
+
+		const response = await customFetchRaw('/chat/branch', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				chat_id: chat_id,
+				new_chat_id: newChatId,
+				at: index,
+			}),
+		})
+	}
 </script>
 
 <div class="relative flex flex-1 overflow-hidden">
@@ -220,7 +265,8 @@
 							{message}
 							role={message.role}
 							status={useChat.status}
-							isLast={index === useChat.messages.length - 1} />
+							isLast={index === useChat.messages.length - 1}
+							branch={() => branch(index, chat_id)} />
 					{/each}
 					{#if useChat.status === 'submitted'}
 						<div
