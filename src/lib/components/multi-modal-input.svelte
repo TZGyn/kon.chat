@@ -182,7 +182,10 @@
 		}
 
 		if (status === 'error') {
-			messages = messages.slice(0, -1) // remove last message
+			const lastUserIndex = messages.findLastIndex(
+				(message) => message.role === 'user',
+			)
+			messages = messages.slice(0, lastUserIndex) // remove until last user message
 		}
 		if (status === 'streaming') {
 			toast.warning(
@@ -229,7 +232,8 @@
 	}
 
 	$effect(() => {
-		input && adjustInputHeight()
+		input
+		adjustInputHeight()
 	})
 
 	let user = $derived(userState.user)
