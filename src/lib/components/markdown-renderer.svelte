@@ -1,17 +1,19 @@
 <script lang="ts">
+	import { markedKatexExtension } from '$lib/markdown/katex-extension'
 	import { marked } from 'marked'
 
 	import DOMPurify from 'isomorphic-dompurify'
 	import MarkdownInline from './markdown-inline.svelte'
+	import * as Tooltip from '$lib/components/ui/tooltip'
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js'
 	import * as Table from '$lib/components/ui/table/index.js'
-	import { ChevronsUpDownIcon } from 'lucide-svelte'
+	import { ChevronsUpDownIcon, DownloadIcon } from 'lucide-svelte'
 	import { buttonVariants } from './ui/button'
+	import katex from 'katex'
 	import type { Token } from 'marked'
 	import { browser } from '$app/environment'
 	import Code from './markdown/code.svelte'
 	import Self from './markdown-renderer.svelte'
-	import Katex from './markdown/katex.svelte'
 
 	let {
 		tokens = [],
@@ -172,11 +174,17 @@
 		{/if}
 	{:else if token.type === 'inlineKatex'}
 		{#if token.text}
-			<Katex {token} />
+			{@html katex.renderToString(token.text, {
+				displayMode: token.displayMode ?? false,
+				throwOnError: false,
+			})}
 		{/if}
 	{:else if token.type === 'blockKatex'}
 		{#if token.text}
-			<Katex {token} />
+			{@html katex.renderToString(token.text, {
+				displayMode: token.displayMode ?? false,
+				throwOnError: false,
+			})}
 		{/if}
 	{:else if token.type === 'space'}
 		<div class="my-2"></div>

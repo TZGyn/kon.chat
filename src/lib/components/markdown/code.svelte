@@ -1,21 +1,10 @@
-<script module>
-	// @ts-ignore
-	import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'
-	mermaid.initialize({
-		startOnLoad: true,
-		theme: 'dark',
-		securityLevel: 'loose',
-	})
-</script>
-
 <script lang="ts">
 	import {
-		createHighlighterCore,
-		type HighlighterCore,
+		bundledLanguages,
+		codeToTokens,
+		type BundledLanguage,
 		type ThemedToken,
-	} from 'shiki/core'
-	import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
-
+	} from 'shiki'
 	import CopyButton from '../copy-button.svelte'
 	import { Button, buttonVariants } from '../ui/button'
 	import { loadPyodide } from 'pyodide'
@@ -24,7 +13,9 @@
 		TerminalIcon,
 		TriangleIcon,
 	} from 'lucide-svelte'
+	import mermaid from 'mermaid'
 	import { nanoid } from '$lib/nanoid'
+	import { onMount } from 'svelte'
 	import { ScrollArea } from '../ui/scroll-area'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import * as Tabs from '$lib/components/ui/tabs/index.js'
@@ -36,20 +27,13 @@
 	const autoScroll = new UseAutoScroll()
 
 	let codeTokens = $state<ThemedToken[][]>([])
-
-	let highlighter = $state<HighlighterCore>()
-	const supportedLangs = [
-		'javascript',
-		'typescript',
-		'lua',
-		'rust',
-		'c',
-		'c++',
-		'go',
-		'python',
-		'mermaid',
-		'sql',
-	] as const
+	onMount(() => {
+		mermaid.initialize({
+			startOnLoad: true,
+			theme: 'dark',
+			securityLevel: 'loose',
+		})
+	})
 
 	const fontStyle = {
 		0: 'None',
@@ -59,28 +43,11 @@
 	}
 
 	const updateHTML = async (code: string) => {
-		if (!highlighter) {
-			highlighter = await createHighlighterCore({
-				langs: [
-					import('@shikijs/langs/javascript'),
-					import('@shikijs/langs/typescript'),
-					import('@shikijs/langs/lua'),
-					import('@shikijs/langs/rust'),
-					import('@shikijs/langs/c'),
-					import('@shikijs/langs/cpp'),
-					import('@shikijs/langs/go'),
-					import('@shikijs/langs/python'),
-					import('@shikijs/langs/mermaid'),
-					import('@shikijs/langs/sql'),
-				],
-				themes: [import('@shikijs/themes/one-dark-pro')],
-				engine: createOnigurumaEngine(import('shiki/wasm')),
-			})
-		}
-		const { tokens } = highlighter.codeToTokens(code, {
-			lang: supportedLangs.includes(lang as any)
-				? lang
-				: ('text' as const),
+		const { tokens } = await codeToTokens(code, {
+			lang:
+				lang in bundledLanguages
+					? (lang as BundledLanguage)
+					: ('text' as const),
 			theme: 'one-dark-pro',
 		})
 		codeTokens = tokens

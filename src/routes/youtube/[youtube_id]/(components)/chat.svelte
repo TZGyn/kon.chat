@@ -6,6 +6,7 @@
 	import { PUBLIC_API_URL } from '$env/static/public'
 
 	import { useUser } from '../../../state.svelte'
+	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import MessageBlock from '$lib/components/message-block.svelte'
