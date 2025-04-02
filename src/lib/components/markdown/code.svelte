@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { codeToHtml, isPlainLang, bundledLanguages } from 'shiki'
+	import {
+		bundledLanguages,
+		codeToTokens,
+		type BundledLanguage,
+		type ThemedToken,
+	} from 'shiki'
 	import CopyButton from '../copy-button.svelte'
 	import { Button, buttonVariants } from '../ui/button'
 	import { loadPyodide } from 'pyodide'
@@ -21,7 +26,7 @@
 
 	const autoScroll = new UseAutoScroll()
 
-	let codeHTML = $state('')
+	let codeTokens = $state<ThemedToken[][]>([])
 	onMount(() => {
 		mermaid.initialize({
 			startOnLoad: true,
@@ -30,12 +35,22 @@
 		})
 	})
 
+	const fontStyle = {
+		0: 'None',
+		1: 'Italic',
+		2: 'Bold',
+		3: 'Underline',
+	}
+
 	const updateHTML = async (code: string) => {
-		const html = await codeToHtml(code, {
-			lang: lang in bundledLanguages ? lang : 'text',
+		const { tokens } = await codeToTokens(code, {
+			lang:
+				lang in bundledLanguages
+					? (lang as BundledLanguage)
+					: ('text' as const),
 			theme: 'one-dark-pro',
 		})
-		codeHTML = html
+		codeTokens = tokens
 	}
 
 	$effect(() => {
@@ -269,10 +284,9 @@
 
 		<div
 			bind:this={autoScroll.ref}
-			class="*:[pre]:!bg-[#1e1e1e] *:[pre]:text-wrap max-h-[60vh] overflow-scroll">
-			{#key codeHTML}
-				{@html codeHTML}
-			{/key}
+			class="max-h-[60vh] overflow-scroll">
+			<pre
+				class="shiki one-dark-pro text-wrap !bg-[#1e1e1e]"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
 		</div>
 
 		<!-- class={cn('w-12 shrink-0', {
