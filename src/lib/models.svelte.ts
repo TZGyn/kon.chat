@@ -165,6 +165,23 @@ export const useModels = () => {
 				plan === undefined || plan === 'free' || plan === 'trial',
 			credits: 30,
 		},
+
+		{
+			name: 'Mistral Small',
+			info: '',
+			provider: 'mistral',
+			id: 'mistral-small-latest',
+			capabilities: {
+				image: false,
+				file: false,
+				fast: false,
+				reasoning: false,
+				searchGrounding: false,
+			},
+			disabled:
+				plan === undefined || plan === 'free' || plan === 'trial',
+			credits: 30,
+		},
 	] as const)
 
 	let premiumModels = $derived([
