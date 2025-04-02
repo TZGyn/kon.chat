@@ -4,10 +4,10 @@
 	import type { Token } from 'marked'
 	import { copy } from '$lib/clipboard'
 	import { browser } from '$app/environment'
-	import katex from 'katex'
 	import Self from './markdown-inline.svelte'
 	import Link from './markdown/link.svelte'
 	import Text from './markdown/text.svelte'
+	import Katex from './markdown/katex.svelte'
 
 	let { tokens = [] }: { tokens: Token[] | undefined } = $props()
 
@@ -65,10 +65,7 @@
 		</del>
 	{:else if token.type === 'inlineKatex'}
 		{#if token.text}
-			{@html katex.renderToString(token.text, {
-				displayMode: token.displayMode ?? false,
-				throwOnError: false,
-			})}
+			<Katex {token} />
 		{/if}
 	{:else if token.type === 'iframe'}
 		<!-- <iframe
