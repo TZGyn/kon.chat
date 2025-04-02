@@ -1,14 +1,26 @@
 import { customFetch } from '$lib/fetch'
 
-let chats = $state<{ id: string; title: string }[]>([])
+let chats = $state<
+	{
+		id: string
+		title: string
+		createdAt: number
+		updatedAt: number
+	}[]
+>([])
 
 export function useChats() {
 	async function getChats() {
 		chats = JSON.parse(localStorage.getItem('chats') || '[]')
 		chats = (
-			await customFetch<{ chats: { id: string; title: string }[] }>(
-				'/chat',
-			)
+			await customFetch<{
+				chats: {
+					id: string
+					title: string
+					createdAt: number
+					updatedAt: number
+				}[]
+			}>('/chat')
 		).chats
 		localStorage.setItem('chats', JSON.stringify(chats || []))
 	}
