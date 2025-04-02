@@ -233,7 +233,12 @@
 		)
 
 		chats.chats = [
-			{ id: newChatId, title: chatJSON.title + ' (branch)' },
+			{
+				id: newChatId,
+				title: chatJSON.title + ' (branch)',
+				createdAt: Date.now(),
+				updatedAt: Date.now(),
+			},
 			...chats.chats,
 		]
 
