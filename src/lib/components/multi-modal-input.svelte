@@ -263,8 +263,7 @@
 			description: 'Search the web',
 			icon: GlobeIcon,
 			credits: 200,
-			disable:
-				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
+			disable: !user,
 		},
 		{
 			id: 'x_search',
@@ -272,8 +271,7 @@
 			description: 'Search X posts',
 			icon: TwitterLogo,
 			credits: 200,
-			disable:
-				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
+			disable: !user,
 		},
 		// {
 		// 	id: 'analysis',
@@ -288,8 +286,7 @@
 			description: 'Search academic papers (PDF)',
 			icon: BookIcon,
 			credits: 200,
-			disable:
-				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
+			disable: !user,
 		},
 		{
 			id: 'web_reader',
@@ -297,8 +294,7 @@
 			description: 'Read articles from the web',
 			icon: LibraryBigIcon,
 			credits: 200,
-			disable:
-				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
+			disable: !user,
 		},
 	] as const)
 

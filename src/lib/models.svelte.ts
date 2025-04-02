@@ -49,8 +49,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 40,
 		},
 		{
@@ -65,8 +64,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 100,
 		},
 		{
@@ -81,8 +79,7 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 40,
 		},
 		{
@@ -97,8 +94,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 40,
 		},
 		{
@@ -113,8 +109,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 40,
 		},
 		{
@@ -129,8 +124,7 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 50,
 		},
 		{
@@ -145,8 +139,7 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 30,
 		},
 		{
@@ -161,8 +154,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 30,
 		},
 
@@ -178,8 +170,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'trial',
+			disabled: plan === undefined,
 			credits: 30,
 		},
 	] as const)
@@ -197,8 +188,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'basic',
+			disabled: plan === undefined,
 			credits: 500,
 		},
 		{
@@ -213,8 +203,7 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled:
-				plan === undefined || plan === 'free' || plan === 'basic',
+			disabled: plan === undefined,
 			credits: 500,
 		},
 	] as const)
