@@ -94,7 +94,14 @@
 						{chat_section.title}
 					</Sidebar.GroupLabel>
 					<Sidebar.Menu class="">
-						{#each chat_section.chats as chat}
+						{#each chat_section.chats.sort((a, b) => {
+							if (a.updatedAt < b.updatedAt) {
+								return 1
+							} else if (a.updatedAt > b.updatedAt) {
+								return -1
+							}
+							return 0
+						}) as chat}
 							<Sidebar.MenuItem class="group/menu-button">
 								<Sidebar.MenuButton
 									isActive={page.url.pathname === `/chat/${chat.id}`}>
