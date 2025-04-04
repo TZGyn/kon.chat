@@ -255,22 +255,24 @@
 							</Tooltip.Provider>
 							{#if fileInputs}
 								{#each fileInputs as file}
-									<div
-										class={cn(
-											buttonVariants({
-												variant: 'outline',
-												size: 'icon',
-											}),
-											'relative',
-										)}>
-										{#if file.type === 'application/pdf'}
-											<NotepadTextIcon />
-										{:else}
-											<ImageIcon />
-										{/if}
+									<div class="relative">
+										<div
+											class={cn(
+												buttonVariants({
+													variant: 'outline',
+													size: 'icon',
+												}),
+											)}>
+											{#if file.type === 'application/pdf'}
+												<NotepadTextIcon />
+											{:else}
+												<ImageIcon />
+											{/if}
+										</div>
+
 										<XIcon
 											onclick={() => (fileInputs = [])}
-											class="group-hover:bg-background absolute right-0 top-0 hover:cursor-pointer" />
+											class="hover:bg-accent pointer-events-auto absolute -right-1 -top-1 size-4 rounded hover:cursor-pointer" />
 									</div>
 								{/each}
 							{/if}
