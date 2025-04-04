@@ -44,7 +44,9 @@
 		</span>
 		<Button
 			onclick={async () => {
-				await fetch('/', { cache: 'no-cache' })
+				caches.keys().then(function (names) {
+					for (let name of names) caches.delete(name)
+				})
 				location.reload()
 				latestDeploymentLocal.value = latestDeployment
 			}}
