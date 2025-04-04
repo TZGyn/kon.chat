@@ -176,7 +176,7 @@
 <svelte:window onmouseup={onMouseUp} bind:innerHeight />
 <div class="flex flex-1">
 	<Resizable.PaneGroup class="flex-1" direction="horizontal">
-		<Resizable.Pane class="flex border" defaultSize={35}>
+		<Resizable.Pane class="flex border" defaultSize={40}>
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div
 				class="@container relative flex flex-1 overflow-hidden"
@@ -303,7 +303,7 @@
 			class={cn(
 				'after:bg-border relative hidden w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10 sm:block',
 			)} />
-		<Resizable.Pane class="flex border" defaultSize={65}>
+		<Resizable.Pane class="flex border" defaultSize={60}>
 			<iframe
 				srcdoc={htmlString}
 				class="flex-1"
