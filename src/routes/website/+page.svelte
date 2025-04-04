@@ -183,7 +183,7 @@
 				bind:clientWidth={innerWidth}
 				onmousemove={onMouseMove}
 				onmouseup={onMouseUp}>
-				<div bind:this={editorElement} class="flex-1"></div>
+				<div bind:this={editorElement} class="w-full"></div>
 				<section
 					role="button"
 					tabindex="0"
