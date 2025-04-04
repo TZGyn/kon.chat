@@ -43,7 +43,8 @@
 			New version is found, refresh to update
 		</span>
 		<Button
-			onclick={() => {
+			onclick={async () => {
+				await fetch('/', { cache: 'no-cache' })
 				location.reload()
 				latestDeploymentLocal.value = latestDeployment
 			}}
