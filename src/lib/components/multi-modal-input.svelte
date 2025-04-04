@@ -611,7 +611,7 @@
 									</Button>
 								</div>
 							{:else}
-								<p>Image Upload</p>
+								<p>File Upload</p>
 							{/if}
 						</Tooltip.Content>
 					</Tooltip.Root>

@@ -5,7 +5,9 @@
 	import * as Avatar from '$lib/components/ui/avatar'
 	import NavChats from './nav-chats.svelte'
 	import {
+		AppWindowIcon,
 		ImageIcon,
+		LayoutTemplateIcon,
 		NotepadTextIcon,
 		YoutubeIcon,
 	} from 'lucide-svelte'
@@ -79,6 +81,19 @@
 								data-sveltekit-preload-code="eager">
 								<ImageIcon />
 								<span>Image Generator</span>
+							</a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a
+								href="/website"
+								{...props}
+								data-sveltekit-preload-code="eager">
+								<AppWindowIcon />
+								<span>Website Builder</span>
 							</a>
 						{/snippet}
 					</Sidebar.MenuButton>
