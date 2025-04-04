@@ -44,9 +44,12 @@
 		</span>
 		<Button
 			onclick={async () => {
-				caches.keys().then(function (names) {
-					for (let name of names) caches.delete(name)
-				})
+				const keys = await caches.keys()
+
+				await Promise.all(
+					keys.map(async (key) => await caches.delete(key)),
+				)
+
 				location.reload()
 				latestDeploymentLocal.value = latestDeployment
 			}}
