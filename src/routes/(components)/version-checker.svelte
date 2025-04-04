@@ -45,6 +45,7 @@
 		<Button
 			onclick={async () => {
 				const keys = await caches.keys()
+				console.log(keys)
 
 				await Promise.all(
 					keys.map(async (key) => await caches.delete(key)),

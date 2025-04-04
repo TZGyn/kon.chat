@@ -13,8 +13,9 @@
 		PaperclipIcon,
 		SendIcon,
 		SquareIcon,
+		XIcon,
 	} from 'lucide-svelte'
-	import { Button } from '$lib/components/ui/button'
+	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
 	import { customFetchRaw } from '$lib/fetch'
 	import { processDataStream } from '@ai-sdk/ui-utils'
@@ -254,13 +255,23 @@
 							</Tooltip.Provider>
 							{#if fileInputs}
 								{#each fileInputs as file}
-									<Button variant="outline" size="icon">
+									<div
+										class={cn(
+											buttonVariants({
+												variant: 'outline',
+												size: 'icon',
+											}),
+											'relative',
+										)}>
 										{#if file.type === 'application/pdf'}
 											<NotepadTextIcon />
 										{:else}
 											<ImageIcon />
 										{/if}
-									</Button>
+										<XIcon
+											onclick={() => (fileInputs = [])}
+											class="group-hover:bg-background absolute right-0 top-0 hover:cursor-pointer" />
+									</div>
 								{/each}
 							{/if}
 
