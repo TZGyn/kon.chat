@@ -4,6 +4,7 @@
 	import { onDestroy, onMount } from 'svelte'
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte'
 	import * as Tooltip from '$lib/components/ui/tooltip'
+	import * as Resizable from '$lib/components/ui/resizable/index.js'
 	import {
 		ChevronDownIcon,
 		ImageIcon,
@@ -174,130 +175,142 @@
 
 <svelte:window onmouseup={onMouseUp} bind:innerHeight />
 <div class="flex flex-1">
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		class="@container relative flex flex-1 overflow-hidden"
-		bind:clientWidth={innerWidth}
-		onmousemove={onMouseMove}
-		onmouseup={onMouseUp}>
-		<div bind:this={editorElement} class="flex-1"></div>
-		<section
-			role="button"
-			tabindex="0"
-			bind:clientWidth
-			bind:clientHeight
-			onmousedown={onMouseDown}
-			style="left: {left}px; top: {top}px;"
-			class="absolute z-50 flex flex-nowrap text-nowrap">
+	<Resizable.PaneGroup class="flex-1" direction="horizontal">
+		<Resizable.Pane class="flex border" defaultSize={35}>
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div
-				class={cn(
-					'bg-background flex h-auto w-full min-w-[500px] max-w-[100cqw] flex-col gap-2 rounded-xl p-3',
-					!chatOpen && 'w-fit min-w-0 p-0',
-				)}>
-				<div class="flex items-start gap-2">
-					{#if chatOpen}
-						<Textarea
-							bind:value={input}
-							bind:ref={inputElement}
-							class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pb-0 pt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
-							placeholder={'Send a prompt... (ctrl-enter to send)\nHold Shift To Drag'}
-							onkeydown={(event) => {
-								if (event.key === 'Enter' && event.ctrlKey) {
-									event.preventDefault()
-
-									submit()
-								}
-							}} />
-					{/if}
-
-					<div class="flex flex-col gap-1">
-						<Button
-							variant="ghost"
-							size="icon"
-							onclick={(e) => {
-								if (e.shiftKey) return
-								chatOpen = !chatOpen
-							}}>
+				class="@container relative flex flex-1 overflow-hidden"
+				bind:clientWidth={innerWidth}
+				onmousemove={onMouseMove}
+				onmouseup={onMouseUp}>
+				<div bind:this={editorElement} class="flex-1"></div>
+				<section
+					role="button"
+					tabindex="0"
+					bind:clientWidth
+					bind:clientHeight
+					onmousedown={onMouseDown}
+					style="left: {left}px; top: {top}px;"
+					class="absolute z-50 flex flex-nowrap text-nowrap">
+					<div
+						class={cn(
+							'bg-background flex h-auto w-full min-w-[500px] max-w-[100cqw] flex-col gap-2 rounded-xl p-3',
+							!chatOpen && 'w-fit min-w-0 p-0',
+						)}>
+						<div class="flex items-start gap-2">
 							{#if chatOpen}
-								<ChevronDownIcon />
-							{:else}
-								<MessageCircleIcon />
+								<Textarea
+									bind:value={input}
+									bind:ref={inputElement}
+									class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pb-0 pt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
+									placeholder={'Send a prompt... (ctrl-enter to send)\nHold Shift To Drag'}
+									onkeydown={(event) => {
+										if (event.key === 'Enter' && event.ctrlKey) {
+											event.preventDefault()
+
+											submit()
+										}
+									}} />
 							{/if}
-						</Button>
-						{#if chatOpen}
-							<input
-								bind:this={fileInput}
-								type="file"
-								accept="application/pdf,image/png,image/jpg"
-								onchange={(e) => {
-									// @ts-ignore
-									fileInputs = [e.target.files[0]]
-								}}
-								multiple={false}
-								hidden />
-							<Tooltip.Provider>
-								<Tooltip.Root>
-									<Tooltip.Trigger>
+
+							<div class="flex flex-col gap-1">
+								<Button
+									variant="ghost"
+									size="icon"
+									onclick={(e) => {
+										if (e.shiftKey) return
+										chatOpen = !chatOpen
+									}}>
+									{#if chatOpen}
+										<ChevronDownIcon />
+									{:else}
+										<MessageCircleIcon />
+									{/if}
+								</Button>
+								{#if chatOpen}
+									<input
+										bind:this={fileInput}
+										type="file"
+										accept="application/pdf,image/png,image/jpg"
+										onchange={(e) => {
+											// @ts-ignore
+											fileInputs = [e.target.files[0]]
+										}}
+										multiple={false}
+										hidden />
+									<Tooltip.Provider>
+										<Tooltip.Root>
+											<Tooltip.Trigger>
+												<Button
+													onclick={() => {
+														fileInput?.click()
+													}}
+													variant="ghost"
+													size="icon"
+													class="">
+													<PaperclipIcon />
+												</Button>
+											</Tooltip.Trigger>
+											<Tooltip.Content class="max-w-[300px]">
+												<p>File Upload</p>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+									{#if fileInputs}
+										{#each fileInputs as file}
+											<div class="relative">
+												<div
+													class={cn(
+														buttonVariants({
+															variant: 'outline',
+															size: 'icon',
+														}),
+													)}>
+													{#if file.type === 'application/pdf'}
+														<NotepadTextIcon />
+													{:else}
+														<ImageIcon />
+													{/if}
+												</div>
+
+												<XIcon
+													onclick={() => (fileInputs = [])}
+													class="hover:bg-accent pointer-events-auto absolute -right-1 -top-1 size-4 rounded hover:cursor-pointer" />
+											</div>
+										{/each}
+									{/if}
+
+									{#if status === 'submitted' || status === 'streaming'}
 										<Button
-											onclick={() => {
-												fileInput?.click()
-											}}
-											variant="ghost"
-											size="icon"
-											class="">
-											<PaperclipIcon />
+											onclick={() => stop()}
+											class=""
+											size="icon">
+											<SquareIcon />
 										</Button>
-									</Tooltip.Trigger>
-									<Tooltip.Content class="max-w-[300px]">
-										<p>File Upload</p>
-									</Tooltip.Content>
-								</Tooltip.Root>
-							</Tooltip.Provider>
-							{#if fileInputs}
-								{#each fileInputs as file}
-									<div class="relative">
-										<div
-											class={cn(
-												buttonVariants({
-													variant: 'outline',
-													size: 'icon',
-												}),
-											)}>
-											{#if file.type === 'application/pdf'}
-												<NotepadTextIcon />
-											{:else}
-												<ImageIcon />
-											{/if}
-										</div>
-
-										<XIcon
-											onclick={() => (fileInputs = [])}
-											class="hover:bg-accent pointer-events-auto absolute -right-1 -top-1 size-4 rounded hover:cursor-pointer" />
-									</div>
-								{/each}
-							{/if}
-
-							{#if status === 'submitted' || status === 'streaming'}
-								<Button onclick={() => stop()} class="" size="icon">
-									<SquareIcon />
-								</Button>
-							{:else}
-								<Button onclick={() => submit()} size="icon">
-									<SendIcon />
-								</Button>
-							{/if}
-						{/if}
+									{:else}
+										<Button onclick={() => submit()} size="icon">
+											<SendIcon />
+										</Button>
+									{/if}
+								{/if}
+							</div>
+						</div>
 					</div>
-				</div>
+				</section>
 			</div>
-		</section>
-	</div>
-	<div class="flex flex-1">
-		<iframe
-			srcdoc={htmlString}
-			class="flex-1"
-			title="preview"
-			id="preview">
-		</iframe>
-	</div>
+		</Resizable.Pane>
+		<Resizable.Handle
+			class={cn(
+				'after:bg-border relative hidden w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10 sm:block',
+			)} />
+		<Resizable.Pane class="flex border" defaultSize={65}>
+			<iframe
+				srcdoc={htmlString}
+				class="flex-1"
+				title="preview"
+				loading="eager"
+				id="preview">
+			</iframe>
+		</Resizable.Pane>
+	</Resizable.PaneGroup>
 </div>
