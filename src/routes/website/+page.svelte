@@ -31,7 +31,7 @@
 	let fileInput: HTMLInputElement | null = $state(null)
 	let fileInputs: File[] = $state([])
 
-	let chatOpen = $state(true)
+	let chatOpen = $state(false)
 
 	let status = $state<'ready' | 'submitted' | 'streaming' | 'error'>(
 		'ready',
@@ -139,8 +139,10 @@
 	let innerWidth = $state(0)
 	let innerHeight = $state(0)
 
-	let left = $derived(30)
-	let top = $derived(20)
+	let left = $state(30)
+	let lastLeft = $state(30)
+	let top = $state(20)
+	let lastTop = $state(30)
 
 	function onMouseDown(e: MouseEvent) {
 		if (!e.shiftKey) return
@@ -152,25 +154,26 @@
 			left += e.movementX
 			top += e.movementY
 
-			if (left < 0) left = 0
-			if (left > innerWidth - clientWidth)
-				left = innerWidth - clientWidth
-			if (top < 0) top = 0
-			if (top > innerHeight - clientHeight)
-				top = innerHeight - clientHeight
+			checkBoundary()
+		}
+	}
+
+	const checkBoundary = () => {
+		if (left < 0) {
+			left = 0
+		} else if (left > innerWidth - clientWidth) {
+			left = innerWidth - clientWidth
+		}
+		if (top < 0) {
+			top = 0
+		} else if (top > innerHeight - clientHeight) {
+			top = innerHeight - clientHeight
 		}
 	}
 
 	function onMouseUp() {
 		moving = false
 	}
-
-	$effect(() => {
-		innerWidth
-		innerHeight
-		left = 30
-		top = 20
-	})
 </script>
 
 <svelte:window onmouseup={onMouseUp} bind:innerHeight />
@@ -220,6 +223,15 @@
 									onclick={(e) => {
 										if (e.shiftKey) return
 										chatOpen = !chatOpen
+										if (chatOpen) {
+											lastLeft = left
+											lastTop = top
+										}
+										setTimeout(() => {
+											left = lastLeft
+											top = lastTop
+											checkBoundary()
+										}, 10)
 									}}>
 									{#if chatOpen}
 										<ChevronDownIcon />
