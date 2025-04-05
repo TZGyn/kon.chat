@@ -305,11 +305,26 @@
 			selectedMode = modes[0]
 		}
 	})
+
+	let modelsList = $derived([
+		{
+			name: 'Free Models',
+			models: modelState.freeModels,
+		},
+		{
+			name: 'Standard Models',
+			models: modelState.standardModels,
+		},
+		{
+			name: 'Premium Models',
+			models: modelState.premiumModels,
+		},
+	])
 </script>
 
 <form
 	onsubmit={customSubmit}
-	class="bg-secondary absolute bottom-0 right-1/2 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
+	class="bg-secondary absolute right-1/2 bottom-0 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
 	{#if !autoScroll?.isAtBottom}
 		<Button
 			class="absolute -top-12 right-1/2 translate-x-1/2"
@@ -322,7 +337,7 @@
 	<Textarea
 		bind:value={input}
 		bind:ref={inputElement}
-		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pb-0 pt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
+		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
 		placeholder="Send a message... (ctrl-enter to send)"
 		onkeydown={(event) => {
 			if (event.key === 'Enter' && event.ctrlKey) {
@@ -358,143 +373,62 @@
 					<ChevronDownIcon />
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content
-					class="w-[400px] min-w-[8rem]"
+					class="bg-secondary w-full max-w-[600px] min-w-[8rem] space-y-4 pb-4"
 					align="start">
-					<DropdownMenu.Group>
-						<DropdownMenu.GroupHeading class="text-muted-foreground">
-							Free Models
-						</DropdownMenu.GroupHeading>
-						{#each modelState.freeModels as model}
-							<DropdownMenu.Item
-								disabled={model.disabled}
-								class="p-3"
-								onclick={() => (selectedModel = model)}>
-								<div class="flex w-full items-center justify-between">
-									<div class="flex items-center gap-2">
-										{@render modelIcon(model.provider)}
-										<div class="flex flex-col items-start gap-1">
+					{#each modelsList as modelGroup}
+						<DropdownMenu.Group>
+							<DropdownMenu.GroupHeading
+								class="text-muted-foreground">
+								{modelGroup.name}
+							</DropdownMenu.GroupHeading>
+							<div class="grid grid-cols-3 gap-2">
+								{#each modelGroup.models as model}
+									<DropdownMenu.Item
+										disabled={model.disabled}
+										class="bg-background flex flex-col p-3"
+										onclick={() => (selectedModel = model)}>
+										<div class="flex w-full items-center gap-2">
+											{@render modelIcon(model.provider)}
 											<span>
 												{model.name}
 											</span>
-											<span class="text-muted-foreground text-xs">
-												Credits: free
-											</span>
 										</div>
-										{#if model.info}
-											<Tooltip.Provider>
-												<Tooltip.Root>
-													<Tooltip.Trigger
-														class={buttonVariants({
-															variant: 'outline',
-														})}>
-														Hover
-													</Tooltip.Trigger>
-													<Tooltip.Content>
-														<p>Add to library</p>
-													</Tooltip.Content>
-												</Tooltip.Root>
-											</Tooltip.Provider>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2">
-										{@render modelCapabilitiesIcon(
-											model.capabilities,
-										)}
-									</div>
-								</div>
-							</DropdownMenu.Item>
-						{/each}
-					</DropdownMenu.Group>
-					<DropdownMenu.Group>
-						<DropdownMenu.GroupHeading class="text-muted-foreground">
-							Standard Models
-						</DropdownMenu.GroupHeading>
-						{#each modelState.standardModels as model}
-							<DropdownMenu.Item
-								disabled={model.disabled}
-								class="p-3"
-								onclick={() => (selectedModel = model)}>
-								<div class="flex w-full items-center justify-between">
-									<div class="flex items-center gap-2">
-										{@render modelIcon(model.provider)}
-										<div class="flex flex-col items-start gap-1">
-											<span>
-												{model.name}
-											</span>
-											<span class="text-muted-foreground text-xs">
-												Credits: {model.credits / 100}
-											</span>
+										<div
+											class="flex w-full items-center justify-between">
+											<div class="flex items-center gap-2">
+												<div class="flex flex-col items-start gap-1">
+													<span class="text-muted-foreground text-xs">
+														Credits: {model.credits / 100}
+													</span>
+												</div>
+												{#if model.info}
+													<Tooltip.Provider>
+														<Tooltip.Root>
+															<Tooltip.Trigger
+																class={buttonVariants({
+																	variant: 'outline',
+																})}>
+																Hover
+															</Tooltip.Trigger>
+															<Tooltip.Content>
+																<p>Add to library</p>
+															</Tooltip.Content>
+														</Tooltip.Root>
+													</Tooltip.Provider>
+												{/if}
+											</div>
 										</div>
-										{#if model.info}
-											<Tooltip.Provider>
-												<Tooltip.Root>
-													<Tooltip.Trigger
-														class={buttonVariants({
-															variant: 'outline',
-														})}>
-														Hover
-													</Tooltip.Trigger>
-													<Tooltip.Content>
-														<p>Add to library</p>
-													</Tooltip.Content>
-												</Tooltip.Root>
-											</Tooltip.Provider>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2">
-										{@render modelCapabilitiesIcon(
-											model.capabilities,
-										)}
-									</div>
-								</div>
-							</DropdownMenu.Item>
-						{/each}
-					</DropdownMenu.Group>
-					<DropdownMenu.Group>
-						<DropdownMenu.GroupHeading class="text-muted-foreground">
-							Premium Models
-						</DropdownMenu.GroupHeading>
-						{#each modelState.premiumModels as model}
-							<DropdownMenu.Item
-								disabled={model.disabled}
-								class="p-3"
-								onclick={() => (selectedModel = model)}>
-								<div class="flex w-full items-center justify-between">
-									<div class="flex items-center gap-2">
-										{@render modelIcon(model.provider)}
-										<div class="flex flex-col items-start gap-1">
-											<span>
-												{model.name}
-											</span>
-											<span class="text-muted-foreground text-xs">
-												Credits: {model.credits / 100}
-											</span>
+
+										<div class="flex w-full items-center gap-2">
+											{@render modelCapabilitiesIcon(
+												model.capabilities,
+											)}
 										</div>
-										{#if model.info}
-											<Tooltip.Provider>
-												<Tooltip.Root>
-													<Tooltip.Trigger
-														class={buttonVariants({
-															variant: 'outline',
-														})}>
-														Hover
-													</Tooltip.Trigger>
-													<Tooltip.Content>
-														<p>Add to library</p>
-													</Tooltip.Content>
-												</Tooltip.Root>
-											</Tooltip.Provider>
-										{/if}
-									</div>
-									<div class="flex items-center gap-2">
-										{@render modelCapabilitiesIcon(
-											model.capabilities,
-										)}
-									</div>
-								</div>
-							</DropdownMenu.Item>
-						{/each}
-					</DropdownMenu.Group>
+									</DropdownMenu.Item>
+								{/each}
+							</div>
+						</DropdownMenu.Group>
+					{/each}
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 			{#if selectedModel.provider === 'google'}
@@ -550,7 +484,7 @@
 											Upgrade to basic or higher plan
 										</span>
 										<p
-											class="text-muted-foreground text-wrap text-sm">
+											class="text-muted-foreground text-sm text-wrap">
 											Get access to image upload and more by upgrading
 											your plan
 										</p>
@@ -601,7 +535,7 @@
 											Upgrade to basic or higher plan
 										</span>
 										<p
-											class="text-muted-foreground text-wrap text-sm">
+											class="text-muted-foreground text-sm text-wrap">
 											Get access to file upload and more by upgrading
 											your plan
 										</p>
