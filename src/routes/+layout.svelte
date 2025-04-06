@@ -22,4 +22,4 @@
 	</Sidebar.Inset>
 </Sidebar.Provider>
 <Toaster richColors position="top-right" />
-<VersionChecker />
+<!-- <VersionChecker /> -->
