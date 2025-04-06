@@ -50,6 +50,36 @@ export const useModels = () => {
 			disabled: false,
 			credits: 0,
 		},
+		{
+			name: 'Llama 4 Scout',
+			info: '',
+			provider: 'open_router',
+			id: 'meta-llama/llama-4-scout:free',
+			capabilities: {
+				image: false,
+				file: false,
+				fast: false,
+				reasoning: false,
+				searchGrounding: false,
+			},
+			disabled: plan === undefined,
+			credits: 0,
+		},
+		{
+			name: 'Llama 4 Maverick',
+			info: '',
+			provider: 'open_router',
+			id: 'meta-llama/llama-4-maverick:free',
+			capabilities: {
+				image: false,
+				file: false,
+				fast: false,
+				reasoning: false,
+				searchGrounding: false,
+			},
+			disabled: plan === undefined,
+			credits: 0,
+		},
 	] as const)
 	let standardModels = $derived([
 		{

@@ -424,6 +424,9 @@
 											{@render modelCapabilitiesIcon(
 												model.capabilities,
 											)}
+											<div class="flex w-0 overflow-hidden py-1">
+												<SearchIcon class="w-0 max-w-0" />
+											</div>
 										</div>
 									</DropdownMenu.Item>
 								{/each}
