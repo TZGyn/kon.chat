@@ -35,6 +35,21 @@ export const useModels = () => {
 			disabled: false,
 			credits: 0,
 		},
+		{
+			name: 'Quasar Alpha',
+			info: '',
+			provider: 'open_router',
+			id: 'openrouter/quasar-alpha',
+			capabilities: {
+				image: true,
+				file: false,
+				fast: false,
+				reasoning: false,
+				searchGrounding: false,
+			},
+			disabled: false,
+			credits: 0,
+		},
 	] as const)
 	let standardModels = $derived([
 		{

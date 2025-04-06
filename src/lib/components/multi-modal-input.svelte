@@ -45,6 +45,7 @@
 	import type { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import TwitterLogo from '$lib/components/icons/twitter-logo.svelte'
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
+	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 
 	let {
 		input = $bindable(),
@@ -629,6 +630,8 @@
 		<XaiIcon />
 	{:else if provider === 'mistral'}
 		<MistralIcon />
+	{:else if provider === 'open_router'}
+		<OpenRouterIcon />
 	{/if}
 {/snippet}
 
