@@ -81,7 +81,6 @@
 
 	onMount(() => {
 		chats.getChats()
-		chats.syncChats()
 	})
 </script>
 
@@ -113,7 +112,7 @@
 											{...props}
 											class={cn(
 												props.class as string,
-												'h-12 rounded transition-[width,height] group-has-data-[sidebar=menu-action]/menu-item:pr-2 group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-6',
+												'group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-6 group-has-data-[sidebar=menu-action]/menu-item:pr-2 h-12 rounded transition-[width,height]',
 											)}
 											data-sveltekit-preload-code="eager">
 											<!-- <span>{item.emoji}</span> -->
