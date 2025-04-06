@@ -25,6 +25,32 @@ export function useChats() {
 		localStorage.setItem('chats', JSON.stringify(chats || []))
 	}
 
+	async function syncChats() {
+		const data = await customFetch<{
+			chats: {
+				id: string
+				title: string
+				createdAt: number
+				updatedAt: number
+				isOwner: boolean
+				messages: {
+					id: string
+					createdAt: number
+					chatId: string
+					responseId: string
+					role: string
+					content: unknown
+					model: string | null
+					providerMetadata: any
+					provider: string | null
+				}[]
+			}[]
+		}>('/chat/sync')
+		for (const chat of data.chats) {
+			localStorage.setItem(`chat:${chat.id}`, JSON.stringify(chat))
+		}
+	}
+
 	async function deleteChats(id: string) {
 		const prev = chats
 
@@ -52,6 +78,7 @@ export function useChats() {
 		},
 		getChats,
 		deleteChats,
+		syncChats,
 	}
 }
 
