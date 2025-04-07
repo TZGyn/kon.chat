@@ -284,7 +284,7 @@
 
 		<div
 			bind:this={autoScroll.ref}
-			class="max-h-[60vh] overflow-scroll">
+			class="max-h-[60vh] overflow-y-scroll">
 			<pre
 				class="shiki one-dark-pro !bg-[#1e1e1e] text-wrap"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
 		</div>
