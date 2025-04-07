@@ -286,7 +286,7 @@
 			bind:this={autoScroll.ref}
 			class="max-h-[60vh] overflow-scroll">
 			<pre
-				class="shiki one-dark-pro text-wrap !bg-[#1e1e1e]"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
+				class="shiki one-dark-pro !bg-[#1e1e1e] text-wrap"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
 		</div>
 
 		<!-- class={cn('w-12 shrink-0', {
@@ -339,7 +339,7 @@
 			</div>
 			<div class="flex border hover:cursor-pointer">
 				<ScrollArea orientation="both" class="max-h-96 w-full">
-					<div class="*:[svg]:w-full flex min-h-64 justify-center">
+					<div class="flex min-h-64 justify-center *:[svg]:w-full">
 						{@html mermaidHtml}
 					</div>
 				</ScrollArea>
@@ -382,7 +382,7 @@
 										class="max-w-screen-toast-mobile w-full rounded-md" />
 								</picture>
 							{:else}
-								<div class="w-full whitespace-pre-line break-words">
+								<div class="w-full break-words whitespace-pre-line">
 									{content.value}
 								</div>
 							{/if}
