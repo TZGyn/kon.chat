@@ -38,48 +38,42 @@ export function convertToUIMessages(
 			index,
 		) => {
 			if (message.role === 'tool') {
-				// return addToolMessageToChat({
-				// 	toolMessage: message as CoreToolMessage,
-				// 	messages: chatMessages,
-				// })
-				{
-					const prev = chatMessages.pop()
-					if (prev) {
-						chatMessages.push({
-							...prev,
-							parts: prev.parts
-								? [
-										...prev.parts.map((part) => {
-											if (part.type !== 'tool-invocation') return part
+				const prev = chatMessages.pop()
+				if (prev) {
+					chatMessages.push({
+						...prev,
+						parts: prev.parts
+							? [
+									...prev.parts.map((part) => {
+										if (part.type !== 'tool-invocation') return part
 
-											const toolResult = (
-												message as CoreToolMessage
-											).content.find(
-												(tool) =>
-													tool.toolCallId ===
-													part.toolInvocation.toolCallId,
-											)
-											if (toolResult) {
-												return {
-													type: 'tool-invocation',
-													toolInvocation: {
-														...part.toolInvocation,
-														state: 'result',
-														result: toolResult.result,
-													},
-												} as ToolInvocationUIPart
-											}
+										const toolResult = (
+											message as CoreToolMessage
+										).content.find(
+											(tool) =>
+												tool.toolCallId ===
+												part.toolInvocation.toolCallId,
+										)
+										if (toolResult) {
 											return {
-												toolInvocation: part.toolInvocation,
 												type: 'tool-invocation',
+												toolInvocation: {
+													...part.toolInvocation,
+													state: 'result',
+													result: toolResult.result,
+												},
 											} as ToolInvocationUIPart
-										}),
-									]
-								: undefined,
-						})
-					}
-					return chatMessages
+										}
+										return {
+											toolInvocation: part.toolInvocation,
+											type: 'tool-invocation',
+										} as ToolInvocationUIPart
+									}),
+								]
+							: undefined,
+					})
 				}
+				return chatMessages
 			}
 
 			let textContent = ''

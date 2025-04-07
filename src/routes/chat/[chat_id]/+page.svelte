@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Chat } from '@ai-sdk/svelte'
-	import { fillMessageParts } from '@ai-sdk/ui-utils'
 	import { customFetch, customFetchRaw } from '$lib/fetch'
 	import { page } from '$app/state'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
@@ -87,25 +86,17 @@
 		}
 	}
 
-	let chat = $derived(
-		useLocalStorage<Chat | Message[]>(`chat:${chat_id}`, null),
-	)
+	let chat = $derived(useLocalStorage<Chat>(`chat:${chat_id}`, null))
 
 	onMount(() => {})
 
 	$effect(() => {
 		const chat = localStorage.getItem(`chat:${chat_id}`)
 
-		const chatJSON = JSON.parse(chat || 'null') as Chat | Message[]
+		const chatJSON = JSON.parse(chat || 'null') as Chat
 
 		if (chatJSON) {
-			if ('isOwner' in chatJSON) {
-				useChat.messages = convertToUIMessages(
-					chatJSON?.messages || [],
-				)
-			} else {
-				useChat.messages = convertToUIMessages(chatJSON || [])
-			}
+			useChat.messages = convertToUIMessages(chatJSON?.messages || [])
 		}
 		getChat(chat_id)
 	})
@@ -159,7 +150,7 @@
 
 	const shareChat = async (chat_id: string) => {
 		const data = chat.value
-		if (!data || !('isOwner' in data)) return
+		if (!data) return
 		const response = await customFetchRaw(
 			`/chat/${chat_id}/change_visibility`,
 			{
@@ -263,7 +254,7 @@
 		<ScrollArea
 			bind:vp={autoScroll.ref}
 			class="@container flex flex-1 flex-col items-center p-4">
-			<div class="flex w-full flex-col items-center pb-40 pt-20">
+			<div class="flex w-full flex-col items-center pt-20 pb-40">
 				<div class="flex w-full max-w-[600px] flex-col gap-4">
 					{#each useChat.messages as message, index (index)}
 						<MessageBlock
@@ -289,7 +280,7 @@
 													src={'/logo.png'}
 													alt="favicon"
 													class="size-4" />
-												<Avatar.Fallback class="size-4 bg-opacity-0">
+												<Avatar.Fallback class="bg-opacity-0 size-4">
 													<img src="/logo.png" alt="favicon" />
 												</Avatar.Fallback>
 											</Avatar.Root>
@@ -308,8 +299,8 @@
 		</ScrollArea>
 		{#if !isNew}
 			<div
-				class="bg-secondary absolute right-0 top-0 flex items-center gap-2 rounded-bl-full pl-4 pr-2">
-				{#if !('isOwner' in chat.value!) || chat.value.isOwner}
+				class="bg-secondary absolute top-0 right-0 flex items-center gap-2 rounded-bl-full pr-2 pl-4">
+				{#if chat.value && chat.value.isOwner}
 					<Button
 						size="icon"
 						variant="ghost"
@@ -317,7 +308,7 @@
 						onclick={() => (shareChatDialogOpen = true)}>
 						<Share2Icon />
 					</Button>
-					{#if 'isOwner' in chat.value! && chat.value.visibility === 'public'}
+					{#if chat.value.visibility === 'public'}
 						<Tooltip.Provider>
 							<Tooltip.Root>
 								<Tooltip.Trigger>
@@ -494,7 +485,7 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-{#if (chat.value && (!('isOwner' in chat.value) || chat.value.isOwner)) || isNew}
+{#if (chat.value && chat.value.isOwner) || isNew}
 	<MultiModalInput
 		bind:input={useChat.input}
 		{upload_url}
@@ -507,5 +498,5 @@
 		fileUpload={true}
 		enableSearch={true}
 		{autoScroll}
-		{stop} />
+		stop={useChat.stop} />
 {/if}
