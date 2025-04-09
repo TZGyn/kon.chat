@@ -498,5 +498,17 @@
 		fileUpload={true}
 		enableSearch={true}
 		{autoScroll}
-		stop={useChat.stop} />
+		stop={() => {
+			useChat.messages[useChat.messages.length - 1].annotations?.push(
+				{
+					type: 'kon_chat',
+					status: 'error',
+					error: {
+						type: 'stopped_by_user',
+						message: 'Stopped By User',
+					},
+				},
+			)
+			useChat.stop()
+		}} />
 {/if}

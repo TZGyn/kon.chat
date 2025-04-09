@@ -173,10 +173,22 @@ export function convertToUIMessages(
 				responseId: message.responseId,
 				annotations: [
 					{ type: 'model', model: message.model },
-					message.provider === 'google' && {
-						type: 'google-grounding',
-						data: message.providerMetadata?.google,
-					},
+					...(message.provider === 'google'
+						? [
+								{
+									type: 'google-grounding',
+									data: message.providerMetadata?.google,
+								},
+							]
+						: []),
+					...(Object.hasOwn(message.providerMetadata, 'kon_chat')
+						? [
+								{
+									type: 'kon_chat',
+									...message.providerMetadata.kon_chat,
+								},
+							]
+						: []),
 				],
 				parts: message.parts ?? parts,
 				experimental_attachments: attachments,
@@ -215,6 +227,7 @@ export function mergeMessages(
 				{
 					...last,
 					parts: [...(last.parts ?? []), ...(curr.parts ?? [])],
+					annotations: [...(curr.annotations ?? [])],
 				},
 			]
 		},

@@ -8,6 +8,7 @@
 		ChevronDownIcon,
 		Loader2Icon,
 		SplitIcon,
+		SquareIcon,
 	} from 'lucide-svelte'
 	import GoogleGroundingSection from '$lib/components/google-grounding-section.svelte'
 	import Markdown from './markdown.svelte'
@@ -42,7 +43,7 @@
 			isLast &&
 				status !== 'submitted' &&
 				(halfSize
-					? '@6xl:min-h-[calc(100svh-18rem)] min-h-[calc(50svh-18rem)]'
+					? 'min-h-[calc(50svh-18rem)] @6xl:min-h-[calc(100svh-18rem)]'
 					: 'min-h-[calc(100svh-18rem)]'),
 		)}>
 		<div class="group flex flex-col gap-2">
@@ -56,7 +57,7 @@
 									src={'/logo.png'}
 									alt="favicon"
 									class="size-4" />
-								<Avatar.Fallback class="size-4 bg-opacity-0">
+								<Avatar.Fallback class="bg-opacity-0 size-4">
 									<img src="/logo.png" alt="favicon" />
 								</Avatar.Fallback>
 							</Avatar.Root>
@@ -135,6 +136,26 @@
 						{/* @ts-ignore */ null}
 						<!-- prettier-ignore -->
 						<GoogleGroundingSection metadata={annotation?.data}/>
+					{/if}
+				{/if}
+			{/each}
+
+			{#each message.annotations ?? [] as annotation}
+				{/* @ts-ignore */ null}
+				{#if annotation['type'] === 'kon_chat'}
+					{/* @ts-ignore */ null}
+					{#if annotation?.status === 'error'}
+						<div
+							class="bg-destructive/20 border-destructive/50 flex w-full items-center gap-2 rounded-xl border px-4 py-3">
+							{/* @ts-ignore */ null}
+							{#if annotation?.error.type === 'stopped_by_user'}
+								<SquareIcon class="size-4" />
+							{/if}
+							<span class="text-sm">
+								{/* @ts-ignore */ null}
+								{annotation?.error.message}
+							</span>
+						</div>
 					{/if}
 				{/if}
 			{/each}

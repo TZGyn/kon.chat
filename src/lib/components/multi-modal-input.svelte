@@ -183,12 +183,6 @@
 			return
 		}
 
-		if (status === 'error') {
-			const lastUserIndex = messages.findLastIndex(
-				(message) => message.role === 'user',
-			)
-			messages = messages.slice(0, lastUserIndex) // remove until last user message
-		}
 		if (status === 'streaming') {
 			toast.warning(
 				'Please wait for the model to finish its response',
