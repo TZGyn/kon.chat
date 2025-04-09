@@ -20,6 +20,9 @@
 	import { cn } from '$lib/utils'
 	import { customFetchRaw } from '$lib/fetch'
 	import { processDataStream } from '@ai-sdk/ui-utils'
+	import { useUser } from '../state.svelte'
+
+	const user = useUser()
 
 	let editorElement: HTMLDivElement
 	let editor: monaco.editor.IStandaloneCodeEditor
@@ -104,6 +107,7 @@
 		const payload = new FormData()
 		payload.append('prompt', input)
 		payload.append('currentHtml', editor.getValue())
+		payload.append('userAvatar', user.user?.avatar ?? '')
 		for (const file of fileInputs) {
 			payload.append('file', file)
 		}
@@ -197,7 +201,7 @@
 					class="absolute z-50 flex flex-nowrap text-nowrap">
 					<div
 						class={cn(
-							'bg-background flex h-auto w-full min-w-[500px] max-w-[100cqw] flex-col gap-2 rounded-xl p-3',
+							'bg-background flex h-auto w-full max-w-[100cqw] min-w-[500px] flex-col gap-2 rounded-xl p-3',
 							!chatOpen && 'w-fit min-w-0 p-0',
 						)}>
 						<div class="flex items-start gap-2">
@@ -205,7 +209,7 @@
 								<Textarea
 									bind:value={input}
 									bind:ref={inputElement}
-									class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pb-0 pt-2 focus-visible:ring-0 focus-visible:ring-offset-0"
+									class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
 									placeholder={'Send a prompt... (ctrl-enter to send)\nHold Shift To Drag'}
 									onkeydown={(event) => {
 										if (event.key === 'Enter' && event.ctrlKey) {
@@ -287,7 +291,7 @@
 
 												<XIcon
 													onclick={() => (fileInputs = [])}
-													class="hover:bg-accent pointer-events-auto absolute -right-1 -top-1 size-4 rounded hover:cursor-pointer" />
+													class="hover:bg-accent pointer-events-auto absolute -top-1 -right-1 size-4 rounded hover:cursor-pointer" />
 											</div>
 										{/each}
 									{/if}
@@ -313,7 +317,7 @@
 		</Resizable.Pane>
 		<Resizable.Handle
 			class={cn(
-				'after:bg-border relative hidden w-3 bg-transparent p-0 after:absolute after:right-0 after:top-1/2 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10 sm:block',
+				'after:bg-border relative hidden w-3 bg-transparent p-0 after:absolute after:top-1/2 after:right-0 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10 sm:block',
 			)} />
 		<Resizable.Pane class="flex border" defaultSize={60}>
 			<iframe
