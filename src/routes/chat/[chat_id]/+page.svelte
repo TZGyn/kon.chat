@@ -509,6 +509,25 @@
 					},
 				},
 			)
+			setTimeout(() => {
+				chats.getChats()
+				user.getUser()
+			}, 3000)
+			if (chat.value !== null) {
+				chat.value = {
+					...chat.value,
+					messages: useChat.messages as any,
+				}
+			} else {
+				chat.value = {
+					id: 'new chat',
+					title: 'new chat',
+					visibility: 'private',
+					isOwner: true,
+					createdAt: Date.now(),
+					messages: useChat.messages as any,
+				}
+			}
 			useChat.stop()
 		}} />
 {/if}
