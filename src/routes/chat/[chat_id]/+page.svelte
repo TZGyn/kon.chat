@@ -387,7 +387,8 @@
 				<div class="flex w-full justify-center">
 					<Snippet
 						text={PUBLIC_APP_URL + `/chat/${chat_id}`}
-						class="w-full max-w-[100cqw]" />
+						class="w-full max-w-[100cqw]"
+						singleLineClass="overflow-hidden text-ellipsis" />
 				</div>
 			{/if}
 			<div class="flex justify-center gap-6">

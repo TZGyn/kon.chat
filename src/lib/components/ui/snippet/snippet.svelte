@@ -27,6 +27,7 @@
 		variant?: Variant
 		text: string | string[]
 		class?: string
+		singleLineClass?: string
 		onCopy?: () => void
 	}
 
@@ -35,6 +36,7 @@
 		variant = 'default',
 		onCopy,
 		class: className,
+		singleLineClass,
 	}: Props = $props()
 </script>
 
@@ -43,6 +45,7 @@
 		<pre
 			class={cn(
 				'overflow-y-auto text-left font-mono text-sm whitespace-nowrap',
+				singleLineClass,
 			)}>
 			{text}
 		</pre>
