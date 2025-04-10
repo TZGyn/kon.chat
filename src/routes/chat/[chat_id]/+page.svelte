@@ -119,6 +119,7 @@
 			if (page.url.searchParams) {
 				page.url.searchParams.delete('type')
 				replaceState(page.url, page.state)
+				isNew = false
 			}
 			setTimeout(() => {
 				chats.getChats()
@@ -509,6 +510,11 @@
 					},
 				},
 			)
+			if (page.url.searchParams) {
+				page.url.searchParams.delete('type')
+				replaceState(page.url, page.state)
+				isNew = false
+			}
 			setTimeout(() => {
 				chats.getChats()
 				user.getUser()
