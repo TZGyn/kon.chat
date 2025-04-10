@@ -6,6 +6,7 @@
 	import { useModels } from '$lib/models.svelte.js'
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js'
 	import {
 		ArrowDownIcon,
 		BookIcon,
@@ -46,6 +47,7 @@
 	import TwitterLogo from '$lib/components/icons/twitter-logo.svelte'
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
+	import { Input } from './ui/input'
 
 	let {
 		input = $bindable(),
@@ -304,17 +306,31 @@
 	let modelsList = $derived([
 		{
 			name: 'Free Models',
-			models: modelState.freeModels,
+			models: modelState.freeModels.filter(
+				(model) =>
+					model.name.includes(modelSearch) ||
+					model.provider.includes(modelSearch),
+			),
 		},
 		{
 			name: 'Standard Models',
-			models: modelState.standardModels,
+			models: modelState.standardModels.filter(
+				(model) =>
+					model.name.includes(modelSearch) ||
+					model.provider.includes(modelSearch),
+			),
 		},
 		{
 			name: 'Premium Models',
-			models: modelState.premiumModels,
+			models: modelState.premiumModels.filter(
+				(model) =>
+					model.name.includes(modelSearch) ||
+					model.provider.includes(modelSearch),
+			),
 		},
 	])
+
+	let modelSearch = $state('')
 </script>
 
 <form
@@ -368,65 +384,77 @@
 					<ChevronDownIcon />
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content
-					class="bg-secondary w-full max-w-[600px] min-w-[8rem] space-y-4 pb-4"
+					class="@container w-[100vw] max-w-[600px]"
 					align="start">
-					{#each modelsList as modelGroup}
-						<DropdownMenu.Group>
-							<DropdownMenu.GroupHeading
-								class="text-muted-foreground">
-								{modelGroup.name}
-							</DropdownMenu.GroupHeading>
-							<div class="grid grid-cols-3 gap-2">
-								{#each modelGroup.models as model}
-									<DropdownMenu.Item
-										disabled={model.disabled}
-										class="bg-background flex flex-col p-3"
-										onclick={() => (selectedModel = model)}>
-										<div class="flex w-full items-center gap-2">
-											{@render modelIcon(model.provider)}
-											<span>
-												{model.name}
-											</span>
-										</div>
-										<div
-											class="flex w-full items-center justify-between">
-											<div class="flex items-center gap-2">
-												<div class="flex flex-col items-start gap-1">
-													<span class="text-muted-foreground text-xs">
-														Credits: {model.credits / 100}
-													</span>
+					<div
+						class="h-full max-h-[70vh] space-y-4 overflow-y-scroll p-4">
+						{#each modelsList as modelGroup}
+							<DropdownMenu.Group>
+								<DropdownMenu.GroupHeading
+									class="text-muted-foreground px-0">
+									{modelGroup.name}
+								</DropdownMenu.GroupHeading>
+								<div
+									class="grid grid-cols-1 gap-2 @md:grid-cols-2 @lg:grid-cols-3">
+									{#each modelGroup.models as model}
+										<DropdownMenu.Item
+											disabled={model.disabled}
+											class="bg-background flex flex-col p-3"
+											onclick={() => (selectedModel = model)}>
+											<div class="flex w-full items-center gap-2">
+												{@render modelIcon(model.provider)}
+												<span>
+													{model.name}
+												</span>
+											</div>
+											<div
+												class="flex w-full items-center justify-between">
+												<div class="flex items-center gap-2">
+													<div
+														class="flex flex-col items-start gap-1">
+														<span
+															class="text-muted-foreground text-xs">
+															Credits: {model.credits / 100}
+														</span>
+													</div>
+													{#if model.info}
+														<Tooltip.Provider>
+															<Tooltip.Root>
+																<Tooltip.Trigger
+																	class={buttonVariants({
+																		variant: 'outline',
+																	})}>
+																	Hover
+																</Tooltip.Trigger>
+																<Tooltip.Content>
+																	<p>Add to library</p>
+																</Tooltip.Content>
+															</Tooltip.Root>
+														</Tooltip.Provider>
+													{/if}
 												</div>
-												{#if model.info}
-													<Tooltip.Provider>
-														<Tooltip.Root>
-															<Tooltip.Trigger
-																class={buttonVariants({
-																	variant: 'outline',
-																})}>
-																Hover
-															</Tooltip.Trigger>
-															<Tooltip.Content>
-																<p>Add to library</p>
-															</Tooltip.Content>
-														</Tooltip.Root>
-													</Tooltip.Provider>
-												{/if}
 											</div>
-										</div>
 
-										<div class="flex w-full items-center gap-2">
-											{@render modelCapabilitiesIcon(
-												model.capabilities,
-											)}
-											<div class="flex w-0 overflow-hidden py-1">
-												<SearchIcon class="w-0 max-w-0" />
+											<div class="flex w-full items-center gap-2">
+												{@render modelCapabilitiesIcon(
+													model.capabilities,
+												)}
+												<div class="flex w-0 overflow-hidden py-1">
+													<SearchIcon class="w-0 max-w-0" />
+												</div>
 											</div>
-										</div>
-									</DropdownMenu.Item>
-								{/each}
-							</div>
-						</DropdownMenu.Group>
-					{/each}
+										</DropdownMenu.Item>
+									{/each}
+								</div>
+							</DropdownMenu.Group>
+						{/each}
+					</div>
+					<div class="flex w-full border-t p-4">
+						<Input
+							bind:value={modelSearch}
+							placeholder="search..."
+							class="bg-background" />
+					</div>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 			{#if selectedModel.provider === 'google'}
