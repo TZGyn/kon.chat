@@ -216,6 +216,7 @@
 			title: chatJSON.title + ' (branch)',
 			createdAt: Date.now(),
 			id: newChatId,
+			visibility: 'private',
 			messages: chatJSON.messages.slice(0, index + 1),
 		} as Chat
 
