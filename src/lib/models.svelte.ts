@@ -170,7 +170,7 @@ export const useModels = () => {
 				searchGrounding: false,
 			},
 			disabled: plan === undefined,
-			credits: 60,
+			credits: 80,
 		},
 		{
 			name: 'Grok 3 Mini Beta',
