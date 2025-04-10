@@ -34,6 +34,7 @@
 	import { Button } from '$lib/components/ui/button/index.js'
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
+	import { Snippet } from '$lib/components/ui/snippet'
 	import { nanoid } from '$lib/nanoid.js'
 
 	let chat_id = $derived(page.params.chat_id)
@@ -148,8 +149,10 @@
 	})
 
 	let shareChatDialogOpen = $state(false)
+	let sharingChat = $state(false)
 
 	const shareChat = async (chat_id: string) => {
+		sharingChat = true
 		const data = chat.value
 		if (!data) return
 		const response = await customFetchRaw(
@@ -175,7 +178,7 @@
 		} else {
 			toast.error('Something went wrong when sharing')
 		}
-		shareChatDialogOpen = false
+		sharingChat = false
 	}
 
 	let copyChatDialogOpen = $state(false)
@@ -359,7 +362,7 @@
 </div>
 
 <Dialog.Root bind:open={shareChatDialogOpen}>
-	<Dialog.Content>
+	<Dialog.Content class="@container">
 		<Dialog.Header class="space-y-12">
 			<div
 				class="flex w-full flex-col items-center justify-center gap-6 pt-12">
@@ -369,12 +372,24 @@
 			</div>
 			<div class="space-y-2">
 				<Dialog.Title class="text-center">
-					{'Share this chat?'}
+					{chat.value?.visibility === 'private'
+						? 'Share this chat?'
+						: 'Private this chat?'}
 				</Dialog.Title>
 				<Dialog.Description class="text-center">
-					You are about to make this chat publically viewable
+					{chat.value?.visibility === 'private'
+						? 'You are about to make this chat publically viewable'
+						: 'You are about to make this chat private'}
 				</Dialog.Description>
 			</div>
+
+			{#if chat.value?.visibility === 'public'}
+				<div class="flex w-full justify-center">
+					<Snippet
+						text={PUBLIC_APP_URL + `/chat/${chat_id}`}
+						class="w-full max-w-[100cqw]" />
+				</div>
+			{/if}
 			<div class="flex justify-center gap-6">
 				<Button
 					variant="outline"
@@ -389,8 +404,11 @@
 					variant="default"
 					onclick={() => shareChat(chat_id)}
 					class="flex w-full gap-2"
-					disabled={false}>
-					Share
+					disabled={sharingChat}>
+					{#if sharingChat}
+						<Loader2Icon class="animate-spin" />
+					{/if}
+					{chat.value?.visibility === 'private' ? 'Share' : 'Unshare'}
 				</Button>
 			</div>
 		</Dialog.Header>
@@ -477,7 +495,7 @@
 						class="flex w-full gap-2"
 						disabled={copyingChat}>
 						{#if copyingChat}
-							<Loader2Icon />
+							<Loader2Icon class="animate-spin" />
 						{/if}
 						Copy
 					</Button>
