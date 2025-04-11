@@ -196,7 +196,7 @@ export const useModels = () => {
 				image: false,
 				file: false,
 				fast: false,
-				reasoning: false,
+				reasoning: true,
 				searchGrounding: false,
 			},
 			disabled: plan === undefined,

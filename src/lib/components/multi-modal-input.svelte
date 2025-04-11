@@ -668,33 +668,78 @@
 	file: boolean
 })}
 	{#if capabilities.searchGrounding}
-		<div
-			class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
-			<SearchIcon />
-		</div>
+		<Tooltip.Provider>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					<div
+						class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
+						<SearchIcon />
+					</div>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Search Grounding</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</Tooltip.Provider>
 	{/if}
 	{#if capabilities.fast}
-		<div
-			class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
-			<ZapIcon />
-		</div>
+		<Tooltip.Provider>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					<div
+						class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
+						<ZapIcon />
+					</div>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Fast</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</Tooltip.Provider>
 	{/if}
 	{#if capabilities.reasoning}
-		<div
-			class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
-			<BrainIcon />
-		</div>
+		<Tooltip.Provider>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					<div
+						class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
+						<BrainIcon />
+					</div>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Reasoning</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</Tooltip.Provider>
 	{/if}
 	{#if capabilities.image}
-		<div
-			class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
-			<ImageIcon />
-		</div>
+		<Tooltip.Provider>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					<div
+						class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
+						<ImageIcon />
+					</div>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>Image Capabilities</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</Tooltip.Provider>
 	{/if}
 	{#if capabilities.file}
-		<div
-			class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
-			<FileTextIcon />
-		</div>
+		<Tooltip.Provider>
+			<Tooltip.Root>
+				<Tooltip.Trigger>
+					<div
+						class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
+						<FileTextIcon />
+					</div>
+				</Tooltip.Trigger>
+				<Tooltip.Content>
+					<p>File Capabilities</p>
+				</Tooltip.Content>
+			</Tooltip.Root>
+		</Tooltip.Provider>
 	{/if}
 {/snippet}
