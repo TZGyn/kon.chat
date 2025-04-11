@@ -97,7 +97,9 @@
 		const chatJSON = JSON.parse(chat || 'null') as Chat
 
 		if (chatJSON) {
-			useChat.messages = convertToUIMessages(chatJSON?.messages || [])
+			useChat.messages = mergeMessages(
+				convertToUIMessages(chatJSON?.messages || []),
+			)
 		}
 		getChat(chat_id)
 	})
