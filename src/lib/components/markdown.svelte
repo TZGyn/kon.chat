@@ -2,8 +2,13 @@
 	import { markedKatexExtension } from '$lib/markdown/katex-extension'
 	import { marked } from 'marked'
 	import MarkdownRenderer from './markdown-renderer.svelte'
+	import { cn } from '$lib/utils'
 
-	let { content, id }: { content: string; id: string } = $props()
+	let {
+		content,
+		id,
+		class: className,
+	}: { content: string; id: string; class?: string } = $props()
 
 	const options = {
 		throwOnError: false,
@@ -14,7 +19,10 @@
 
 {#key id}
 	<div
-		class="prose prose-neutral dark:prose-invert prose-p:my-0 prose-pre:m-0 prose-pre:bg-transparent prose-pre:rounded-t-none">
+		class={cn(
+			'prose prose-neutral dark:prose-invert prose-p:my-0 prose-pre:m-0 prose-pre:bg-transparent prose-pre:rounded-t-none',
+			className,
+		)}>
 		<MarkdownRenderer {tokens} />
 	</div>
 {/key}

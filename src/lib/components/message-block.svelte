@@ -103,12 +103,17 @@
 						{:else if part.type === 'text'}
 							<div
 								class={cn(
-									'w-fit rounded-xl',
+									'max-w-[100cqw] rounded-xl',
 									message.role === 'user'
-										? 'bg-secondary place-self-end p-4'
-										: 'bg-background',
+										? 'bg-secondary w-fit place-self-end p-4'
+										: 'bg-background w-screen',
 								)}>
-								<Markdown content={part.text} id={message.id} />
+								<Markdown
+									content={part.text}
+									id={message.id}
+									class={message.role === 'user'
+										? 'w-fit'
+										: 'max-w-[100cqw]'} />
 							</div>
 						{/if}
 					{/each}
