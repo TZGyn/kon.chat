@@ -15,6 +15,7 @@
 	import Attachments from './message/attachments.svelte'
 	import CopyButton from './copy-button.svelte'
 	import ToolInvocation from './message/tool-invocation.svelte'
+	import Reasoning from './markdown/reasoning.svelte'
 
 	let {
 		isLast,
@@ -98,17 +99,7 @@
 								toolInvocation={part.toolInvocation}
 								{message} />
 						{:else if part.type === 'reasoning'}
-							<Toggle
-								size="sm"
-								class="text-muted-foreground group peer w-fit border">
-								Reasoning
-								<ChevronDownIcon
-									class={'transition-transform group-data-[state="on"]:rotate-180'} />
-							</Toggle>
-							<div
-								class="text-muted-foreground hidden rounded-md border p-2 text-sm peer-data-[state='on']:block">
-								{part.reasoning}
-							</div>
+							<Reasoning reasoning={part.reasoning} />
 						{:else if part.type === 'text'}
 							<div
 								class={cn(
