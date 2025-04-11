@@ -184,7 +184,10 @@ export function convertToUIMessages(
 								},
 							]
 						: []),
-					...(Object.hasOwn(message.providerMetadata, 'kon_chat')
+					...(Object.hasOwn(
+						message.providerMetadata || {},
+						'kon_chat',
+					)
 						? [
 								{
 									type: 'kon_chat',
