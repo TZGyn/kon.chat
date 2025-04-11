@@ -29,7 +29,7 @@
 {#if posts.length > 0}
 	<div class="text-lg font-bold">X's Posts</div>
 	<ScrollArea
-		class="w-[min(100vw-2rem,600px)] whitespace-nowrap rounded-md border"
+		class="w-[min(100vw-2rem,600px)] rounded border whitespace-nowrap"
 		orientation="horizontal">
 		<div class="flex w-max space-x-4 p-4">
 			{#each posts as post}

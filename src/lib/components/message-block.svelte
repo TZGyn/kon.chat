@@ -108,10 +108,7 @@
 										? 'bg-secondary place-self-end p-4'
 										: 'bg-background',
 								)}>
-								<div
-									class="prose prose-neutral dark:prose-invert prose-p:my-0">
-									<Markdown content={part.text} id={message.id} />
-								</div>
+								<Markdown content={part.text} id={message.id} />
 							</div>
 						{/if}
 					{/each}
@@ -137,7 +134,7 @@
 					{/* @ts-ignore */ null}
 					{#if annotation?.status === 'error'}
 						<div
-							class="bg-destructive/20 border-destructive/50 flex w-full items-center gap-2 rounded-xl border px-4 py-3">
+							class="bg-destructive/20 border-destructive/50 flex w-full items-center gap-2 rounded border px-4 py-3">
 							{/* @ts-ignore */ null}
 							{#if annotation?.error.type === 'stopped_by_user'}
 								<SquareIcon class="size-4" />
