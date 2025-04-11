@@ -51,6 +51,21 @@ export const useModels = () => {
 			credits: 0,
 		},
 		{
+			name: 'Optimus Alpha',
+			info: '',
+			provider: 'open_router',
+			id: 'openrouter/optimus-alpha',
+			capabilities: {
+				image: true,
+				file: false,
+				fast: false,
+				reasoning: false,
+				searchGrounding: false,
+			},
+			disabled: false,
+			credits: 0,
+		},
+		{
 			name: 'Llama 4 Scout',
 			info: '',
 			provider: 'open_router',
