@@ -103,9 +103,12 @@ export function convertToUIMessages(
 						// reasoningContent += content.reasoning ?? ''
 						parts.push({
 							type: 'reasoning' as const,
-							reasoning: content.reasoning,
+							reasoning: content.reasoning || content.text,
 							details: [
-								{ type: 'text' as const, text: content.reasoning },
+								{
+									type: 'text' as const,
+									text: content.reasoning || content.text,
+								},
 							],
 						})
 					} else if (content.type === 'tool-call') {
