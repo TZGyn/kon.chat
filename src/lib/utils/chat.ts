@@ -223,6 +223,7 @@ export function mergeMessages(
 		(acc, curr, index, array) => {
 			if (
 				index === 0 ||
+				!acc[acc.length - 1].responseId ||
 				curr.responseId !== acc[acc.length - 1].responseId
 			) {
 				return [...acc, curr]
