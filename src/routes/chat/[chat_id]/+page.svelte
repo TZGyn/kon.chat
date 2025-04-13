@@ -118,7 +118,7 @@
 		get id() {
 			return chat_id
 		},
-		onFinish: () => {
+		onFinish: (response) => {
 			if (page.url.searchParams) {
 				page.url.searchParams.delete('type')
 				replaceState(page.url, page.state)
@@ -128,19 +128,30 @@
 				chats.getChats()
 				user.getUser()
 			}, 3000)
+
+			const message: Message = {
+				chatId: useChat.id,
+				...response,
+				content: response.parts,
+				model:
+					// @ts-ignore
+					response.annotations?.find(
+						(annotation) =>
+							// @ts-ignore
+							annotation['type'] === 'model' &&
+							// @ts-ignore
+							annotation['model'] !== null,
+						// @ts-ignore
+					).model || '',
+				provider: '',
+				providerMetadata: {},
+				responseId: '',
+				createdAt: Date.now(),
+			}
 			if (chat.value !== null) {
 				chat.value = {
 					...chat.value,
-					messages: useChat.messages as any,
-				}
-			} else {
-				chat.value = {
-					id: 'new chat',
-					title: 'new chat',
-					visibility: 'private',
-					isOwner: true,
-					createdAt: Date.now(),
-					messages: useChat.messages as any,
+					messages: [...chat.value.messages, message],
 				}
 			}
 		},
@@ -514,7 +525,35 @@
 		bind:input={useChat.input}
 		{upload_url}
 		selectedModelLocator={`model:chat:${chat_id}`}
-		handleSubmit={useChat.handleSubmit}
+		handleSubmit={(e) => {
+			if (chat.value === null) {
+				const message: Message = {
+					chatId: useChat.id,
+					content: [
+						{
+							type: 'text',
+							text: useChat.input,
+						},
+					],
+					id: nanoid(),
+					model: '',
+					provider: '',
+					providerMetadata: {},
+					responseId: '',
+					role: 'user',
+					createdAt: Date.now(),
+				}
+				chat.value = {
+					id: 'new chat',
+					title: 'new chat',
+					visibility: 'private',
+					isOwner: true,
+					createdAt: Date.now(),
+					messages: [message],
+				}
+			}
+			useChat.handleSubmit(e)
+		}}
 		bind:messages={useChat.messages}
 		bind:data={useChat.data}
 		status={useChat.status}
