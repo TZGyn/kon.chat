@@ -526,23 +526,23 @@
 		{upload_url}
 		selectedModelLocator={`model:chat:${chat_id}`}
 		handleSubmit={(e) => {
+			const message: Message = {
+				chatId: useChat.id,
+				content: [
+					{
+						type: 'text',
+						text: useChat.input,
+					},
+				],
+				id: nanoid(),
+				model: '',
+				provider: '',
+				providerMetadata: {},
+				responseId: '',
+				role: 'user',
+				createdAt: Date.now(),
+			}
 			if (chat.value === null) {
-				const message: Message = {
-					chatId: useChat.id,
-					content: [
-						{
-							type: 'text',
-							text: useChat.input,
-						},
-					],
-					id: nanoid(),
-					model: '',
-					provider: '',
-					providerMetadata: {},
-					responseId: '',
-					role: 'user',
-					createdAt: Date.now(),
-				}
 				chat.value = {
 					id: 'new chat',
 					title: 'new chat',
@@ -550,6 +550,11 @@
 					isOwner: true,
 					createdAt: Date.now(),
 					messages: [message],
+				}
+			} else {
+				chat.value = {
+					...chat.value,
+					messages: [...chat.value.messages, message],
 				}
 			}
 			useChat.handleSubmit(e)
