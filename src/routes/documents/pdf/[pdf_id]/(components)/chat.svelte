@@ -6,7 +6,6 @@
 	import { PUBLIC_API_URL } from '$env/static/public'
 
 	import { useUser } from '../../../../state.svelte'
-	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import MessageBlock from '$lib/components/message-block.svelte'
@@ -53,7 +52,7 @@
 <ScrollArea
 	bind:vp={autoScroll.ref}
 	class="flex flex-1 flex-col items-center p-4">
-	<div class="flex w-full flex-col items-center pb-40 pt-20">
+	<div class="flex w-full flex-col items-center pt-20 pb-40">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
 			{#each useChat.messages as message, index (index)}
 				<MessageBlock
@@ -79,7 +78,7 @@
 											src={'/logo.png'}
 											alt="favicon"
 											class="size-4" />
-										<Avatar.Fallback class="size-4 bg-opacity-0">
+										<Avatar.Fallback class="bg-opacity-0 size-4">
 											<img src="/logo.png" alt="favicon" />
 										</Avatar.Fallback>
 									</Avatar.Root>

@@ -9,7 +9,6 @@
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 
 	import { useChats, useUser } from '../../state.svelte.js'
-	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import { goto, replaceState } from '$app/navigation'

@@ -3,6 +3,7 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js'
 	import '../app.css'
 	import { Toaster } from '$lib/components/ui/sonner'
+	import 'katex/dist/katex.css'
 	import VersionChecker from './(components)/version-checker.svelte'
 
 	let { children } = $props()
