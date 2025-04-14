@@ -6,21 +6,16 @@
 	import { useModels } from '$lib/models.svelte.js'
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js'
 	import {
 		ArrowDownIcon,
 		BookIcon,
 		BrainIcon,
 		ChevronDownIcon,
-		CodeXmlIcon,
 		FileTextIcon,
-		Globe,
 		GlobeIcon,
 		ImageIcon,
-		ImagesIcon,
 		LibraryBigIcon,
 		Loader2Icon,
-		MemoryStick,
 		MessageCircleIcon,
 		PaperclipIcon,
 		SearchIcon,
@@ -35,11 +30,7 @@
 	import AnthropicIcon from '$lib/icons/anthropic-icon.svelte'
 	import { toast } from 'svelte-sonner'
 	import type { ChatRequestOptions } from 'ai'
-	import type {
-		JSONValue,
-		Message,
-		UIMessage,
-	} from '@ai-sdk/ui-utils'
+	import type { JSONValue, UIMessage } from '@ai-sdk/ui-utils'
 	import { browser } from '$app/environment'
 	import SpeechToText from './speech-to-text.svelte'
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
@@ -48,6 +39,7 @@
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 	import { Input } from './ui/input'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		input = $bindable(),
@@ -414,24 +406,9 @@
 														class="flex flex-col items-start gap-1">
 														<span
 															class="text-muted-foreground text-xs">
-															Credits: {model.credits / 100}
+															{m.credits()}: {model.credits / 100}
 														</span>
 													</div>
-													{#if model.info}
-														<Tooltip.Provider>
-															<Tooltip.Root>
-																<Tooltip.Trigger
-																	class={buttonVariants({
-																		variant: 'outline',
-																	})}>
-																	Hover
-																</Tooltip.Trigger>
-																<Tooltip.Content>
-																	<p>Add to library</p>
-																</Tooltip.Content>
-															</Tooltip.Root>
-														</Tooltip.Provider>
-													{/if}
 												</div>
 											</div>
 
@@ -668,78 +645,33 @@
 	file: boolean
 })}
 	{#if capabilities.searchGrounding}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
-						<SearchIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Search Grounding</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
+			<SearchIcon />
+		</div>
 	{/if}
 	{#if capabilities.fast}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
-						<ZapIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Fast</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
+			<ZapIcon />
+		</div>
 	{/if}
 	{#if capabilities.reasoning}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
-						<BrainIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Reasoning</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
+			<BrainIcon />
+		</div>
 	{/if}
 	{#if capabilities.image}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
-						<ImageIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Image Capabilities</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
+			<ImageIcon />
+		</div>
 	{/if}
 	{#if capabilities.file}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
-						<FileTextIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>File Capabilities</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
+			<FileTextIcon />
+		</div>
 	{/if}
 {/snippet}

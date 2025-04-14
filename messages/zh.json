@@ -1,0 +1,39 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"hello_world": "您好，来自 en 的{name} ！",
+	"delete_account": "您即将删除您的帐户",
+	"settings": {
+		"navigation": {
+			"account": "帐户"
+		},
+		"account": {
+			"what_should_we_call_you": "我们该怎么称呼您？",
+			"additional_system_prompt": "附加系统提示",
+			"type_your_name_here": "在此处输入您的姓名...",
+			"your_additional_system_prompts_here": "您的附加系统提示在这里...",
+			"danger_zone": "危险区域",
+			"delete_account": "删除帐户"
+		},
+		"settings": "设置"
+	},
+	"locale": "区域设置",
+	"language": "语言",
+	"update": "更新",
+	"credits": "积分",
+	"add_credits": "添加积分",
+	"light": "灯光",
+	"dark": "黑暗",
+	"system": "系统",
+	"theme": "主题",
+	"billing": "计费",
+	"log_out": "登出",
+	"log_in": "登录",
+	"today": "今天",
+	"yesterday": "昨天",
+	"last7days": "过去 7 天",
+	"last30days": "过去 30 天",
+	"older": "较旧",
+	"new_chat": "新聊天",
+	"welcome_to_kon_chat": "欢迎来到 Kon.chat",
+	"model": "模型"
+}

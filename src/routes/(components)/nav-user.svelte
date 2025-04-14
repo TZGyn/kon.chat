@@ -5,7 +5,12 @@
 	import * as Dialog from '$lib/components/ui/dialog'
 	import { useSidebar } from '$lib/components/ui/sidebar/index.js'
 	import { customFetch } from '$lib/fetch'
-	import { Loader2Icon, LogInIcon, UserIcon } from 'lucide-svelte'
+	import {
+		Loader2Icon,
+		LogInIcon,
+		SettingsIcon,
+		UserIcon,
+	} from 'lucide-svelte'
 	import BadgeCheck from 'lucide-svelte/icons/badge-check'
 	import Bell from 'lucide-svelte/icons/bell'
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down'
@@ -13,11 +18,14 @@
 	import LogOut from 'lucide-svelte/icons/log-out'
 	import Sparkles from 'lucide-svelte/icons/sparkles'
 	import { onMount } from 'svelte'
-	import { Button } from '$lib/components/ui/button'
+	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { useUser } from '../state.svelte'
 	import { useChats } from '../state.svelte'
 	import { cn } from '$lib/utils'
+	import { MoonIcon, SunIcon } from '@lucide/svelte'
+	import { resetMode, setMode, mode } from 'mode-watcher'
+	import * as m from '$lib/paraglide/messages'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
@@ -110,7 +118,7 @@
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span
 								class="text-muted-foreground truncate text-xs font-semibold">
-								Credits: {(user
+								{m.credits()}: {(user
 									? user.credits + user.purchased_credits
 									: 0) / 100}
 							</span>
@@ -138,22 +146,53 @@
 						<a href={PUBLIC_API_URL + '/billing/portal'}>
 							<DropdownMenu.Item>
 								<CreditCard />
-								Billing
+								{m.billing()}
 							</DropdownMenu.Item>
 						</a>
 					</DropdownMenu.Group>
 				{/if}
 				<DropdownMenu.Separator />
+
+				<DropdownMenu.Group>
+					<DropdownMenu.Root>
+						<DropdownMenu.SubTrigger>
+							<SunIcon
+								class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+							<MoonIcon
+								class="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+							{m[$mode || 'dark']()}
+							<span class="sr-only">Toggle theme</span>
+						</DropdownMenu.SubTrigger>
+						<DropdownMenu.SubContent align="end">
+							<DropdownMenu.Item onclick={() => setMode('light')}>
+								{m.light()}
+							</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => setMode('dark')}>
+								{m.dark()}
+							</DropdownMenu.Item>
+							<DropdownMenu.Item onclick={() => resetMode()}>
+								{m.system()}
+							</DropdownMenu.Item>
+						</DropdownMenu.SubContent>
+					</DropdownMenu.Root>
+					<a href={'/settings'} data-sveltekit-preload-code="eager">
+						<DropdownMenu.Item>
+							<SettingsIcon />
+							{m['settings.settings']()}
+						</DropdownMenu.Item>
+					</a>
+				</DropdownMenu.Group>
+				<DropdownMenu.Separator />
 				{#if user?.email}
 					<DropdownMenu.Item
 						onclick={() => (logoutDialogOpen = true)}>
 						<LogOut />
-						Log out
+						{m.log_out()}
 					</DropdownMenu.Item>
 				{:else}
 					<DropdownMenu.Item onclick={() => (loginDialogOpen = true)}>
 						<LogInIcon />
-						Log In
+						{m.log_in()}
 					</DropdownMenu.Item>
 				{/if}
 			</DropdownMenu.Content>
@@ -248,7 +287,7 @@
 					{#if isLoggingOut}
 						<Loader2Icon class="animate-spin" />
 					{/if}
-					Log Out
+					{m.log_out()}
 				</Button>
 			</div>
 		</Dialog.Header>

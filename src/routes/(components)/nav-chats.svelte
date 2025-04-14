@@ -7,6 +7,7 @@
 	import { useChats } from '../state.svelte.js'
 	import { cn } from '$lib/utils.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
+	import * as m from '$lib/paraglide/messages'
 
 	const sidebar = Sidebar.useSidebar()
 
@@ -72,11 +73,11 @@
 	)
 
 	let allChats = $derived([
-		{ title: 'Today', chats: todayChats },
-		{ title: 'Yesterday', chats: yesterdayChats },
-		{ title: 'Last 7 Days', chats: last7DaysChats },
-		{ title: 'Last 30 Days', chats: last30DaysChats },
-		{ title: 'Older', chats: olderChats },
+		{ title: 'today', chats: todayChats },
+		{ title: 'yesterday', chats: yesterdayChats },
+		{ title: 'last7days', chats: last7DaysChats },
+		{ title: 'last30days', chats: last30DaysChats },
+		{ title: 'older', chats: olderChats },
 	] as const)
 
 	onMount(() => {
@@ -92,7 +93,7 @@
 				{#if chat_section.chats.length > 0}
 					<Sidebar.GroupLabel
 						class="bg-sidebar sticky top-0 z-10 rounded-none">
-						{chat_section.title}
+						{m[chat_section.title]()}
 					</Sidebar.GroupLabel>
 					<Sidebar.Menu class="">
 						{#each chat_section.chats.sort((a, b) => {
@@ -143,7 +144,7 @@
 							{...props}
 							data-sveltekit-preload-code="eager">
 							<PlusIcon />
-							<span>New Chat</span>
+							<span>{m.new_chat()}</span>
 						</a>
 					{/snippet}
 				</Sidebar.MenuButton>

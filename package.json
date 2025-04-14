@@ -48,6 +48,7 @@
 		"@ai-sdk/react": "^1.2.2",
 		"@ai-sdk/svelte": "^2.1.2",
 		"@ai-sdk/ui-utils": "^1.2.1",
+		"@inlang/paraglide-js": "^2.0.0",
 		"@lucide/svelte": "^0.486.0",
 		"@tiptap-pro/extension-export": "^2.17.4",
 		"@tiptap-pro/extension-import": "^2.17.4",

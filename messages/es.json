@@ -1,0 +1,39 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"hello_world": "Hola, {name} de en!",
+	"delete_account": "Estás a punto de eliminar tu cuenta",
+	"settings": {
+		"navigation": {
+			"account": "Cuenta"
+		},
+		"account": {
+			"what_should_we_call_you": "¿Cómo deberíamos llamarte?",
+			"additional_system_prompt": "Aviso adicional del sistema",
+			"type_your_name_here": "Escribe tu nombre aquí...",
+			"your_additional_system_prompts_here": "Sus indicaciones adicionales del sistema están aquí...",
+			"danger_zone": "Zona de peligro",
+			"delete_account": "Eliminar cuenta"
+		},
+		"settings": "Ajustes"
+	},
+	"locale": "Lugar",
+	"language": "Idioma",
+	"update": "Actualizar",
+	"credits": "Créditos",
+	"add_credits": "Añadir créditos",
+	"light": "claro",
+	"dark": "oscuro",
+	"system": "Sistema",
+	"theme": "Tema",
+	"billing": "Facturación",
+	"log_out": "Finalizar la sesión",
+	"log_in": "Acceso",
+	"today": "Hoy",
+	"yesterday": "Ayer",
+	"last7days": "Últimos 7 días",
+	"last30days": "Últimos 30 días",
+	"older": "Más viejo",
+	"new_chat": "Nuevo chat",
+	"welcome_to_kon_chat": "Bienvenido a Kon.chat",
+	"model": "Modelo"
+}

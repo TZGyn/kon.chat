@@ -1,0 +1,39 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"hello_world": "Hello, {name} from en!",
+	"welcome_to_kon_chat": "Welcome to Kon.chat",
+	"delete_account": "You are about to delete your account",
+	"settings": {
+		"navigation": {
+			"account": "Account"
+		},
+		"account": {
+			"what_should_we_call_you": "What should we call you?",
+			"type_your_name_here": "Type your name here...",
+			"additional_system_prompt": "Additional system prompt",
+			"your_additional_system_prompts_here": "your additional system prompts here...",
+			"danger_zone": "Danger Zone",
+			"delete_account": "Delete Account"
+		},
+		"settings": "Settings"
+	},
+	"locale": "Locale",
+	"language": "Language",
+	"update": "Update",
+	"credits": "Credits",
+	"add_credits": "Add Credits",
+	"theme": "Theme",
+	"light": "Light",
+	"dark": "Dark",
+	"system": "System",
+	"billing": "Billing",
+	"log_out": "Log Out",
+	"log_in": "Log In",
+	"today": "Today",
+	"yesterday": "Yesterday",
+	"last7days": "Last 7 Days",
+	"last30days": "Last 30 Days",
+	"older": "Older",
+	"new_chat": "New Chat",
+	"model": "Model"
+}
