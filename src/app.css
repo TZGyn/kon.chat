@@ -136,6 +136,11 @@
 			opacity: 0;
 		}
 	}
+	@keyframes border {
+		to {
+			--border-angle: 360deg;
+		}
+	}
 }
 
 @layer base {

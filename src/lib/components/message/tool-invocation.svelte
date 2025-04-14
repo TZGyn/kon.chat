@@ -96,17 +96,22 @@
 		</div>
 	</div>
 {:else if toolInvocation.toolName === 'image_generation'}
-	<div class="flex items-center gap-4 p-4">
-		<div
-			class="flex size-12 animate-pulse items-center justify-center rounded-full border object-cover p-3">
-			<ImageIcon />
-		</div>
-		<div class="flex animate-pulse flex-col justify-start gap-2">
-			<div>Generating Image</div>
-			<div class="flex items-center gap-2">
-				<Skeleton class="h-2 w-8" />
-				<Skeleton class="h-2 w-16" />
+	<!-- https://github.com/cruip/cruip-tutorials/blob/main/animated-gradient-border/index.html -->
+	<div
+		class="h-96 w-full animate-[border_4s_linear_infinite] rounded-2xl border border-transparent [background:linear-gradient(45deg,hsl(var(--background)))_padding-box,conic-gradient(from_var(--border-angle),hsl(var(--secondary))_80%,hsl(var(--primary))_86%,hsl(var(--primary))_90%,hsl(var(--primary))_94%,hsl(var(--secondary)))_border-box]">
+		<div class="flex h-full items-center justify-center gap-4 p-4">
+			<div
+				class="flex size-32 animate-pulse items-center justify-center rounded-full border object-cover p-3">
+				<ImageIcon class="size-16" />
 			</div>
 		</div>
 	</div>
 {/if}
+
+<style lang="postcss">
+	@property --border-angle {
+		inherits: false;
+		initial-value: 0deg;
+		syntax: '<angle>';
+	}
+</style>
