@@ -48,6 +48,7 @@
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 	import { Input } from './ui/input'
+	import { cn } from '$lib/utils'
 
 	let {
 		input = $bindable(),
@@ -399,7 +400,10 @@
 									{#each modelGroup.models as model}
 										<DropdownMenu.Item
 											disabled={model.disabled}
-											class="bg-background flex flex-col p-3"
+											class={cn(
+												'bg-background flex flex-col p-3',
+												model.id === selectedModel.id && 'bg-accent',
+											)}
 											onclick={() => (selectedModel = model)}>
 											<div class="flex w-full items-center gap-2">
 												{@render modelIcon(model.provider)}
@@ -668,78 +672,33 @@
 	file: boolean
 })}
 	{#if capabilities.searchGrounding}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
-						<SearchIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Search Grounding</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
+			<SearchIcon />
+		</div>
 	{/if}
 	{#if capabilities.fast}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
-						<ZapIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Fast</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
+			<ZapIcon />
+		</div>
 	{/if}
 	{#if capabilities.reasoning}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
-						<BrainIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Reasoning</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
+			<BrainIcon />
+		</div>
 	{/if}
 	{#if capabilities.image}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
-						<ImageIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>Image Capabilities</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
+			<ImageIcon />
+		</div>
 	{/if}
 	{#if capabilities.file}
-		<Tooltip.Provider>
-			<Tooltip.Root>
-				<Tooltip.Trigger>
-					<div
-						class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
-						<FileTextIcon />
-					</div>
-				</Tooltip.Trigger>
-				<Tooltip.Content>
-					<p>File Capabilities</p>
-				</Tooltip.Content>
-			</Tooltip.Root>
-		</Tooltip.Provider>
+		<div
+			class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
+			<FileTextIcon />
+		</div>
 	{/if}
 {/snippet}

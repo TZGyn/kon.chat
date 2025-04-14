@@ -35,6 +35,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
 	import { Snippet } from '$lib/components/ui/snippet'
 	import { nanoid } from '$lib/nanoid.js'
+	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -529,7 +530,7 @@
 		bind:input={useChat.input}
 		{upload_url}
 		selectedModelLocator={`model:chat:${chat_id}`}
-		handleSubmit={(e) => {
+		handleSubmit={(e, chatRequestOptions?: ChatRequestOptions) => {
 			const message: Message = {
 				chatId: useChat.id,
 				content: [
@@ -561,7 +562,7 @@
 					messages: [...chat.value.messages, message],
 				}
 			}
-			useChat.handleSubmit(e)
+			useChat.handleSubmit(e, chatRequestOptions)
 		}}
 		bind:messages={useChat.messages}
 		bind:data={useChat.data}
