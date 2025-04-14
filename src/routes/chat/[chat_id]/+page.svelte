@@ -216,7 +216,7 @@
 		toast.success('Chat Copied')
 	}
 
-	const branch = async (index: number, chat_id: string) => {
+	const branch = async (at_message_id: string, chat_id: string) => {
 		const chat = localStorage.getItem(`chat:${chat_id}`)
 
 		const chatJSON = JSON.parse(chat || 'null') as Chat
@@ -233,7 +233,12 @@
 			createdAt: Date.now(),
 			id: newChatId,
 			visibility: 'private',
-			messages: chatJSON.messages.slice(0, index + 1),
+			messages: chatJSON.messages.slice(
+				0,
+				chatJSON.messages.findIndex(
+					(message) => message.id === at_message_id,
+				) + 1,
+			),
 		} as Chat
 
 		localStorage.setItem(
@@ -261,7 +266,7 @@
 			body: JSON.stringify({
 				chat_id: chat_id,
 				new_chat_id: newChatId,
-				at: index,
+				at_message_id: at_message_id,
 			}),
 		})
 	}
@@ -282,7 +287,7 @@
 							role={message.role}
 							status={useChat.status}
 							isLast={index === useChat.messages.length - 1}
-							branch={() => branch(index, chat_id)} />
+							branch={() => branch(message.id, chat_id)} />
 					{/each}
 					{#if useChat.status === 'submitted'}
 						<div

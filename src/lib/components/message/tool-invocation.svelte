@@ -8,6 +8,8 @@
 	import AcademicSearch from './tool/academic-search.svelte'
 	import { BookIcon, LibraryBigIcon } from 'lucide-svelte'
 	import WebReader from './tool/web-reader.svelte'
+	import ImageGeneration from './tool/image-generation.svelte'
+	import { ImageIcon } from '@lucide/svelte'
 
 	let {
 		toolInvocation,
@@ -48,6 +50,8 @@
 		<AcademicSearch result={toolInvocation.result} />
 	{:else if toolInvocation.toolName === 'web_reader'}
 		<WebReader result={toolInvocation.result} />
+	{:else if toolInvocation.toolName === 'image_generation'}
+		<ImageGeneration result={toolInvocation.result} />
 	{/if}
 {:else if toolInvocation.toolName === 'x_search'}
 	<div class="flex items-center gap-4 p-4">
@@ -85,6 +89,20 @@
 		</div>
 		<div class="flex animate-pulse flex-col justify-start gap-2">
 			<div>Reading article</div>
+			<div class="flex items-center gap-2">
+				<Skeleton class="h-2 w-8" />
+				<Skeleton class="h-2 w-16" />
+			</div>
+		</div>
+	</div>
+{:else if toolInvocation.toolName === 'image_generation'}
+	<div class="flex items-center gap-4 p-4">
+		<div
+			class="flex size-12 animate-pulse items-center justify-center rounded-full border object-cover p-3">
+			<ImageIcon />
+		</div>
+		<div class="flex animate-pulse flex-col justify-start gap-2">
+			<div>Generating Image</div>
 			<div class="flex items-center gap-2">
 				<Skeleton class="h-2 w-8" />
 				<Skeleton class="h-2 w-16" />
