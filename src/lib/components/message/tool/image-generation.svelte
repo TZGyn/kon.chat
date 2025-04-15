@@ -9,5 +9,5 @@
 </script>
 
 {#each result.files as file}
-	<img src={file} alt="generated_image" />
+	<img src={file} alt="generated_image" class="w-[300px]" />
 {/each}
