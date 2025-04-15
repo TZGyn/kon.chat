@@ -192,34 +192,6 @@
 			)
 		} else {
 			data = []
-			try {
-				// @ts-ignore
-				window.stonks.event('Submit Message', {
-					body: {
-						provider: {
-							name: selectedModel.provider,
-							model: selectedModel.id,
-						},
-						...custom,
-						search,
-						searchGrounding,
-						mode: selectedMode?.id || 'chat',
-					},
-					experimental_attachments: attachments
-						.filter(
-							(attachment) =>
-								attachment.url !== undefined &&
-								attachment.status === 'ready',
-						)
-						.map((attachment) => ({
-							contentType: attachment.file.type,
-							url: attachment.url!,
-							name: attachment.file.name,
-						})),
-				})
-			} catch (error) {
-				console.log(error)
-			}
 			handleSubmit(event, {
 				body: {
 					provider: {

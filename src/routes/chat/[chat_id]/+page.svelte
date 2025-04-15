@@ -562,6 +562,19 @@
 					messages: [...chat.value.messages, message],
 				}
 			}
+
+			try {
+				// @ts-ignore
+				window.stonks.event('Submit Message', `/chat/${chat_id}`, {
+					...chatRequestOptions,
+					body: {
+						...chatRequestOptions?.body,
+						messages: useChat.messages,
+					},
+				})
+			} catch (error) {
+				console.log(error)
+			}
 			useChat.handleSubmit(e, chatRequestOptions)
 		}}
 		bind:messages={useChat.messages}
