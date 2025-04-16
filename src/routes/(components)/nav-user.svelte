@@ -111,7 +111,7 @@
 							<span
 								class="text-muted-foreground truncate text-xs font-semibold">
 								Credits: {(user
-									? user.credits + user.purchased_credits
+									? user.credits + user.purchased_credits || 0
 									: 0) / 100}
 							</span>
 						</div>

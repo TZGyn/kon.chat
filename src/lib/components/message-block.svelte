@@ -139,7 +139,7 @@
 					{/* @ts-ignore */ null}
 					{#if annotation?.status === 'error'}
 						<div
-							class="bg-destructive/20 border-destructive/50 flex w-full items-center gap-2 rounded border px-4 py-3">
+							class="bg-destructive/20 border-destructive/50 flex w-[100cqw] items-center gap-2 rounded border px-4 py-3">
 							{/* @ts-ignore */ null}
 							{#if annotation?.error.type === 'stopped_by_user'}
 								<SquareIcon class="size-4" />

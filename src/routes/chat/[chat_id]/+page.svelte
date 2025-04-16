@@ -156,7 +156,16 @@
 			}
 		},
 		onError: (error) => {
-			toast.error(error.message)
+			useChat.messages[useChat.messages.length - 1].annotations?.push(
+				{
+					type: 'kon_chat',
+					status: 'error',
+					error: {
+						type: error.name,
+						message: error.message,
+					},
+				},
+			)
 		},
 		credentials: 'include',
 	})
