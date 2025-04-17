@@ -155,7 +155,22 @@ export const useModels = () => {
 				searchGrounding: false,
 			},
 			disabled: plan === undefined,
-			credits: 40,
+			credits: 50,
+		},
+		{
+			name: 'o4 mini',
+			info: '',
+			provider: 'openai',
+			id: 'o4-mini',
+			capabilities: {
+				image: true,
+				file: false,
+				fast: false,
+				reasoning: true,
+				searchGrounding: false,
+			},
+			disabled: plan === undefined,
+			credits: 50,
 		},
 		{
 			name: 'Grok 2',

@@ -7,6 +7,8 @@
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js'
+
+	import * as Select from '$lib/components/ui/select/index.js'
 	import {
 		ArrowDownIcon,
 		BookIcon,
@@ -197,6 +199,11 @@
 					provider: {
 						name: selectedModel.provider,
 						model: selectedModel.id,
+						reasoningEffort:
+							selectedModel.id === 'o3-mini' ||
+							selectedModel.id === 'o4-mini'
+								? reasoningEffort
+								: undefined,
 					},
 					...custom,
 					search,
@@ -332,6 +339,8 @@
 	])
 
 	let modelSearch = $state('')
+
+	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
 </script>
 
 <form
@@ -472,6 +481,36 @@
 									bind:pressed={searchGrounding}>
 									<SearchIcon />
 								</Toggle>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content>
+							<p>Search Grounding</p>
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+			{/if}
+			{#if selectedModel.id === 'o3-mini' || selectedModel.id === 'o4-mini'}
+				<Tooltip.Provider>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							{#snippet child({ props })}
+								<Select.Root
+									type="single"
+									bind:value={reasoningEffort}>
+									<Select.Trigger class="w-[100px]" {...props}>
+										{reasoningEffort}
+									</Select.Trigger>
+									<Select.Content>
+										<Select.Group>
+											<Select.GroupHeading>
+												Reasoning Effort
+											</Select.GroupHeading>
+											<Select.Item value="low">Low</Select.Item>
+											<Select.Item value="medium">Medium</Select.Item>
+											<Select.Item value="high">High</Select.Item>
+										</Select.Group>
+									</Select.Content>
+								</Select.Root>
 							{/snippet}
 						</Tooltip.Trigger>
 						<Tooltip.Content>
