@@ -14,11 +14,15 @@
 		BookIcon,
 		BrainIcon,
 		ChevronDownIcon,
+		CodeXmlIcon,
 		FileTextIcon,
+		Globe,
 		GlobeIcon,
 		ImageIcon,
+		ImagesIcon,
 		LibraryBigIcon,
 		Loader2Icon,
+		MemoryStick,
 		MessageCircleIcon,
 		PaperclipIcon,
 		SearchIcon,
@@ -33,7 +37,11 @@
 	import AnthropicIcon from '$lib/icons/anthropic-icon.svelte'
 	import { toast } from 'svelte-sonner'
 	import type { ChatRequestOptions } from 'ai'
-	import type { JSONValue, UIMessage } from '@ai-sdk/ui-utils'
+	import type {
+		JSONValue,
+		Message,
+		UIMessage,
+	} from '@ai-sdk/ui-utils'
 	import { browser } from '$app/environment'
 	import SpeechToText from './speech-to-text.svelte'
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
@@ -420,9 +428,24 @@
 														class="flex flex-col items-start gap-1">
 														<span
 															class="text-muted-foreground text-xs">
-															{m.credits()}: {model.credits / 100}
+															Credits: {model.credits / 100}
 														</span>
 													</div>
+													{#if model.info}
+														<Tooltip.Provider>
+															<Tooltip.Root>
+																<Tooltip.Trigger
+																	class={buttonVariants({
+																		variant: 'outline',
+																	})}>
+																	Hover
+																</Tooltip.Trigger>
+																<Tooltip.Content>
+																	<p>Add to library</p>
+																</Tooltip.Content>
+															</Tooltip.Root>
+														</Tooltip.Provider>
+													{/if}
 												</div>
 											</div>
 

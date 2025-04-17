@@ -21,6 +21,7 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js'
 	import { cn } from '$lib/utils'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
+	import { mode } from 'mode-watcher'
 
 	let { code, lang }: { code: string; lang: string } = $props()
 
@@ -48,7 +49,8 @@
 				lang in bundledLanguages
 					? (lang as BundledLanguage)
 					: ('text' as const),
-			theme: 'one-dark-pro',
+			theme:
+				mode.current === 'light' ? 'github-light' : 'one-dark-pro',
 		})
 		codeTokens = tokens
 	}
@@ -286,7 +288,7 @@
 			bind:this={autoScroll.ref}
 			class="max-h-[60vh] overflow-y-scroll">
 			<pre
-				class="shiki one-dark-pro !bg-[#1e1e1e] text-wrap"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
+				class="shiki one-dark-pro !bg-[#f6f6f7] text-wrap dark:!bg-[#1e1e1e]"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color ? token.color : mode.current === 'dark' ? '#fff' : '#000'}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
 		</div>
 
 		<!-- class={cn('w-12 shrink-0', {

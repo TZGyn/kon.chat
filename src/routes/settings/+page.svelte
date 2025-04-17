@@ -101,14 +101,14 @@
 					buttonVariants({ variant: 'outline' }),
 					'w-full max-w-[100px]',
 				)}>
-				{#if $mode === 'dark'}
+				{#if mode.current === 'dark'}
 					<MoonIcon
 						class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all" />
 				{:else}
 					<SunIcon
 						class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all" />
 				{/if}
-				{m[$mode || 'dark']()}
+				{m[mode.current || 'dark']()}
 				<span class="sr-only">Toggle theme</span>
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content align="end">
