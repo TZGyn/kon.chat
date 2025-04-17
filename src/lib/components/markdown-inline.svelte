@@ -8,6 +8,7 @@
 	import Self from './markdown-inline.svelte'
 	import Link from './markdown/link.svelte'
 	import Text from './markdown/text.svelte'
+	import * as m from '$lib/paraglide/messages'
 
 	let { tokens = [] }: { tokens: Token[] | undefined } = $props()
 
@@ -53,7 +54,7 @@
 			class="bg-secondary text-muted-foreground cursor-pointer rounded px-2 py-1 before:content-none after:content-none"
 			onclick={() => {
 				copy(token.text!)
-				toast.success('Copied to clipboard')
+				toast.success(m.copied_to_clipboard())
 			}}>
 			{token.text}
 		</code>

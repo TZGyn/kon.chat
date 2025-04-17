@@ -21,8 +21,8 @@
 	"update": "更新",
 	"credits": "积分",
 	"add_credits": "添加积分",
-	"light": "灯光",
-	"dark": "黑暗",
+	"light": "浅色",
+	"dark": "深色",
 	"system": "系统",
 	"theme": "主题",
 	"billing": "计费",
@@ -35,5 +35,23 @@
 	"older": "较旧",
 	"new_chat": "新聊天",
 	"welcome_to_kon_chat": "欢迎来到 Kon.chat",
-	"model": "模型"
+	"model": "模型",
+	"console": "控制台",
+	"clear": "清除",
+	"code": "代码",
+	"preview": "预览",
+	"tools": {
+		"x": {
+			"getting_posts": "获取 X 的帖子"
+		},
+		"academic": {
+			"getting_papers": "获取学术论文"
+		},
+		"article": {
+			"reading_article": "阅读文章"
+		}
+	},
+	"copied_to_clipboard": "已复制到剪贴板",
+	"send_a_message": "询问任何问题",
+	"ctrl_enter_to_send": "（按 Ctrl-Enter 发送）"
 }

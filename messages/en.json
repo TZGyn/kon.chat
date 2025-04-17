@@ -35,5 +35,23 @@
 	"last30days": "Last 30 Days",
 	"older": "Older",
 	"new_chat": "New Chat",
-	"model": "Model"
+	"model": "Model",
+	"console": "Console",
+	"clear": "Clear",
+	"code": "Code",
+	"preview": "Preview",
+	"tools": {
+		"x": {
+			"getting_posts": "Getting X's Posts"
+		},
+		"academic": {
+			"getting_papers": "Getting Academic's Papers"
+		},
+		"article": {
+			"reading_article": "Reading article"
+		}
+	},
+	"copied_to_clipboard": "Copied To Clipboard",
+	"send_a_message": "Send a message",
+	"ctrl_enter_to_send": "(ctrl-enter to send)"
 }

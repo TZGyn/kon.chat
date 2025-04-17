@@ -22,6 +22,7 @@
 	import { cn } from '$lib/utils'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { mode } from 'mode-watcher'
+	import * as m from '$lib/paraglide/messages'
 
 	let { code, lang }: { code: string; lang: string } = $props()
 
@@ -234,23 +235,23 @@
 	}
 </script>
 
-<Tabs.Root value="code" class="">
+<Tabs.Root value="code">
 	{#if lang === 'html'}
 		<Tabs.List
-			class="bg-background grid w-full grid-cols-2 border p-0">
+			class="bg-background grid w-full grid-cols-2 rounded border p-0">
 			<Tabs.Trigger
 				value="code"
-				class="data-[state=active]:bg-secondary h-full rounded-none rounded-l-md">
-				Code
+				class="data-[state=active]:bg-secondary h-full rounded-none rounded-l">
+				{m.code()}
 			</Tabs.Trigger>
 			<Tabs.Trigger
 				value="preview"
-				class="data-[state=active]:bg-secondary h-full rounded-none rounded-r-md">
-				Preview
+				class="data-[state=active]:bg-secondary h-full rounded-none rounded-r">
+				{m.preview()}
 			</Tabs.Trigger>
 		</Tabs.List>
 	{/if}
-	<Tabs.Content value="code">
+	<Tabs.Content value="code" class="mt-1">
 		<div
 			class="bg-secondary flex items-center justify-between rounded-t px-2">
 			<span class="py-1 text-sm">{lang}</span>
@@ -323,16 +324,16 @@
 						<DropdownMenu.Content>
 							<DropdownMenu.Group>
 								<DropdownMenu.GroupHeading>
-									Theme
+									{m.theme()}
 								</DropdownMenu.GroupHeading>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item
 									onclick={() => downloadMermaidDiagram('default')}>
-									Light
+									{m.light()}
 								</DropdownMenu.Item>
 								<DropdownMenu.Item
 									onclick={() => downloadMermaidDiagram('dark')}>
-									Dark
+									{m.dark()}
 								</DropdownMenu.Item>
 							</DropdownMenu.Group>
 						</DropdownMenu.Content>
@@ -355,7 +356,7 @@
 					<div class="text-muted-foreground">
 						<TerminalIcon class="size-4" />
 					</div>
-					<div>Console</div>
+					<div>{m.console()}</div>
 				</div>
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -364,7 +365,7 @@
 					onclick={() => {
 						consoleOutput = []
 					}}>
-					clear
+					{m.clear()}
 				</div>
 			</div>
 			{#each consoleOutput as output, index}
@@ -394,7 +395,7 @@
 			{/each}
 		{/if}
 	</Tabs.Content>
-	<Tabs.Content value="preview">
+	<Tabs.Content value="preview" class="mt-1">
 		<iframe
 			srcdoc={iframehtml}
 			title="preview_html"

@@ -360,7 +360,7 @@
 		bind:value={input}
 		bind:ref={inputElement}
 		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-		placeholder="Send a message... (ctrl-enter to send)"
+		placeholder={m.send_a_message() + m.ctrl_enter_to_send()}
 		onkeydown={(event) => {
 			if (event.key === 'Enter' && event.ctrlKey) {
 				event.preventDefault()

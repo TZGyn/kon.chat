@@ -35,5 +35,23 @@
 	"older": "Más viejo",
 	"new_chat": "Nuevo chat",
 	"welcome_to_kon_chat": "Bienvenido a Kon.chat",
-	"model": "Modelo"
+	"model": "Modelo",
+	"console": "Consola",
+	"clear": "Claro",
+	"code": "Código",
+	"preview": "Avance",
+	"tools": {
+		"x": {
+			"getting_posts": "Obtener las publicaciones de X"
+		},
+		"academic": {
+			"getting_papers": "Obtener trabajos académicos"
+		},
+		"article": {
+			"reading_article": "Leyendo el artículo"
+		}
+	},
+	"copied_to_clipboard": "Copiado al portapapeles",
+	"send_a_message": "Enviar un mensaje",
+	"ctrl_enter_to_send": "(Ctrl+Enter para enviar)"
 }

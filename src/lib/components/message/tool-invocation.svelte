@@ -10,6 +10,7 @@
 	import WebReader from './tool/web-reader.svelte'
 	import ImageGeneration from './tool/image-generation.svelte'
 	import { ImageIcon } from '@lucide/svelte'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		toolInvocation,
@@ -60,7 +61,7 @@
 			<TwitterLogo />
 		</div>
 		<div class="flex animate-pulse flex-col justify-start gap-2">
-			<div>Getting X's Posts</div>
+			<div>{m['tools.x.getting_posts']()}</div>
 			<div class="flex items-center gap-2">
 				<Skeleton class="h-2 w-8" />
 				<Skeleton class="h-2 w-16" />
@@ -74,7 +75,7 @@
 			<BookIcon />
 		</div>
 		<div class="flex animate-pulse flex-col justify-start gap-2">
-			<div>Getting Academic's Papers</div>
+			<div>{m['tools.academic.getting_papers']()}</div>
 			<div class="flex items-center gap-2">
 				<Skeleton class="h-2 w-8" />
 				<Skeleton class="h-2 w-16" />
@@ -88,7 +89,7 @@
 			<LibraryBigIcon />
 		</div>
 		<div class="flex animate-pulse flex-col justify-start gap-2">
-			<div>Reading article</div>
+			<div>{m['tools.article.reading_article']()}</div>
 			<div class="flex items-center gap-2">
 				<Skeleton class="h-2 w-8" />
 				<Skeleton class="h-2 w-16" />
