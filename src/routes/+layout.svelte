@@ -3,11 +3,14 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js'
 	import '../app.css'
 	import { Toaster } from '$lib/components/ui/sonner'
+	import 'katex/dist/katex.css'
+	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit'
 	import VersionChecker from './(components)/version-checker.svelte'
 	import { ModeWatcher } from 'mode-watcher'
 	import { useLocale } from '$lib/lang.svelte'
 
 	let { children } = $props()
+	injectSpeedInsights()
 
 	const locale = useLocale()
 </script>

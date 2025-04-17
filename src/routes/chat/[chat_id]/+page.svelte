@@ -9,7 +9,6 @@
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 
 	import { useChats, useUser } from '../../state.svelte.js'
-	import 'katex/dist/katex.css'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import { goto, replaceState } from '$app/navigation'
@@ -36,6 +35,7 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
 	import { Snippet } from '$lib/components/ui/snippet'
 	import { nanoid } from '$lib/nanoid.js'
+	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -156,7 +156,16 @@
 			}
 		},
 		onError: (error) => {
-			toast.error(error.message)
+			useChat.messages[useChat.messages.length - 1].annotations?.push(
+				{
+					type: 'kon_chat',
+					status: 'error',
+					error: {
+						type: error.name,
+						message: error.message,
+					},
+				},
+			)
 		},
 		credentials: 'include',
 	})
@@ -216,7 +225,7 @@
 		toast.success('Chat Copied')
 	}
 
-	const branch = async (index: number, chat_id: string) => {
+	const branch = async (at_message_id: string, chat_id: string) => {
 		const chat = localStorage.getItem(`chat:${chat_id}`)
 
 		const chatJSON = JSON.parse(chat || 'null') as Chat
@@ -233,7 +242,12 @@
 			createdAt: Date.now(),
 			id: newChatId,
 			visibility: 'private',
-			messages: chatJSON.messages.slice(0, index + 1),
+			messages: chatJSON.messages.slice(
+				0,
+				chatJSON.messages.findIndex(
+					(message) => message.id === at_message_id,
+				) + 1,
+			),
 		} as Chat
 
 		localStorage.setItem(
@@ -261,7 +275,7 @@
 			body: JSON.stringify({
 				chat_id: chat_id,
 				new_chat_id: newChatId,
-				at: index,
+				at_message_id: at_message_id,
 			}),
 		})
 	}
@@ -282,7 +296,7 @@
 							role={message.role}
 							status={useChat.status}
 							isLast={index === useChat.messages.length - 1}
-							branch={() => branch(index, chat_id)} />
+							branch={() => branch(message.id, chat_id)} />
 					{/each}
 					{#if useChat.status === 'submitted'}
 						<div
@@ -525,7 +539,7 @@
 		bind:input={useChat.input}
 		{upload_url}
 		selectedModelLocator={`model:chat:${chat_id}`}
-		handleSubmit={(e) => {
+		handleSubmit={(e, chatRequestOptions?: ChatRequestOptions) => {
 			const message: Message = {
 				chatId: useChat.id,
 				content: [
@@ -557,7 +571,20 @@
 					messages: [...chat.value.messages, message],
 				}
 			}
-			useChat.handleSubmit(e)
+
+			try {
+				// @ts-ignore
+				window.stonks.event('Submit Message', `/chat/${chat_id}`, {
+					...chatRequestOptions,
+					body: {
+						...chatRequestOptions?.body,
+						messages: useChat.messages,
+					},
+				})
+			} catch (error) {
+				console.log(error)
+			}
+			useChat.handleSubmit(e, chatRequestOptions)
 		}}
 		bind:messages={useChat.messages}
 		bind:data={useChat.data}

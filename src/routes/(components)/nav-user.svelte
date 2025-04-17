@@ -119,7 +119,7 @@
 							<span
 								class="text-muted-foreground truncate text-xs font-semibold">
 								{m.credits()}: {(user
-									? user.credits + user.purchased_credits
+									? user.credits + user.purchased_credits || 0
 									: 0) / 100}
 							</span>
 						</div>

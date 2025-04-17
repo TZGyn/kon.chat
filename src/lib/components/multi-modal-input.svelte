@@ -6,6 +6,9 @@
 	import { useModels } from '$lib/models.svelte.js'
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
+	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js'
+
+	import * as Select from '$lib/components/ui/select/index.js'
 	import {
 		ArrowDownIcon,
 		BookIcon,
@@ -40,6 +43,7 @@
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 	import { Input } from './ui/input'
 	import * as m from '$lib/paraglide/messages'
+	import { cn } from '$lib/utils'
 
 	let {
 		input = $bindable(),
@@ -188,6 +192,11 @@
 					provider: {
 						name: selectedModel.provider,
 						model: selectedModel.id,
+						reasoningEffort:
+							selectedModel.id === 'o3-mini' ||
+							selectedModel.id === 'o4-mini'
+								? reasoningEffort
+								: undefined,
 					},
 					...custom,
 					search,
@@ -323,6 +332,8 @@
 	])
 
 	let modelSearch = $state('')
+
+	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
 </script>
 
 <form
@@ -391,7 +402,10 @@
 									{#each modelGroup.models as model}
 										<DropdownMenu.Item
 											disabled={model.disabled}
-											class="bg-background flex flex-col p-3"
+											class={cn(
+												'bg-background flex flex-col p-3',
+												model.id === selectedModel.id && 'bg-accent',
+											)}
 											onclick={() => (selectedModel = model)}>
 											<div class="flex w-full items-center gap-2">
 												{@render modelIcon(model.provider)}
@@ -445,6 +459,36 @@
 									bind:pressed={searchGrounding}>
 									<SearchIcon />
 								</Toggle>
+							{/snippet}
+						</Tooltip.Trigger>
+						<Tooltip.Content>
+							<p>Search Grounding</p>
+						</Tooltip.Content>
+					</Tooltip.Root>
+				</Tooltip.Provider>
+			{/if}
+			{#if selectedModel.id === 'o3-mini' || selectedModel.id === 'o4-mini'}
+				<Tooltip.Provider>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							{#snippet child({ props })}
+								<Select.Root
+									type="single"
+									bind:value={reasoningEffort}>
+									<Select.Trigger class="w-[100px]" {...props}>
+										{reasoningEffort}
+									</Select.Trigger>
+									<Select.Content>
+										<Select.Group>
+											<Select.GroupHeading>
+												Reasoning Effort
+											</Select.GroupHeading>
+											<Select.Item value="low">Low</Select.Item>
+											<Select.Item value="medium">Medium</Select.Item>
+											<Select.Item value="high">High</Select.Item>
+										</Select.Group>
+									</Select.Content>
+								</Select.Root>
 							{/snippet}
 						</Tooltip.Trigger>
 						<Tooltip.Content>

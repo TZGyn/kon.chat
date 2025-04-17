@@ -53,6 +53,7 @@
 		"@tiptap-pro/extension-export": "^2.17.4",
 		"@tiptap-pro/extension-import": "^2.17.4",
 		"@types/youtube": "^0.1.0",
+		"@vercel/speed-insights": "^1.2.0",
 		"ai": "^4.2.6",
 		"isomorphic-dompurify": "^2.21.0",
 		"katex": "^0.16.21",

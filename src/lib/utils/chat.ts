@@ -42,6 +42,7 @@ export function convertToUIMessages(
 				if (prev) {
 					chatMessages.push({
 						...prev,
+						id: message.id,
 						parts: prev.parts
 							? [
 									...prev.parts.map((part) => {
@@ -233,6 +234,7 @@ export function mergeMessages(
 				...acc.slice(0, -1),
 				{
 					...last,
+					id: curr.id,
 					parts: [...(last.parts ?? []), ...(curr.parts ?? [])],
 					annotations: [...(curr.annotations ?? [])],
 				},

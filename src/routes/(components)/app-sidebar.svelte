@@ -76,19 +76,6 @@
 					<Sidebar.MenuButton>
 						{#snippet child({ props })}
 							<a
-								href="/image"
-								{...props}
-								data-sveltekit-preload-code="eager">
-								<ImageIcon />
-								<span>Image Generator</span>
-							</a>
-						{/snippet}
-					</Sidebar.MenuButton>
-				</Sidebar.MenuItem>
-				<Sidebar.MenuItem>
-					<Sidebar.MenuButton>
-						{#snippet child({ props })}
-							<a
 								href="/website"
 								{...props}
 								data-sveltekit-preload-code="eager">
