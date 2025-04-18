@@ -173,6 +173,21 @@ export const useModels = () => {
 			credits: 50,
 		},
 		{
+			name: 'Gemini 2.5 Flash Preview',
+			info: '',
+			provider: 'google',
+			id: 'gemini-2.5-flash-preview-04-17',
+			capabilities: {
+				image: true,
+				file: false,
+				fast: false,
+				reasoning: false,
+				searchGrounding: true,
+			},
+			disabled: plan === undefined,
+			credits: 20,
+		},
+		{
 			name: 'Grok 2',
 			info: '',
 			provider: 'xai',
