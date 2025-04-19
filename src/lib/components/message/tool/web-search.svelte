@@ -82,7 +82,7 @@
 	)
 </script>
 
-<div class="w-full">
+<div class="bg-popover w-full rounded border p-4">
 	{#if !result}
 		{@const totalResults = (annotations ?? []).reduce(
 			(sum, a) => sum + a.data.resultsCount,
@@ -125,7 +125,7 @@
 		</div>
 	{/if}
 
-	<div class="bg-background flex flex-col gap-2 py-3 pb-6 shadow-sm">
+	<div class="flex flex-col gap-2 py-3 pb-6">
 		{#if !result}
 			<div class="flex gap-2 overflow-x-auto">
 				{#each args.queries as query, i}

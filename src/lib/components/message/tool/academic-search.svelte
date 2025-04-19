@@ -20,7 +20,8 @@
 	let { result }: { result: { results: AcademicResult[] } } = $props()
 </script>
 
-<Card.Root class="w-full max-w-[min(100cqw,600px)] overflow-hidden">
+<Card.Root
+	class="w-full max-w-[min(100cqw,600px)] overflow-hidden rounded">
 	<Card.Header
 		class="flex flex-row items-center justify-between pb-2">
 		<div class="flex items-center gap-2">
