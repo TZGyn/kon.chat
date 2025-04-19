@@ -42,13 +42,27 @@
 	"preview": "Preview",
 	"tools": {
 		"x": {
-			"getting_posts": "Getting X's Posts"
+			"getting_posts": "Getting X's Posts",
+			"x_posts": "X's Posts"
 		},
 		"academic": {
-			"getting_papers": "Getting Academic's Papers"
+			"getting_papers": "Getting Academic's Papers",
+			"academic_papers": "Academic Papers",
+			"found": "found",
+			"papers": "papers",
+			"view_paper": "View Paper"
 		},
 		"article": {
 			"reading_article": "Reading article"
+		},
+		"web_search": {
+			"sources_found": "Sources Found",
+			"results": "Results",
+			"view_all_sources": "View All Sources",
+			"sources_and_links": "Sources and links"
+		},
+		"image_grid": {
+			"images": "Images"
 		}
 	},
 	"copied_to_clipboard": "Copied To Clipboard",

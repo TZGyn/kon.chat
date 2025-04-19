@@ -2,6 +2,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import * as Card from '$lib/components/ui/card'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
+	import { m } from '$lib/paraglide/messages'
 	import {
 		BookIcon,
 		CalendarIcon,
@@ -29,9 +30,13 @@
 				<BookIcon class="text-primary h-4 w-4" />
 			</div>
 			<div>
-				<Card.Title>Academic Papers</Card.Title>
+				<Card.Title>
+					{m['tools.academic.academic_papers']()}
+				</Card.Title>
 				<p class="text-muted-foreground text-sm">
-					Found {result.results.length} papers
+					{m['tools.academic.found']()}
+					{result.results.length}
+					{m['tools.academic.papers']()}
 				</p>
 			</div>
 		</div>
@@ -92,7 +97,7 @@
 										target="_blank"
 										class="flex-1">
 										<FileTextIcon class="mr-2 h-4 w-4" />
-										View Paper
+										{m['tools.academic.view_paper']()}
 									</Button>
 
 									{#if paper.url.includes('arxiv.org')}

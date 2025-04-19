@@ -2,6 +2,7 @@
 	import type { ToolResult } from 'ai'
 	import TwitterCard from './twitter-card.svelte'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
+	import { m } from '$lib/paraglide/messages'
 
 	let {
 		toolInvocation,
@@ -27,7 +28,7 @@
 </script>
 
 {#if posts.length > 0}
-	<div class="text-lg font-bold">X's Posts</div>
+	<div class="text-lg font-bold">{m['tools.x.x_posts']()}</div>
 	<ScrollArea
 		class="w-[min(100vw-2rem,600px)] rounded border whitespace-nowrap"
 		orientation="horizontal">

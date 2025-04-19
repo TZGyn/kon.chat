@@ -42,13 +42,27 @@
 	"preview": "Avance",
 	"tools": {
 		"x": {
-			"getting_posts": "Obtener las publicaciones de X"
+			"getting_posts": "Obtener las publicaciones de X",
+			"x_posts": "Publicaciones de X"
 		},
 		"academic": {
-			"getting_papers": "Obtener trabajos académicos"
+			"getting_papers": "Obtener trabajos académicos",
+			"academic_papers": "Artículos académicos",
+			"found": "encontró",
+			"papers": "papeles",
+			"view_paper": "Ver documento"
 		},
 		"article": {
 			"reading_article": "Leyendo el artículo"
+		},
+		"image_grid": {
+			"images": "Imágenes"
+		},
+		"web_search": {
+			"sources_found": "Fuentes encontradas",
+			"results": "Resultados",
+			"view_all_sources": "Ver todas las fuentes",
+			"sources_and_links": "Fuentes y enlaces"
 		}
 	},
 	"copied_to_clipboard": "Copiado al portapapeles",

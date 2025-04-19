@@ -5,7 +5,9 @@
 	import * as Drawer from '$lib/components/ui/drawer/index.js'
 	import * as Carousel from '$lib/components/ui/carousel/index.js'
 	import * as Card from '$lib/components/ui/card/index.js'
+	import * as m from '$lib/paraglide/messages'
 	import type { CarouselAPI } from '$lib/components/ui/carousel/context'
+
 	const PREVIEW_IMAGE_COUNT = {
 		MOBILE: 4,
 		DESKTOP: 5,
@@ -125,9 +127,11 @@
 		<Dialog.Root bind:open={isOpen}>
 			<Dialog.Content class="">
 				<Dialog.Header>
-					<Dialog.Title>Images</Dialog.Title>
+					<Dialog.Title>
+						{m['tools.image_grid.images']()}
+					</Dialog.Title>
 					<Dialog.Description>
-						{current} of {images.length}
+						{current} / {images.length}
 					</Dialog.Description>
 				</Dialog.Header>
 				<Carousel.Root
@@ -159,9 +163,11 @@
 		<Drawer.Root bind:open={isOpen}>
 			<Drawer.Content class="bg-background p-0">
 				<Drawer.Header>
-					<Drawer.Title>Images</Drawer.Title>
+					<Drawer.Title>
+						{m['tools.image_grid.images']()}
+					</Drawer.Title>
 					<Drawer.Description>
-						{current} of {images.length}
+						{current} / {images.length}
 					</Drawer.Description>
 				</Drawer.Header>
 				<Carousel.Root

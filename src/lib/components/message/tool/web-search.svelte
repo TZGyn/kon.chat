@@ -14,6 +14,7 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import * as Dialog from '$lib/components/ui/dialog'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
+	import { m } from '$lib/paraglide/messages'
 
 	type SearchImage = {
 		url: string
@@ -94,14 +95,17 @@
 					class="rounded-lg bg-neutral-100 p-2 dark:bg-neutral-800">
 					<GlobeIcon class="h-4 w-4 text-neutral-500" />
 				</div>
-				<h2 class="text-left font-medium">Sources Found</h2>
+				<h2 class="text-left font-medium">
+					{m['tools.web_search.sources_found']()}
+				</h2>
 			</div>
 			<div class="mr-2 flex items-center gap-2">
 				<Badge
 					variant="secondary"
 					class="rounded-full bg-neutral-100 px-3 py-1 dark:bg-neutral-800">
 					<SearchIcon class="mr-1.5 h-3 w-3" />
-					{totalResults || '0'} Results
+					{totalResults || '0'}
+					{m['tools.web_search.results']()}
 				</Badge>
 			</div>
 		</div>
@@ -112,14 +116,17 @@
 					class="rounded-lg bg-neutral-100 p-2 dark:bg-neutral-800">
 					<GlobeIcon class="h-4 w-4 text-neutral-500" />
 				</div>
-				<h2 class="text-left font-medium">Sources Found</h2>
+				<h2 class="text-left font-medium">
+					{m['tools.web_search.sources_found']()}
+				</h2>
 			</div>
 			<div class="mr-2 flex items-center gap-2">
 				<Badge
 					variant="secondary"
 					class="rounded-full bg-neutral-100 px-3 py-1 dark:bg-neutral-800">
 					<SearchIcon class="mr-1.5 h-3 w-3" />
-					{totalResults} Results
+					{totalResults}
+					{m['tools.web_search.results']()}
 				</Badge>
 			</div>
 		</div>
@@ -257,7 +264,7 @@
 							buttonVariants({ variant: 'outline' }),
 							'w-full',
 						)}>
-						View All Sources
+						{m['tools.web_search.view_all_sources']()}
 						<span class="text-muted-foreground">
 							(+{result.searches.flatMap((search) => search.results)
 								.length - 2})
@@ -265,7 +272,9 @@
 					</Dialog.Trigger>
 					<Dialog.Content>
 						<Dialog.Header>
-							<Dialog.Title>Sources and links</Dialog.Title>
+							<Dialog.Title>
+								{m['tools.web_search.sources_and_links']()}
+							</Dialog.Title>
 						</Dialog.Header>
 						<ScrollArea>
 							<div
@@ -288,7 +297,7 @@
 															alt="favicon"
 															class="size-4" />
 														<Avatar.Fallback
-															class="size-4 bg-opacity-0">
+															class="bg-opacity-0 size-4">
 															<img src="/logo.png" alt="favicon" />
 														</Avatar.Fallback>
 													</Avatar.Root>
