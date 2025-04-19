@@ -42,7 +42,11 @@
 					{m.credits().toLocaleLowerCase()}
 				</span>
 			</span>
-			<Button>{m.add_credits()}</Button>
+			<Button
+				href="/billing/one-time"
+				data-sveltekit-preload-code="eager">
+				{m.add_credits()}
+			</Button>
 		</span>
 	</div>
 	<div class="grid grid-cols-[auto_1fr] items-center gap-2 py-4">
