@@ -11,21 +11,26 @@
 		SettingsIcon,
 		UserIcon,
 	} from 'lucide-svelte'
-	import BadgeCheck from 'lucide-svelte/icons/badge-check'
-	import Bell from 'lucide-svelte/icons/bell'
 	import ChevronsUpDown from 'lucide-svelte/icons/chevrons-up-down'
 	import CreditCard from 'lucide-svelte/icons/credit-card'
 	import LogOut from 'lucide-svelte/icons/log-out'
 	import Sparkles from 'lucide-svelte/icons/sparkles'
 	import { onMount } from 'svelte'
-	import { Button, buttonVariants } from '$lib/components/ui/button'
+	import { Button } from '$lib/components/ui/button'
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { useUser } from '../state.svelte'
 	import { useChats } from '../state.svelte'
 	import { cn } from '$lib/utils'
-	import { MoonIcon, SunIcon } from '@lucide/svelte'
+	import {
+		CheckIcon,
+		GlobeIcon,
+		MoonIcon,
+		SunIcon,
+	} from '@lucide/svelte'
 	import { resetMode, setMode, mode } from 'mode-watcher'
 	import * as m from '$lib/paraglide/messages'
+	import { useLocale } from '$lib/lang.svelte'
+	import { setLocale } from '$lib/paraglide/runtime'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
@@ -51,6 +56,14 @@
 		logoutDialogOpen = false
 		isLoggingOut = false
 	}
+
+	const locale = useLocale()
+
+	const lang = {
+		en: 'English',
+		es: 'Español',
+		zh: '中文',
+	} as const
 </script>
 
 <Sidebar.Menu>
@@ -172,6 +185,45 @@
 							</DropdownMenu.Item>
 							<DropdownMenu.Item onclick={() => resetMode()}>
 								{m.system()}
+							</DropdownMenu.Item>
+						</DropdownMenu.SubContent>
+					</DropdownMenu.Root>
+					<DropdownMenu.Root>
+						<DropdownMenu.SubTrigger>
+							<GlobeIcon class="h-[1.2rem] w-[1.2rem]" />
+							{lang[locale.lang]}
+							<span class="sr-only">Toggle theme</span>
+						</DropdownMenu.SubTrigger>
+						<DropdownMenu.SubContent align="end">
+							<DropdownMenu.Item
+								onclick={() => {
+									setLocale('en', { reload: false })
+									locale.setLocale('en')
+								}}>
+								{#if locale.lang === 'en'}
+									<CheckIcon />
+								{/if}
+								{lang['en']}
+							</DropdownMenu.Item>
+							<DropdownMenu.Item
+								onclick={() => {
+									setLocale('es', { reload: false })
+									locale.setLocale('es')
+								}}>
+								{#if locale.lang === 'es'}
+									<CheckIcon />
+								{/if}
+								{lang['es']}
+							</DropdownMenu.Item>
+							<DropdownMenu.Item
+								onclick={() => {
+									setLocale('zh', { reload: false })
+									locale.setLocale('zh')
+								}}>
+								{#if locale.lang === 'zh'}
+									<CheckIcon />
+								{/if}
+								{lang['zh']}
 							</DropdownMenu.Item>
 						</DropdownMenu.SubContent>
 					</DropdownMenu.Root>
