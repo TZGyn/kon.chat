@@ -183,6 +183,11 @@ export const useModels = () => {
 				fast: false,
 				reasoning: false,
 				searchGrounding: true,
+				thinkingBudget: {
+					enable: true,
+					min: 0,
+					max: 24576,
+				},
 			},
 			disabled: plan === undefined,
 			credits: 20,

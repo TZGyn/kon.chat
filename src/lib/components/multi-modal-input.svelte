@@ -7,6 +7,8 @@
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js'
+	import * as Popover from '$lib/components/ui/popover/index.js'
+	import { Slider } from '$lib/components/ui/slider/index.js'
 
 	import * as Select from '$lib/components/ui/select/index.js'
 	import {
@@ -51,6 +53,7 @@
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 	import { Input } from './ui/input'
 	import { cn } from '$lib/utils'
+	import { Brain } from '@lucide/svelte'
 
 	let {
 		input = $bindable(),
@@ -141,17 +144,24 @@
 		attachments = attachments
 	})
 
-	let selectedModel = $state({
+	let selectedModel = $state<
+		| (typeof modelState.freeModels)[number]
+		| (typeof modelState.premiumModels)[number]
+		| (typeof modelState.standardModels)[number]
+	>({
 		name: 'Gemini 2.0 Flash',
+		info: '',
 		provider: 'google',
 		id: 'gemini-2.0-flash-001',
 		capabilities: {
 			image: true,
-			file: false,
+			file: true,
 			fast: false,
 			reasoning: false,
 			searchGrounding: true,
 		},
+		disabled: false,
+		credits: 0,
 	})
 
 	$effect(() => {
@@ -203,6 +213,10 @@
 							selectedModel.id === 'o3-mini' ||
 							selectedModel.id === 'o4-mini'
 								? reasoningEffort
+								: undefined,
+						thinkingBudget:
+							selectedModel.id === 'gemini-2.5-flash-preview-04-17'
+								? thinkingBudget
 								: undefined,
 					},
 					...custom,
@@ -341,20 +355,25 @@
 	let modelSearch = $state('')
 
 	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
+
+	let thinkingBudget = $state(0)
 </script>
 
 <form
 	onsubmit={customSubmit}
 	class="bg-secondary absolute right-1/2 bottom-0 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
-	{#if !autoScroll?.isAtBottom}
-		<Button
-			class="absolute -top-12 right-1/2 translate-x-1/2"
-			variant="outline"
-			size="icon"
-			onclick={() => autoScroll?.scrollToBottom()}>
-			<ArrowDownIcon />
-		</Button>
-	{/if}
+	<div
+		class="absolute right-1/2 bottom-[calc(100%+0.5rem)] flex translate-x-1/2 flex-col gap-2">
+		{#if !autoScroll?.isAtBottom}
+			<Button
+				class=""
+				variant="outline"
+				size="icon"
+				onclick={() => autoScroll?.scrollToBottom()}>
+				<ArrowDownIcon />
+			</Button>
+		{/if}
+	</div>
 	<Textarea
 		bind:value={input}
 		bind:ref={inputElement}
@@ -470,6 +489,33 @@
 					</div>
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
+			{#if 'thinkingBudget' in selectedModel.capabilities && selectedModel.capabilities.thinkingBudget.enable}
+				<Popover.Root>
+					<Popover.Trigger
+						class={cn(
+							buttonVariants({ variant: 'ghost' }),
+							'h-10 w-10',
+						)}>
+						<Brain />
+					</Popover.Trigger>
+					<Popover.Content>
+						<div class="flex items-center gap-2">
+							<span>Thinking Budget</span>
+							<div
+								class="bg-secondary w-fit min-w-12 rounded px-3 py-1 text-center">
+								{thinkingBudget}
+							</div>
+						</div>
+						<Input
+							bind:value={thinkingBudget}
+							type="range"
+							min={selectedModel.capabilities.thinkingBudget.min}
+							max={selectedModel.capabilities.thinkingBudget.max}
+							step={1}
+							class="accent-primary" />
+					</Popover.Content>
+				</Popover.Root>
+			{/if}
 			{#if selectedModel.provider === 'google'}
 				<Tooltip.Provider>
 					<Tooltip.Root>
