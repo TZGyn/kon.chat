@@ -6,9 +6,7 @@
 	import { useModels } from '$lib/models.svelte.js'
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { ScrollArea } from '$lib/components/ui/scroll-area/index.js'
 	import * as Popover from '$lib/components/ui/popover/index.js'
-	import { Slider } from '$lib/components/ui/slider/index.js'
 
 	import * as Select from '$lib/components/ui/select/index.js'
 	import {
@@ -54,6 +52,7 @@
 	import { Input } from './ui/input'
 	import { cn } from '$lib/utils'
 	import { Brain } from '@lucide/svelte'
+	import Drawing from './input/drawing.svelte'
 
 	let {
 		input = $bindable(),
@@ -140,7 +139,7 @@
 
 		fileInputs = undefined
 
-		attachments.push(...items)
+		attachments.push(...attachments, ...items)
 		attachments = attachments
 	})
 
@@ -667,6 +666,18 @@
 				</Tooltip.Provider>
 			{/if}
 			<SpeechToText bind:input />
+
+			{#if imageUpload && selectedModel.capabilities.image}
+				<Drawing
+					addDrawing={(drawing: File) => {
+						attachments.push({
+							file: drawing,
+							url: '',
+							status: 'submitted',
+						})
+						attachments = attachments
+					}} />
+			{/if}
 		</div>
 		<div class="flex items-center gap-2">
 			{#if enableSearch}
