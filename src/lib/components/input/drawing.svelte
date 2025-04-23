@@ -13,8 +13,15 @@
 	import Button from '$lib/components/ui/button/button.svelte'
 	import ColorPicker from 'svelte-awesome-color-picker'
 
-	let { addDrawing }: { addDrawing: (drawing: File) => void } =
-		$props()
+	let {
+		addDrawing,
+		disabled,
+		plan,
+	}: {
+		addDrawing: (drawing: File) => void
+		disabled: boolean
+		plan: 'pro' | 'basic' | 'free' | 'owner' | 'trial' | undefined
+	} = $props()
 
 	let stageElement = $state<Stage>()
 	let tool = $state<'pen' | 'eraser'>('pen')
@@ -71,56 +78,71 @@
 		<BrushIcon />
 	</Popover.Trigger>
 	<Popover.Content class="relative w-fit">
-		{#if lines.length <= 0}
-			<div
-				class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg">
-				Draw Here
+		{#if plan === 'free' || plan === 'trial' || plan === undefined}
+			<div class="flex flex-col gap-4 p-2">
+				<div class="flex flex-col gap-1">
+					<span class="text-lg">Upgrade to basic or higher plan</span>
+					<p class="text-muted-foreground text-sm text-wrap">
+						Get access to drawing upload and more by upgrading your
+						plan
+					</p>
+				</div>
+				<Button href={'/billing/plan'} class="w-full">
+					Checkout plans
+				</Button>
+			</div>
+		{:else}
+			{#if lines.length <= 0}
+				<div
+					class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg">
+					Draw Here
+				</div>
+			{/if}
+			<Stage
+				width={400}
+				height={400}
+				onmousedown={handleMouseDown}
+				onmousemove={handleMouseMove}
+				onmouseup={handleMouseUp}
+				ontouchstart={handleMouseDown}
+				ontouchmove={handleMouseMove}
+				ontouchend={handleMouseUp}
+				bind:this={stageElement}>
+				<Layer>
+					{#each lines as line, i}
+						<Line
+							key={i}
+							points={line.points}
+							stroke={line.stroke}
+							strokeWidth={5}
+							tension={0.5}
+							lineCap="round"
+							lineJoin="round"
+							globalCompositeOperation={line.tool === 'eraser'
+								? 'destination-out'
+								: 'source-over'} />
+					{/each}
+				</Layer>
+			</Stage>
+			<div class="flex w-full items-center justify-center gap-2">
+				<Button
+					variant="outline"
+					onclick={() => {
+						lines = []
+					}}>
+					Clear
+				</Button>
+				<Button onclick={handldeSubmit}>Submit</Button>
+				<ColorPicker
+					bind:hex
+					label=""
+					position="responsive"
+					--cp-bg-color="#121212"
+					--cp-border-color="#121212"
+					--cp-input-color="#212121"
+					--cp-text-color="#fff"
+					--cp-button-hover-color="#2e2e2e" />
 			</div>
 		{/if}
-		<Stage
-			width={400}
-			height={400}
-			onmousedown={handleMouseDown}
-			onmousemove={handleMouseMove}
-			onmouseup={handleMouseUp}
-			ontouchstart={handleMouseDown}
-			ontouchmove={handleMouseMove}
-			ontouchend={handleMouseUp}
-			bind:this={stageElement}>
-			<Layer>
-				{#each lines as line, i}
-					<Line
-						key={i}
-						points={line.points}
-						stroke={line.stroke}
-						strokeWidth={5}
-						tension={0.5}
-						lineCap="round"
-						lineJoin="round"
-						globalCompositeOperation={line.tool === 'eraser'
-							? 'destination-out'
-							: 'source-over'} />
-				{/each}
-			</Layer>
-		</Stage>
-		<div class="flex w-full items-center justify-center gap-2">
-			<Button
-				variant="outline"
-				onclick={() => {
-					lines = []
-				}}>
-				Clear
-			</Button>
-			<Button onclick={handldeSubmit}>Submit</Button>
-			<ColorPicker
-				bind:hex
-				label=""
-				position="responsive"
-				--cp-bg-color="#121212"
-				--cp-border-color="#121212"
-				--cp-input-color="#212121"
-				--cp-text-color="#fff"
-				--cp-button-hover-color="#2e2e2e" />
-		</div>
 	</Popover.Content>
 </Popover.Root>

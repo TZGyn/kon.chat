@@ -636,7 +636,6 @@
 								disabled={!selectedModel.capabilities.file ||
 									plan === 'free' ||
 									plan === 'trial' ||
-									plan === 'basic' ||
 									plan === undefined}>
 								<PaperclipIcon />
 							</Button>
@@ -676,7 +675,12 @@
 							status: 'submitted',
 						})
 						attachments = attachments
-					}} />
+					}}
+					disabled={!selectedModel.capabilities.image ||
+						plan === 'free' ||
+						plan === 'trial' ||
+						plan === undefined}
+					{plan} />
 			{/if}
 		</div>
 		<div class="flex items-center gap-2">
