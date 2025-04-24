@@ -1,9 +1,12 @@
-<script lang="ts"></script>
+<script lang="ts">
+	import { cn } from '$lib/utils'
+
+	let { class: className }: { class?: string } = $props()
+</script>
 
 <svg
 	xmlns="http://www.w3.org/2000/svg"
-	width="256"
-	height="260"
+	class={cn('h-[260px] w-[256px]', className)}
 	preserveAspectRatio="xMidYMid"
 	viewBox="0 0 256 260">
 	<path

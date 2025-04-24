@@ -266,15 +266,16 @@
 			icon: MessageCircleIcon,
 			disable: false,
 		},
-		// {
-		// 	id: 'image',
-		// 	name: 'Image',
-		// 	description: 'Generate Image',
-		// 	icon: ImagesIcon,
-		// 	credits: 5,
-		// 	disable:
-		// 		!user || (user.plan !== 'basic' && user.plan !== 'pro'),
-		// },
+		{
+			id: 'gpt-image-1',
+			name: 'Image',
+			description:
+				"Generate Image using OpenAI's latest image-gen technology",
+			icon: ImagesIcon,
+			credits: 1200,
+			disable:
+				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
+		},
 		{
 			id: 'web_search',
 			name: 'Web',
@@ -711,7 +712,8 @@
 												<mode.icon />
 												{mode.name}
 											</div>
-											<div class="text-muted-foreground text-sm">
+											<div
+												class="text-muted-foreground max-w-[200px] text-sm">
 												{mode.description}
 											</div>
 											{#if mode.credits !== 0}
