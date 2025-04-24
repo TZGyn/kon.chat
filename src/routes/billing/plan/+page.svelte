@@ -3,6 +3,7 @@
 	import {
 		BookIcon,
 		GlobeIcon,
+		ImagesIcon,
 		InfoIcon,
 		LibraryBigIcon,
 		MessageCircleIcon,
@@ -77,15 +78,6 @@
 	] as const
 
 	const tools = [
-		// {
-		// 	id: 'image',
-		// 	name: 'Image',
-		// 	description: 'Generate Image',
-		// 	icon: ImagesIcon,
-		// 	credits: 5,
-		// 	disable:
-		// 		!user || (user.plan !== 'basic' && user.plan !== 'pro'),
-		// },
 		{
 			name: 'Web',
 			description: 'Search the web',
@@ -98,13 +90,6 @@
 			icon: TwitterLogo,
 			cost: 200,
 		},
-		// {
-		// 	id: 'analysis',
-		// 	name: 'Analysis',
-		// 	description: 'Code, stock and currency stuff',
-		// 	icon: CodeXmlIcon,
-		// 	show: true,
-		// },
 		{
 			name: 'Academic',
 			description: 'Search academic papers (PDF)',
@@ -116,6 +101,13 @@
 			description: 'Read articles from the web',
 			icon: LibraryBigIcon,
 			cost: 200,
+		},
+		{
+			name: 'Image',
+			description:
+				"Generate Image using OpenAI's latest image-gen technology",
+			icon: ImagesIcon,
+			cost: 1200,
 		},
 	] as const
 </script>
@@ -136,6 +128,9 @@
 					{
 						title: 'Access to Web Search and Image/File upload',
 					},
+					{
+						title: 'Access to Image Generation Tools',
+					},
 				],
 				notIncluded: [],
 			})}
@@ -147,10 +142,10 @@
 				link: PUBLIC_API_URL + '/billing/plan/pro',
 				included: [
 					{
-						title: '1500 Credits/month',
+						title: 'Everything in Basic',
 					},
 					{
-						title: 'Access to Web Search and Image/File upload',
+						title: '1500 Credits/month',
 					},
 					{
 						title: 'Higher upload limits',
@@ -169,7 +164,7 @@
 				<Table.Header>
 					<Table.Row>
 						<Table.Head class="w-full">Model</Table.Head>
-						<Table.Head class="text-nowrap text-right">
+						<Table.Head class="text-right text-nowrap">
 							Cost (credit)
 						</Table.Head>
 					</Table.Row>
@@ -203,7 +198,7 @@
 				<Table.Header>
 					<Table.Row>
 						<Table.Head class="w-full">Tool</Table.Head>
-						<Table.Head class="text-nowrap text-right">
+						<Table.Head class="text-right text-nowrap">
 							Cost (credit)
 						</Table.Head>
 					</Table.Row>
