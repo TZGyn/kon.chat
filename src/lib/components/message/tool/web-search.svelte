@@ -125,7 +125,7 @@
 		</div>
 	{/if}
 
-	<div class="flex flex-col gap-2 py-3 pb-6">
+	<div class="flex flex-col gap-2 py-3">
 		{#if !result}
 			<div class="flex gap-2 overflow-x-auto">
 				{#each args.queries as query, i}
@@ -135,7 +135,7 @@
 					<Badge
 						variant="secondary"
 						class={cn(
-							'flex flex-shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5',
+							'flex flex-shrink-0 items-center gap-1.5 rounded px-3 py-1.5',
 							annotation
 								? 'bg-neutral-100 dark:bg-neutral-800'
 								: 'bg-neutral-50 text-neutral-400 dark:bg-neutral-900',
@@ -156,7 +156,7 @@
 				{#each result.searches as search, i}
 					<Badge
 						variant="secondary"
-						class="flex-shrink-0 rounded-full bg-neutral-100 px-3 py-1.5 dark:bg-neutral-800">
+						class="flex-shrink-0 rounded bg-neutral-100 px-3 py-1.5 dark:bg-neutral-800">
 						<SearchIcon class="mr-1.5 h-3 w-3" />
 						{search.query}
 					</Badge>
@@ -168,7 +168,7 @@
 			<div class="flex gap-3 pb-1">
 				{#each [...Array(2)] as _, i}
 					<div
-						class="bg-background border-border flex-1 rounded-xl border shadow-sm">
+						class="bg-background border-border flex-1 rounded border shadow-sm">
 						<div class="p-4">
 							<div class="mb-3 flex items-center gap-2.5">
 								<div
@@ -204,7 +204,7 @@
 				{#if result.searches.length > 0}
 					{#each result.searches[0].results.slice(0, 2) as res, resultIndex}
 						<div
-							class="bg-secondary hover:bg-accent border-border flex-1 overflow-hidden rounded-xl border shadow-sm transition-all hover:cursor-pointer hover:shadow-md">
+							class="bg-secondary hover:bg-accent border-border flex-1 overflow-hidden rounded border shadow-sm transition-all hover:cursor-pointer hover:shadow-md">
 							<div class="p-4">
 								<div class="mb-3 flex items-center gap-2.5">
 									<Avatar.Root>
@@ -255,7 +255,7 @@
 					<Dialog.Trigger
 						class={cn(
 							buttonVariants({ variant: 'outline' }),
-							'w-full',
+							'w-full rounded',
 						)}>
 						View All Sources
 						<span class="text-muted-foreground">
@@ -274,7 +274,7 @@
 									{#each search.results as data, resultIndex}
 										<a href={data.url} target="_blank">
 											<div
-												class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded-md border p-3">
+												class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded border p-3">
 												<span
 													class="text-primary-foreground line-clamp-1">
 													{data.title}
@@ -288,7 +288,7 @@
 															alt="favicon"
 															class="size-4" />
 														<Avatar.Fallback
-															class="size-4 bg-opacity-0">
+															class="bg-opacity-0 size-4">
 															<img src="/logo.png" alt="favicon" />
 														</Avatar.Fallback>
 													</Avatar.Root>
