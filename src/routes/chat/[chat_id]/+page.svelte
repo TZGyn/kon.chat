@@ -93,13 +93,14 @@
 
 	$effect(() => {
 		const chat = localStorage.getItem(`chat:${chat_id}`)
+		if (chat) {
+			const chatJSON = JSON.parse(chat) as Chat
 
-		const chatJSON = JSON.parse(chat || 'null') as Chat
-
-		if (chatJSON) {
-			useChat.messages = mergeMessages(
-				convertToUIMessages(chatJSON?.messages || []),
-			)
+			if (chatJSON) {
+				useChat.messages = mergeMessages(
+					convertToUIMessages(chatJSON?.messages || []),
+				)
+			}
 		}
 		getChat(chat_id)
 	})
@@ -119,7 +120,7 @@
 			return chat_id
 		},
 		onFinish: (response) => {
-			if (page.url.searchParams) {
+			if (page.url.searchParams.has('type')) {
 				page.url.searchParams.delete('type')
 				replaceState(page.url, page.state)
 				isNew = false

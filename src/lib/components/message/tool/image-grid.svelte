@@ -84,7 +84,7 @@
 		{#each displayImages as image, index}
 			<button
 				class={cn(
-					'group/image relative overflow-hidden rounded-xl',
+					'group/image relative overflow-hidden rounded',
 					'bg-primary/10 shadow-sm hover:cursor-pointer',
 				)}
 				onclick={() => {
