@@ -67,5 +67,9 @@
 	},
 	"copied_to_clipboard": "已复制到剪贴板",
 	"send_a_message": "询问任何问题",
-	"ctrl_enter_to_send": "（按 Ctrl-Enter 发送）"
+	"ctrl_enter_to_send": "（按 Ctrl-Enter 发送）",
+	"draw_here": "在这里画",
+	"submit": "提交",
+	"foreground": "前景",
+	"background": "背景"
 }

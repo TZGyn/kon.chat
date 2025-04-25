@@ -67,5 +67,9 @@
 	},
 	"copied_to_clipboard": "Copiado al portapapeles",
 	"send_a_message": "Enviar un mensaje",
-	"ctrl_enter_to_send": "(Ctrl+Enter para enviar)"
+	"ctrl_enter_to_send": "(Ctrl+Enter para enviar)",
+	"draw_here": "Dibuja aquí",
+	"submit": "Entregar",
+	"foreground": "Primer plano",
+	"background": "Fondo"
 }

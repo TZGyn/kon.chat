@@ -67,5 +67,9 @@
 	},
 	"copied_to_clipboard": "Copied To Clipboard",
 	"send_a_message": "Send a message",
-	"ctrl_enter_to_send": "(ctrl-enter to send)"
+	"ctrl_enter_to_send": "(ctrl-enter to send)",
+	"draw_here": "Draw Here",
+	"submit": "Submit",
+	"foreground": "Foreground",
+	"background": "Background"
 }
