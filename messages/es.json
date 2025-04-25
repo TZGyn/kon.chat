@@ -71,5 +71,7 @@
 	"draw_here": "Dibuja aquí",
 	"submit": "Entregar",
 	"foreground": "Primer plano",
-	"background": "Fondo"
+	"background": "Fondo",
+	"uploading": "Subiendo",
+	"file_uploaded": "Archivo cargado"
 }

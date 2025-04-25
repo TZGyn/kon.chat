@@ -71,5 +71,7 @@
 	"draw_here": "在这里画",
 	"submit": "提交",
 	"foreground": "前景",
-	"background": "背景"
+	"background": "背景",
+	"uploading": "上传",
+	"file_uploaded": "文件已上传"
 }

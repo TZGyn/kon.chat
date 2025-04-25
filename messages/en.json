@@ -71,5 +71,7 @@
 	"draw_here": "Draw Here",
 	"submit": "Submit",
 	"foreground": "Foreground",
-	"background": "Background"
+	"background": "Background",
+	"uploading": "Uploading",
+	"file_uploaded": "File Uploaded"
 }
