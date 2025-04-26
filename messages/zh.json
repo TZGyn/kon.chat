@@ -73,5 +73,32 @@
 	"foreground": "前景",
 	"background": "背景",
 	"uploading": "上传",
-	"file_uploaded": "文件已上传"
+	"file_uploaded": "文件已上传",
+	"mode": {
+		"chat": {
+			"name": "聊天",
+			"description": "标准提示和响应"
+		},
+		"gpt-image-1": {
+			"name": "图像",
+			"description": "使用 OpenAI 最新的图像生成技术生成图像"
+		},
+		"web_search": {
+			"name": "网络",
+			"description": "搜索网络"
+		},
+		"x_search": {
+			"name": "十",
+			"description": "搜索 X 个帖子"
+		},
+		"academic_search": {
+			"name": "学术的",
+			"description": "搜索学术论文（PDF）"
+		},
+		"web_reader": {
+			"name": "网络阅读器",
+			"description": "阅读任何网页"
+		},
+		"mode": "模式"
+	}
 }

@@ -261,17 +261,16 @@
 	let modes = $derived([
 		{
 			id: 'chat',
-			name: 'Chat',
-			description: 'Standard prompt and response',
+			name: m['mode.chat.name'](),
+			description: m['mode.chat.description'](),
 			credits: 0,
 			icon: MessageCircleIcon,
 			disable: false,
 		},
 		{
 			id: 'gpt-image-1',
-			name: 'Image',
-			description:
-				"Generate Image using OpenAI's latest image-gen technology",
+			name: m['mode.gpt-image-1.name'](),
+			description: m['mode.gpt-image-1.description'](),
 			icon: ImagesIcon,
 			credits: 1200,
 			disable:
@@ -279,16 +278,16 @@
 		},
 		{
 			id: 'web_search',
-			name: 'Web',
-			description: 'Search the web',
+			name: m['mode.web_search.name'](),
+			description: m['mode.web_search.description'](),
 			icon: GlobeIcon,
 			credits: 200,
 			disable: !user,
 		},
 		{
 			id: 'x_search',
-			name: 'X',
-			description: 'Search X posts',
+			name: m['mode.x_search.name'](),
+			description: m['mode.x_search.description'](),
 			icon: TwitterLogo,
 			credits: 200,
 			disable: !user,
@@ -302,16 +301,16 @@
 		// },
 		{
 			id: 'academic_search',
-			name: 'Academic',
-			description: 'Search academic papers (PDF)',
+			name: m['mode.academic_search.name'](),
+			description: m['mode.academic_search.description'](),
 			icon: BookIcon,
 			credits: 200,
 			disable: !user,
 		},
 		{
 			id: 'web_reader',
-			name: 'Web Reader',
-			description: 'Read articles from the web',
+			name: m['mode.web_reader.name'](),
+			description: m['mode.web_reader.description'](),
 			icon: LibraryBigIcon,
 			credits: 200,
 			disable: !user,
@@ -698,7 +697,7 @@
 					<DropdownMenu.Content>
 						<DropdownMenu.Group>
 							<DropdownMenu.GroupHeading>
-								Mode
+								{m['mode.mode']()}
 							</DropdownMenu.GroupHeading>
 							<DropdownMenu.Separator />
 							{#each modes as mode}
@@ -719,7 +718,7 @@
 											</div>
 											{#if mode.credits !== 0}
 												<div class="text-muted-foreground text-xs">
-													Credits: +{mode.credits / 100}
+													{m.credits()}: +{mode.credits / 100}
 												</div>
 											{/if}
 										</div>
