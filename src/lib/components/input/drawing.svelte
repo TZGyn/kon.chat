@@ -130,7 +130,7 @@
 				</Layer>
 			</Stage>
 			<div
-				class="bg-sidebar flex w-full items-center justify-center gap-2 rounded p-2">
+				class="flex w-full items-center justify-center gap-2 rounded p-2">
 				<ColorPicker
 					bind:hex
 					label={m.foreground()}
