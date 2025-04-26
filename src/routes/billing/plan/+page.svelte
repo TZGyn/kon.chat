@@ -17,7 +17,7 @@
 	import GroqIcon from '$lib/icons/groq-icon.svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
 	import GoogleIcon from '$lib/icons/google-icon.svelte'
-	import TwitterLogo from '$lib/components/icons/twitter-logo.svelte'
+	import TwitterLogo from '$lib/icons/twitter-logo.svelte'
 
 	const models = [
 		{
