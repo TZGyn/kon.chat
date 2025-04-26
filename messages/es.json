@@ -100,5 +100,7 @@
 			"description": "Leer cualquier página web"
 		},
 		"mode": "Modo"
-	}
+	},
+	"cost": "Costo",
+	"pricing": "Precios"
 }

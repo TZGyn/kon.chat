@@ -88,7 +88,7 @@
 			"description": "搜索网络"
 		},
 		"x_search": {
-			"name": "十",
+			"name": "X",
 			"description": "搜索 X 个帖子"
 		},
 		"academic_search": {
@@ -100,5 +100,7 @@
 			"description": "阅读任何网页"
 		},
 		"mode": "模式"
-	}
+	},
+	"cost": "成本",
+	"pricing": "定价"
 }

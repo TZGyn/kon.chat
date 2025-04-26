@@ -100,5 +100,7 @@
 			"name": "Web Reader",
 			"description": "Read any web page"
 		}
-	}
+	},
+	"cost": "Cost",
+	"pricing": "Pricing"
 }
