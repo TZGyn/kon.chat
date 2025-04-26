@@ -46,7 +46,7 @@
 	import SpeechToText from './speech-to-text.svelte'
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
 	import type { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
-	import TwitterLogo from '$lib/components/icons/twitter-logo.svelte'
+	import TwitterLogo from '$lib/icons/twitter-logo.svelte'
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 	import { Input } from './ui/input'

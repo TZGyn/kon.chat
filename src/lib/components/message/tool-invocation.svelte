@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ToolInvocation } from '@ai-sdk/ui-utils'
 	import Twitter from './tool/twitter.svelte'
-	import TwitterLogo from './tool/icons/twitter-logo.svelte'
+	import TwitterLogo from '$lib/icons/twitter-logo.svelte'
 	import { Skeleton } from '$lib/components/ui/skeleton'
 	import WebSearch from './tool/web-search.svelte'
 	import type { UIMessage } from 'ai'
