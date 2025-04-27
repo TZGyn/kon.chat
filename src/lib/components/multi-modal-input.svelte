@@ -46,10 +46,11 @@
 	import SpeechToText from './speech-to-text.svelte'
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
 	import type { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
-	import TwitterLogo from '$lib/components/icons/twitter-logo.svelte'
+	import TwitterLogo from '$lib/icons/twitter-logo.svelte'
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 	import { Input } from './ui/input'
+	import * as m from '$lib/paraglide/messages'
 	import { cn } from '$lib/utils'
 	import { Brain } from '@lucide/svelte'
 	import Drawing from './input/drawing.svelte'
@@ -222,6 +223,9 @@
 					search,
 					searchGrounding,
 					mode: selectedMode?.id || 'chat',
+					name_for_llm: user?.name_for_llm || '',
+					additional_system_prompt:
+						user?.additional_system_prompt || '',
 				},
 				experimental_attachments: attachments
 					.filter(
@@ -260,17 +264,16 @@
 	let modes = $derived([
 		{
 			id: 'chat',
-			name: 'Chat',
-			description: 'Standard prompt and response',
+			name: m['mode.chat.name'](),
+			description: m['mode.chat.description'](),
 			credits: 0,
 			icon: MessageCircleIcon,
 			disable: false,
 		},
 		{
 			id: 'gpt-image-1',
-			name: 'Image',
-			description:
-				"Generate Image using OpenAI's latest image-gen technology",
+			name: m['mode.gpt-image-1.name'](),
+			description: m['mode.gpt-image-1.description'](),
 			icon: ImagesIcon,
 			credits: 1200,
 			disable:
@@ -278,16 +281,16 @@
 		},
 		{
 			id: 'web_search',
-			name: 'Web',
-			description: 'Search the web',
+			name: m['mode.web_search.name'](),
+			description: m['mode.web_search.description'](),
 			icon: GlobeIcon,
 			credits: 200,
 			disable: !user,
 		},
 		{
 			id: 'x_search',
-			name: 'X',
-			description: 'Search X posts',
+			name: m['mode.x_search.name'](),
+			description: m['mode.x_search.description'](),
 			icon: TwitterLogo,
 			credits: 200,
 			disable: !user,
@@ -301,16 +304,16 @@
 		// },
 		{
 			id: 'academic_search',
-			name: 'Academic',
-			description: 'Search academic papers (PDF)',
+			name: m['mode.academic_search.name'](),
+			description: m['mode.academic_search.description'](),
 			icon: BookIcon,
 			credits: 200,
 			disable: !user,
 		},
 		{
 			id: 'web_reader',
-			name: 'Web Reader',
-			description: 'Read articles from the web',
+			name: m['mode.web_reader.name'](),
+			description: m['mode.web_reader.description'](),
 			icon: LibraryBigIcon,
 			credits: 200,
 			disable: !user,
@@ -378,7 +381,7 @@
 		bind:value={input}
 		bind:ref={inputElement}
 		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-		placeholder="Send a message... (ctrl-enter to send)"
+		placeholder={m.send_a_message() + ' ' + m.ctrl_enter_to_send()}
 		onkeydown={(event) => {
 			if (event.key === 'Enter' && event.ctrlKey) {
 				event.preventDefault()
@@ -697,7 +700,7 @@
 					<DropdownMenu.Content>
 						<DropdownMenu.Group>
 							<DropdownMenu.GroupHeading>
-								Mode
+								{m['mode.mode']()}
 							</DropdownMenu.GroupHeading>
 							<DropdownMenu.Separator />
 							{#each modes as mode}
@@ -718,7 +721,7 @@
 											</div>
 											{#if mode.credits !== 0}
 												<div class="text-muted-foreground text-xs">
-													Credits: +{mode.credits / 100}
+													{m.credits()}: +{mode.credits / 100}
 												</div>
 											{/if}
 										</div>

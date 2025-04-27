@@ -9,6 +9,7 @@
 	} from 'lucide-svelte'
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		file,
@@ -36,7 +37,7 @@
 		// return
 		status = 'uploading'
 		try {
-			toast.info(`Uploading: ${file.name}`)
+			toast.info(`${m.uploading()}: ${file.name}`)
 			const formdata = new FormData()
 			formdata.append('file', file)
 			const response = await customFetchRaw(
@@ -61,7 +62,7 @@
 
 			const body = (await response.json()) as { id: string }
 			url = env.PUBLIC_API_URL + '/file-upload/' + body.id
-			toast.success(`File Uploaded: ${file.name}`)
+			toast.success(`${m.file_uploaded()}: ${file.name}`)
 			status = 'ready'
 		} catch (error) {
 			status = 'error'
@@ -180,5 +181,5 @@
 	{/if}
 	<XIcon
 		onclick={deleteCard}
-		class="group-hover:bg-background absolute right-0 top-0 hover:cursor-pointer" />
+		class="group-hover:bg-background absolute top-0 right-0 hover:cursor-pointer" />
 </div>

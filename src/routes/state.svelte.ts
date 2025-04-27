@@ -89,6 +89,8 @@ let user = $state<{
 	avatar: string
 	credits: number
 	purchased_credits: number
+	name_for_llm: string
+	additional_system_prompt: string
 } | null>(null)
 
 export const useUser = () => {
@@ -103,6 +105,8 @@ export const useUser = () => {
 					avatar: string
 					credits: number
 					purchased_credits: number
+					name_for_llm: string
+					additional_system_prompt: string
 				} | null
 			}>('/auth/me')
 		).user
@@ -112,6 +116,10 @@ export const useUser = () => {
 	return {
 		get user() {
 			return user
+		},
+		set user(new_user) {
+			user = new_user
+			localStorage.setItem('user', JSON.stringify(user || null))
 		},
 		getUser,
 	}

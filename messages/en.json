@@ -1,0 +1,106 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"hello_world": "Hello, {name} from en!",
+	"welcome_to_kon_chat": "Welcome to Kon.chat",
+	"delete_account": "You are about to delete your account",
+	"settings": {
+		"navigation": {
+			"account": "Account"
+		},
+		"account": {
+			"what_should_we_call_you": "What should we call you?",
+			"type_your_name_here": "Type your name here...",
+			"additional_system_prompt": "Additional system prompt",
+			"your_additional_system_prompts_here": "your additional system prompts here...",
+			"danger_zone": "Danger Zone",
+			"delete_account": "Delete Account"
+		},
+		"settings": "Settings"
+	},
+	"locale": "Locale",
+	"language": "Language",
+	"update": "Update",
+	"credits": "Credits",
+	"add_credits": "Add Credits",
+	"theme": "Theme",
+	"light": "Light",
+	"dark": "Dark",
+	"system": "System",
+	"billing": "Billing",
+	"log_out": "Log Out",
+	"log_in": "Log In",
+	"today": "Today",
+	"yesterday": "Yesterday",
+	"last7days": "Last 7 Days",
+	"last30days": "Last 30 Days",
+	"older": "Older",
+	"new_chat": "New Chat",
+	"model": "Model",
+	"console": "Console",
+	"clear": "Clear",
+	"code": "Code",
+	"preview": "Preview",
+	"tools": {
+		"x": {
+			"getting_posts": "Getting X's Posts",
+			"x_posts": "X's Posts"
+		},
+		"academic": {
+			"getting_papers": "Getting Academic's Papers",
+			"academic_papers": "Academic Papers",
+			"found": "found",
+			"papers": "papers",
+			"view_paper": "View Paper"
+		},
+		"article": {
+			"reading_article": "Reading article"
+		},
+		"web_search": {
+			"sources_found": "Sources Found",
+			"results": "Results",
+			"view_all_sources": "View All Sources",
+			"sources_and_links": "Sources and links"
+		},
+		"image_grid": {
+			"images": "Images"
+		}
+	},
+	"copied_to_clipboard": "Copied To Clipboard",
+	"send_a_message": "Send a message",
+	"ctrl_enter_to_send": "(ctrl-enter to send)",
+	"draw_here": "Draw Here",
+	"submit": "Submit",
+	"foreground": "Foreground",
+	"background": "Background",
+	"uploading": "Uploading",
+	"file_uploaded": "File Uploaded",
+	"mode": {
+		"mode": "Mode",
+		"chat": {
+			"name": "Chat",
+			"description": "Standard prompt and response"
+		},
+		"gpt-image-1": {
+			"name": "Image",
+			"description": "Generate Image using OpenAI's latest image-gen technology"
+		},
+		"web_search": {
+			"name": "Web",
+			"description": "Search the web"
+		},
+		"x_search": {
+			"name": "X",
+			"description": "Search X posts"
+		},
+		"academic_search": {
+			"name": "Academic",
+			"description": "Search academic papers (PDF)"
+		},
+		"web_reader": {
+			"name": "Web Reader",
+			"description": "Read any web page"
+		}
+	},
+	"cost": "Cost",
+	"pricing": "Pricing"
+}

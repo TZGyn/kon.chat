@@ -6,12 +6,15 @@
 		Stage,
 		Layer,
 		Line,
+		Rect,
 		type KonvaMouseEvent,
 		type KonvaTouchEvent,
 	} from 'svelte-konva'
 	import { buttonVariants } from '../ui/button'
 	import Button from '$lib/components/ui/button/button.svelte'
 	import ColorPicker from 'svelte-awesome-color-picker'
+	import * as m from '$lib/paraglide/messages'
+	import { mode } from 'mode-watcher'
 
 	let {
 		addDrawing,
@@ -29,7 +32,8 @@
 	let lines = $state<
 		{ tool: 'pen' | 'eraser'; points: number[]; stroke: string }[]
 	>([])
-	let hex = $state('#fff')
+	let hex = $state('#000')
+	let backgroundHex = $state('#fff')
 
 	const handleMouseDown = (e: KonvaMouseEvent | KonvaTouchEvent) => {
 		isDrawing = true
@@ -77,7 +81,7 @@
 		class={cn(buttonVariants({ variant: 'ghost' }), 'h-10 w-10')}>
 		<BrushIcon />
 	</Popover.Trigger>
-	<Popover.Content class="relative w-fit">
+	<Popover.Content class="relative w-fit space-y-4">
 		{#if plan === 'free' || plan === 'trial' || plan === undefined}
 			<div class="flex flex-col gap-4 p-2">
 				<div class="flex flex-col gap-1">
@@ -92,12 +96,6 @@
 				</Button>
 			</div>
 		{:else}
-			{#if lines.length <= 0}
-				<div
-					class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg">
-					Draw Here
-				</div>
-			{/if}
 			<Stage
 				width={400}
 				height={400}
@@ -109,6 +107,13 @@
 				ontouchend={handleMouseUp}
 				bind:this={stageElement}>
 				<Layer>
+					<Rect
+						x={0}
+						y={0}
+						width={400}
+						height={400}
+						stroke={'#000'}
+						fill={backgroundHex}></Rect>
 					{#each lines as line, i}
 						<Line
 							key={i}
@@ -124,25 +129,41 @@
 					{/each}
 				</Layer>
 			</Stage>
-			<div class="flex w-full items-center justify-center gap-2">
+			<div
+				class="flex w-full items-center justify-center gap-2 rounded p-2">
+				<ColorPicker
+					bind:hex
+					label={m.foreground()}
+					position="responsive"
+					isDark={mode.current === 'dark'} />
+				<ColorPicker
+					bind:hex={backgroundHex}
+					label={m.background()}
+					position="responsive"
+					isDark={mode.current === 'dark'} />
 				<Button
 					variant="outline"
 					onclick={() => {
 						lines = []
 					}}>
-					Clear
+					{m.clear()}
 				</Button>
-				<Button onclick={handldeSubmit}>Submit</Button>
-				<ColorPicker
-					bind:hex
-					label=""
-					position="responsive"
-					--cp-bg-color="#121212"
-					--cp-border-color="#121212"
-					--cp-input-color="#212121"
-					--cp-text-color="#fff"
-					--cp-button-hover-color="#2e2e2e" />
+				<Button onclick={handldeSubmit}>{m.submit()}</Button>
 			</div>
 		{/if}
 	</Popover.Content>
 </Popover.Root>
+
+<style>
+	:root {
+		--cp-text-color: #000;
+		--cp-border-color: #e5e5e5;
+	}
+	:global(.dark) {
+		--cp-bg-color: #121212;
+		--cp-border-color: #121212;
+		--cp-input-color: #212121;
+		--cp-text-color: #fff;
+		--cp-button-hover-color: #2e2e2e;
+	}
+</style>

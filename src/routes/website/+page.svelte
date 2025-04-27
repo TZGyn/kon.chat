@@ -21,6 +21,7 @@
 	import { customFetchRaw } from '$lib/fetch'
 	import { processDataStream } from '@ai-sdk/ui-utils'
 	import { useUser } from '../state.svelte'
+	import { mode } from 'mode-watcher'
 
 	const user = useUser()
 

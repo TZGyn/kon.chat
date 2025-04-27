@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation'
 	import { Button } from '$lib/components/ui/button'
 	import { nanoid } from '$lib/nanoid'
+	import * as m from '$lib/paraglide/messages'
 
 	import { PartyPopperIcon, PlusIcon } from 'lucide-svelte'
 </script>
@@ -11,14 +12,14 @@
 		class="text-muted-foreground flex flex-col items-center gap-12">
 		<PartyPopperIcon class="size-32" />
 		<span class="flex items-center gap-2 text-xl">
-			Welcome to Kon.Chat
+			{m.welcome_to_kon_chat()}
 		</span>
 		<Button
 			href="/chat"
 			class="flex items-center justify-between gap-2"
 			data-sveltekit-preload-code="eager">
 			<PlusIcon class="size-5" />
-			New Chat
+			{m.new_chat()}
 		</Button>
 		<!-- <div class="flex flex-col gap-4">
 			<a

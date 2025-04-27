@@ -21,6 +21,8 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js'
 	import { cn } from '$lib/utils'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
+	import { mode } from 'mode-watcher'
+	import * as m from '$lib/paraglide/messages'
 
 	let { code, lang }: { code: string; lang: string } = $props()
 
@@ -48,7 +50,8 @@
 				lang in bundledLanguages
 					? (lang as BundledLanguage)
 					: ('text' as const),
-			theme: 'one-dark-pro',
+			theme:
+				mode.current === 'light' ? 'github-light' : 'one-dark-pro',
 		})
 		codeTokens = tokens
 	}
@@ -232,23 +235,23 @@
 	}
 </script>
 
-<Tabs.Root value="code" class="">
+<Tabs.Root value="code">
 	{#if lang === 'html'}
 		<Tabs.List
-			class="bg-background grid w-full grid-cols-2 border p-0">
+			class="bg-background grid w-full grid-cols-2 rounded border p-0">
 			<Tabs.Trigger
 				value="code"
-				class="data-[state=active]:bg-secondary h-full rounded-none rounded-l-md">
-				Code
+				class="data-[state=active]:bg-secondary h-full rounded-none rounded-l">
+				{m.code()}
 			</Tabs.Trigger>
 			<Tabs.Trigger
 				value="preview"
-				class="data-[state=active]:bg-secondary h-full rounded-none rounded-r-md">
-				Preview
+				class="data-[state=active]:bg-secondary h-full rounded-none rounded-r">
+				{m.preview()}
 			</Tabs.Trigger>
 		</Tabs.List>
 	{/if}
-	<Tabs.Content value="code">
+	<Tabs.Content value="code" class="mt-1">
 		<div
 			class="bg-secondary flex items-center justify-between rounded-t px-2">
 			<span class="py-1 text-sm">{lang}</span>
@@ -286,7 +289,7 @@
 			bind:this={autoScroll.ref}
 			class="max-h-[60vh] overflow-y-scroll">
 			<pre
-				class="shiki one-dark-pro !bg-[#1e1e1e] text-wrap"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
+				class="shiki one-dark-pro !bg-[#f6f6f7] text-wrap dark:!bg-[#1e1e1e]"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color ? token.color : mode.current === 'dark' ? '#fff' : '#000'}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
 		</div>
 
 		<!-- class={cn('w-12 shrink-0', {
@@ -321,16 +324,16 @@
 						<DropdownMenu.Content>
 							<DropdownMenu.Group>
 								<DropdownMenu.GroupHeading>
-									Theme
+									{m.theme()}
 								</DropdownMenu.GroupHeading>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item
 									onclick={() => downloadMermaidDiagram('default')}>
-									Light
+									{m.light()}
 								</DropdownMenu.Item>
 								<DropdownMenu.Item
 									onclick={() => downloadMermaidDiagram('dark')}>
-									Dark
+									{m.dark()}
 								</DropdownMenu.Item>
 							</DropdownMenu.Group>
 						</DropdownMenu.Content>
@@ -353,7 +356,7 @@
 					<div class="text-muted-foreground">
 						<TerminalIcon class="size-4" />
 					</div>
-					<div>Console</div>
+					<div>{m.console()}</div>
 				</div>
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -362,7 +365,7 @@
 					onclick={() => {
 						consoleOutput = []
 					}}>
-					clear
+					{m.clear()}
 				</div>
 			</div>
 			{#each consoleOutput as output, index}
@@ -392,7 +395,7 @@
 			{/each}
 		{/if}
 	</Tabs.Content>
-	<Tabs.Content value="preview">
+	<Tabs.Content value="preview" class="mt-1">
 		<iframe
 			srcdoc={iframehtml}
 			title="preview_html"

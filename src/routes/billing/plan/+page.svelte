@@ -17,93 +17,58 @@
 	import GroqIcon from '$lib/icons/groq-icon.svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
 	import GoogleIcon from '$lib/icons/google-icon.svelte'
-	import TwitterLogo from '$lib/components/icons/twitter-logo.svelte'
+	import TwitterLogo from '$lib/icons/twitter-logo.svelte'
+	import { useModels } from '$lib/models.svelte'
+	import MistralIcon from '$lib/icons/mistral-icon.svelte'
+	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
+	import * as m from '$lib/paraglide/messages'
 
-	const models = [
-		{
-			name: 'Gemini 2.0 Flash',
-			provider: 'google',
-			cost: 0,
-		},
-		{
-			name: 'GPT 4o mini',
-			provider: 'openai',
-			cost: 40,
-		},
-		{
-			name: 'GPT 4o',
-			provider: 'openai',
-			cost: 100,
-		},
-		{
-			name: 'o3 mini',
-			provider: 'openai',
-			cost: 40,
-		},
-		{
-			name: 'Grok 2',
-			provider: 'xai',
-			cost: 40,
-		},
-		{
-			name: 'Grok 2 Vision',
-			provider: 'xai',
-			cost: 40,
-		},
-		{
-			name: 'DeepSeek R1 (Groq)',
-			provider: 'groq',
-			cost: 50,
-		},
-		{
-			name: 'Qwen QwQ (Groq)',
-			provider: 'groq',
-			cost: 30,
-		},
-		{
-			name: 'Llama 3.3 (Groq)',
-			provider: 'groq',
-			cost: 30,
-		},
-		{
-			name: 'Clause 3.5 Sonnet',
-			provider: 'anthropic',
-			cost: 500,
-		},
-		{
-			name: 'Clause 3.7 Sonnet',
-			provider: 'anthropic',
-			cost: 500,
-		},
-	] as const
+	let modelState = useModels()
+
+	let models = [
+		...modelState.freeModels,
+		...modelState.standardModels,
+		...modelState.premiumModels,
+	].map((model) => {
+		return {
+			name: model.name,
+			provider: model.provider,
+			cost: model.credits,
+		}
+	})
 
 	const tools = [
 		{
 			name: 'Web',
+			locale_key: 'web_reader',
 			description: 'Search the web',
 			icon: GlobeIcon,
 			cost: 200,
 		},
 		{
 			name: 'X',
+			locale_key: 'x_search',
 			description: 'Search X posts',
 			icon: TwitterLogo,
 			cost: 200,
 		},
 		{
 			name: 'Academic',
+			locale_key: 'academic_search',
 			description: 'Search academic papers (PDF)',
 			icon: BookIcon,
 			cost: 200,
 		},
 		{
 			name: 'Web Reader',
+			locale_key: 'web_reader',
 			description: 'Read articles from the web',
 			icon: LibraryBigIcon,
 			cost: 200,
 		},
 		{
 			name: 'Image',
+			locale_key: 'gpt-image-1',
 			description:
 				"Generate Image using OpenAI's latest image-gen technology",
 			icon: ImagesIcon,
@@ -156,16 +121,16 @@
 		</div>
 	</div>
 	<div class="flex flex-col items-center gap-20 pt-20">
-		<h1 class="text-3xl font-bold">Pricing Table</h1>
+		<h1 class="text-3xl font-bold">{m.pricing()}</h1>
 
 		<div class="w-full max-w-xl">
 			<Table.Root>
-				<Table.Caption>Model pricings.</Table.Caption>
+				<!-- <Table.Caption>Model pricings.</Table.Caption> -->
 				<Table.Header>
 					<Table.Row>
-						<Table.Head class="w-full">Model</Table.Head>
+						<Table.Head class="w-full">{m.model()}</Table.Head>
 						<Table.Head class="text-right text-nowrap">
-							Cost (credit)
+							{m.cost()} ({m.credits()})
 						</Table.Head>
 					</Table.Row>
 				</Table.Header>
@@ -194,12 +159,12 @@
 		</div>
 		<div class="w-full max-w-xl">
 			<Table.Root>
-				<Table.Caption>Tool pricings.</Table.Caption>
+				<!-- <Table.Caption>Tool pricings.</Table.Caption> -->
 				<Table.Header>
 					<Table.Row>
-						<Table.Head class="w-full">Tool</Table.Head>
+						<Table.Head class="w-full">{m['mode.mode']()}</Table.Head>
 						<Table.Head class="text-right text-nowrap">
-							Cost (credit)
+							{m.cost()} ({m.credits()})
 						</Table.Head>
 					</Table.Row>
 				</Table.Header>
@@ -212,7 +177,7 @@
 										<tool.icon />
 									</div>
 									<span>
-										{tool.name}
+										{m[`mode.${tool.locale_key}.name`]()}
 									</span>
 									<Tooltip.Provider>
 										<Tooltip.Root>
@@ -359,5 +324,9 @@
 		<AnthropicIcon />
 	{:else if provider === 'xai'}
 		<XaiIcon />
+	{:else if provider === 'mistral'}
+		<MistralIcon />
+	{:else if provider === 'open_router'}
+		<OpenRouterIcon />
 	{/if}
 {/snippet}

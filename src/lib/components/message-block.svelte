@@ -16,6 +16,7 @@
 	import CopyButton from './copy-button.svelte'
 	import ToolInvocation from './message/tool-invocation.svelte'
 	import Reasoning from './markdown/reasoning.svelte'
+	import * as m from '$lib/paraglide/messages'
 
 	let {
 		isLast,
@@ -84,7 +85,7 @@
 						{#if annotation['type'] === 'model' && annotation['model'] !== null}
 							<div class="text-muted-foreground">
 								{/* @ts-ignore */ null}
-								Model: {annotation.model}
+								{m.model()}: {annotation.model}
 							</div>
 						{/if}
 					{/each}
