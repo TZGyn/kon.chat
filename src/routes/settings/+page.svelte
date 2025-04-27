@@ -9,20 +9,54 @@
 	import { setLocale } from '$lib/paraglide/runtime'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import { useLocale } from '$lib/lang.svelte'
-	import { CheckIcon } from '@lucide/svelte'
+	import { CheckIcon, Loader2Icon } from '@lucide/svelte'
 	import * as m from '$lib/paraglide/messages'
 	import { MoonIcon, SunIcon } from '@lucide/svelte'
 	import { resetMode, setMode, mode } from 'mode-watcher'
+	import { onMount } from 'svelte'
+	import { customFetch } from '$lib/fetch'
 
 	const user = useUser()
 
 	const locale = useLocale()
+
+	let name = $state('')
+	let additional_system_prompt = $state('')
 
 	const lang = {
 		en: 'English',
 		es: 'Español',
 		zh: '中文',
 	} as const
+
+	onMount(() => {
+		name = user.user?.name_for_llm || ''
+		additional_system_prompt =
+			user.user?.additional_system_prompt || ''
+	})
+
+	let isLoading = $state(false)
+	const update = async () => {
+		isLoading = true
+		user.user = user.user
+			? {
+					...user.user,
+					name_for_llm: name,
+					additional_system_prompt: additional_system_prompt,
+				}
+			: null
+		await customFetch<{ success: boolean }>(`/user/settings`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				name,
+				additional_system_prompt,
+			}),
+		})
+		isLoading = false
+	}
 </script>
 
 <div class="flex flex-col gap-2 p-4">
@@ -131,7 +165,8 @@
 	<div class="flex flex-col gap-2">
 		<div>{m['settings.account.what_should_we_call_you']()}</div>
 		<Input
-			placeholder={m['settings.account.type_your_name_here']()} />
+			placeholder={m['settings.account.type_your_name_here']()}
+			bind:value={name} />
 	</div>
 	<div class="flex flex-col gap-2">
 		<div>{m['settings.account.additional_system_prompt']()}</div>
@@ -139,10 +174,16 @@
 			placeholder={m[
 				'settings.account.your_additional_system_prompts_here'
 			]()}
+			bind:value={additional_system_prompt}
 			class="bg-secondary" />
 	</div>
 	<div class="flex w-full flex-col items-end">
-		<Button class="">{m.update()}</Button>
+		<Button onclick={update} disabled={isLoading} class="">
+			{#if isLoading}
+				<Loader2Icon class="animate-spin" />
+			{/if}
+			{m.update()}
+		</Button>
 	</div>
 	<div class="flex flex-col gap-2">
 		<div class="text-destructive">

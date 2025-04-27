@@ -223,6 +223,9 @@
 					search,
 					searchGrounding,
 					mode: selectedMode?.id || 'chat',
+					name_for_llm: user?.name_for_llm || '',
+					additional_system_prompt:
+						user?.additional_system_prompt || '',
 				},
 				experimental_attachments: attachments
 					.filter(

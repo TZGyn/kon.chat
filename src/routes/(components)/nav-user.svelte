@@ -55,6 +55,7 @@
 		await userState.getUser()
 		logoutDialogOpen = false
 		isLoggingOut = false
+		localStorage.clear()
 	}
 
 	const locale = useLocale()
