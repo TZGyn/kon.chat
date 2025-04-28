@@ -102,5 +102,9 @@
 		"mode": "Modo"
 	},
 	"cost": "Costo",
-	"pricing": "Precios"
+	"pricing": "Precios",
+	"are_you_absolutely_sure?": "¿Estás absolutamente seguro?",
+	"delete_chat_message": "Estás a punto de eliminar este chat, esta acción es irreversible.",
+	"cancel": "Cancelar",
+	"delete": "Borrar"
 }

@@ -102,5 +102,9 @@
 		"mode": "模式"
 	},
 	"cost": "成本",
-	"pricing": "定价"
+	"pricing": "定价",
+	"are_you_absolutely_sure?": "你确定吗？",
+	"delete_chat_message": "您即将删除此聊天，此操作不可逆。",
+	"cancel": "取消",
+	"delete": "删除"
 }

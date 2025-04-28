@@ -102,5 +102,9 @@
 		}
 	},
 	"cost": "Cost",
-	"pricing": "Pricing"
+	"pricing": "Pricing",
+	"are_you_absolutely_sure?": "Are you sure absolutely sure?",
+	"delete_chat_message": "You are about to delete this chat, this action is irreversible.",
+	"cancel": "Cancel",
+	"delete": "Delete"
 }

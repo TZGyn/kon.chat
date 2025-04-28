@@ -8,10 +8,14 @@
 	import { cn } from '$lib/utils.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import * as m from '$lib/paraglide/messages'
+	import * as Dialog from '$lib/components/ui/dialog/index.js'
+	import { Button } from '$lib/components/ui/button/index.js'
 
 	const sidebar = Sidebar.useSidebar()
 
 	let chats = useChats()
+	let selectedChatId = $state('')
+	let openDeleteChatDialog = $state(false)
 
 	const today = new Date()
 	today.setHours(0, 0, 0, 0)
@@ -125,7 +129,10 @@
 								<Sidebar.MenuAction
 									showOnHover
 									class="top-1/2"
-									onclick={() => chats.deleteChats(chat.id)}>
+									onclick={() => {
+										selectedChatId = chat.id
+										openDeleteChatDialog = true
+									}}>
 									<XIcon />
 									<span class="sr-only">Delete</span>
 								</Sidebar.MenuAction>
@@ -209,3 +216,31 @@
 		</Sidebar.Menu>
 	{/if}
 </Sidebar.Group>
+
+<Dialog.Root bind:open={openDeleteChatDialog}>
+	<Dialog.Content>
+		<Dialog.Header>
+			<Dialog.Title>{m['are_you_absolutely_sure?']()}</Dialog.Title>
+			<Dialog.Description>
+				{m.delete_chat_message()}
+			</Dialog.Description>
+		</Dialog.Header>
+		<Dialog.Footer>
+			<Button
+				variant="outline"
+				onclick={() => (openDeleteChatDialog = false)}>
+				{m.cancel()}
+			</Button>
+			<Button
+				onclick={() => {
+					if (selectedChatId) {
+						chats.deleteChats(selectedChatId)
+					}
+					openDeleteChatDialog = false
+					selectedChatId = ''
+				}}>
+				{m.delete()}
+			</Button>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
