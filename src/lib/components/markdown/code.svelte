@@ -57,6 +57,7 @@
 	}
 
 	$effect(() => {
+		code
 		requestIdleCallback(() => {
 			updateHTML(code)
 		})
