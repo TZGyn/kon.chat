@@ -57,7 +57,9 @@
 	}
 
 	$effect(() => {
-		updateHTML(code)
+		requestIdleCallback(() => {
+			updateHTML(code)
+		})
 	})
 
 	interface ConsoleOutputContent {

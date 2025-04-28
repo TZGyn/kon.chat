@@ -284,9 +284,9 @@
 
 <div class="relative flex flex-1 overflow-hidden">
 	{#if chat.value || isNew}
-		<ScrollArea
-			bind:vp={autoScroll.ref}
-			class="@container flex flex-1 flex-col items-center p-4">
+		<div
+			bind:this={autoScroll.ref}
+			class="@container flex flex-1 flex-col items-center overflow-y-scroll p-4">
 			<div class="flex w-full flex-col items-center pt-20 pb-40">
 				<div
 					class="@container/chat flex w-full max-w-[600px] flex-col gap-4">
@@ -330,7 +330,7 @@
 					{/if}
 				</div>
 			</div>
-		</ScrollArea>
+		</div>
 		{#if !isNew}
 			<div
 				class="bg-secondary absolute top-0 right-0 flex items-center gap-2 rounded-bl-full pr-2 pl-4">

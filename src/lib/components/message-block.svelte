@@ -1,15 +1,9 @@
 <script lang="ts">
 	import * as Avatar from '$lib/components/ui/avatar'
-	import { Toggle } from '$lib/components/ui/toggle/index.js'
 	import { cn } from '$lib/utils'
 	import type { JSONValue, UIMessage } from 'ai'
 	import { Button } from '$lib/components/ui/button'
-	import {
-		ChevronDownIcon,
-		Loader2Icon,
-		SplitIcon,
-		SquareIcon,
-	} from 'lucide-svelte'
+	import { Loader2Icon, SplitIcon, SquareIcon } from 'lucide-svelte'
 	import GoogleGroundingSection from '$lib/components/google-grounding-section.svelte'
 	import Markdown from './markdown.svelte'
 	import Attachments from './message/attachments.svelte'
