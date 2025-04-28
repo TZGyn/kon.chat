@@ -291,7 +291,7 @@
 			bind:this={autoScroll.ref}
 			class="max-h-[60vh] overflow-y-scroll">
 			<pre
-				class="shiki one-dark-pro !bg-[#f6f6f7] text-wrap dark:!bg-[#1e1e1e]"><code>{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color ? token.color : mode.current === 'dark' ? '#fff' : '#000'}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}</code></pre>
+				class="shiki one-dark-pro !bg-[#f6f6f7] text-wrap dark:!bg-[#1e1e1e]"><code>{#if codeTokens.length > 0}{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color ? token.color : mode.current === 'dark' ? '#fff' : '#000'}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}{:else}{code}{/if}</code></pre>
 		</div>
 
 		<!-- class={cn('w-12 shrink-0', {
