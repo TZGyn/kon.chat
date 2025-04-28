@@ -1,9 +1,8 @@
 <script lang="ts">
-	import Markdown from '$lib/components/markdown.svelte'
+	import Markdown from '$lib/components/markdown'
 	import { nanoid } from '$lib/nanoid'
 	import { cn } from '$lib/utils'
-	import * as Accordion from '$lib/components/ui/accordion/index.js'
-	import { GlobeIcon, LibraryBigIcon } from 'lucide-svelte'
+	import { LibraryBigIcon } from 'lucide-svelte'
 
 	let {
 		result,

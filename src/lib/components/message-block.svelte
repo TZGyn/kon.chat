@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui/button'
 	import { Loader2Icon, SplitIcon, SquareIcon } from 'lucide-svelte'
 	import GoogleGroundingSection from '$lib/components/google-grounding-section.svelte'
-	import Markdown from './markdown.svelte'
+	import Markdown from './markdown'
 	import Attachments from './message/attachments.svelte'
 	import CopyButton from './copy-button.svelte'
 	import ToolInvocation from './message/tool-invocation.svelte'

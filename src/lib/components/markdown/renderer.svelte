@@ -1,19 +1,17 @@
 <script lang="ts">
-	import { markedKatexExtension } from '$lib/markdown/katex-extension'
 	import { marked } from 'marked'
 
 	import DOMPurify from 'isomorphic-dompurify'
-	import MarkdownInline from './markdown-inline.svelte'
-	import * as Tooltip from '$lib/components/ui/tooltip'
+	import MarkdownInline from './inline.svelte'
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js'
 	import * as Table from '$lib/components/ui/table/index.js'
-	import { ChevronsUpDownIcon, DownloadIcon } from 'lucide-svelte'
-	import { buttonVariants } from './ui/button'
+	import { ChevronsUpDownIcon } from 'lucide-svelte'
+	import { buttonVariants } from '../ui/button'
 	import katex from 'katex'
 	import type { Token } from 'marked'
 	import { browser } from '$app/environment'
-	import Code from './markdown/code.svelte'
-	import Self from './markdown-renderer.svelte'
+	import Code from './code.svelte'
+	import Self from './renderer.svelte'
 
 	let {
 		tokens = [],

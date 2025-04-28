@@ -13,7 +13,7 @@
 	import { cn } from '$lib/utils'
 	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { toast } from 'svelte-sonner'
-	import Markdown from '$lib/components/markdown.svelte'
+	import Markdown from '$lib/components/markdown'
 
 	let selectedTab = $state(
 		page.url.searchParams.get('tab') || 'summary',
@@ -282,15 +282,15 @@
 </svelte:head>
 <div
 	class="@container flex flex-1 flex-col justify-center overflow-hidden">
-	<div class="@6xl:flex-row flex flex-1 flex-col overflow-hidden">
+	<div class="flex flex-1 flex-col overflow-hidden @6xl:flex-row">
 		<div class="flex flex-1 overflow-hidden">
-			<div class="@6xl:flex-col flex flex-1 flex-row gap-2">
-				<div class="@6xl:flex-0 flex flex-1 flex-col">
+			<div class="flex flex-1 flex-row gap-2 @6xl:flex-col">
+				<div class="flex flex-1 flex-col @6xl:flex-0">
 					<AspectRatio ratio={16 / 9} class="bg-muted w-full">
 						<div id={ytPlayerId}></div>
 					</AspectRatio>
 					<div
-						class="@6xl:border-0 flex h-full flex-col gap-2 border px-4 py-2">
+						class="flex h-full flex-col gap-2 border px-4 py-2 @6xl:border-0">
 						{#if status === 'loading'}
 							<Skeleton class="h-14 w-full rounded" />
 						{:else}
@@ -336,7 +336,7 @@
 							{/if}
 							<div
 								bind:this={descriptionHTML}
-								class="**:[a]:inline-flex **:whitespace-normal **:[a>span]:text-sm **:[a]:py-1 **:[a]:px-2 **:[a]:gap-1 **:[a]:items-center **:[a]:bg-background **:[a]:rounded **:[a]:w-fit">
+								class="**:[a]:bg-background **:whitespace-normal **:[a]:inline-flex **:[a]:w-fit **:[a]:items-center **:[a]:gap-1 **:[a]:rounded **:[a]:px-2 **:[a]:py-1 **:[a>span]:text-sm">
 							</div>
 						</div>
 					</div>
@@ -362,7 +362,7 @@
 					class="flex flex-1 overflow-hidden">
 					<ScrollArea class="flex flex-1 flex-col items-center">
 						<div
-							class="prose prose-neutral dark:prose-invert prose-p:my-0 pb-4 pt-2">
+							class="prose prose-neutral dark:prose-invert prose-p:my-0 pt-2 pb-4">
 							<Markdown id="youtube-summary" content={summary} />
 						</div>
 						{#if status === 'loading'}
@@ -381,7 +381,7 @@
 														alt="favicon"
 														class="size-4" />
 													<Avatar.Fallback
-														class="size-4 bg-opacity-0">
+														class="bg-opacity-0 size-4">
 														<img src="/logo.png" alt="favicon" />
 													</Avatar.Fallback>
 												</Avatar.Root>

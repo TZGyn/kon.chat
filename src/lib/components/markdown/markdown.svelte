@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { markedKatexExtension } from '$lib/markdown/katex-extension'
 	import { marked } from 'marked'
-	import MarkdownRenderer from './markdown-renderer.svelte'
+	import MarkdownRenderer from './renderer.svelte'
 	import { cn } from '$lib/utils'
 
 	let {

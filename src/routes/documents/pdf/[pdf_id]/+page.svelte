@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { replaceState } from '$app/navigation'
 	import { page } from '$app/state'
-	import Markdown from '$lib/components/markdown.svelte'
+	import Markdown from '$lib/components/markdown'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
 	import * as Tabs from '$lib/components/ui/tabs/index.js'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
@@ -162,7 +162,7 @@
 
 <div
 	class="@container flex flex-1 flex-col justify-center overflow-hidden">
-	<div class="@6xl:flex-row flex flex-1 flex-col overflow-hidden">
+	<div class="flex flex-1 flex-col overflow-hidden @6xl:flex-row">
 		<div class="flex flex-1 overflow-hidden">
 			<iframe
 				title="pdf"
@@ -193,7 +193,7 @@
 						bind:vp={autoScroll.ref}
 						class="flex flex-1 flex-col items-center">
 						<div
-							class="prose prose-neutral dark:prose-invert prose-p:my-0 pb-4 pt-2">
+							class="prose prose-neutral dark:prose-invert prose-p:my-0 pt-2 pb-4">
 							<Markdown
 								id="pdf-summary"
 								content={pdf.value?.summary || ''} />
@@ -214,7 +214,7 @@
 														alt="favicon"
 														class="size-4" />
 													<Avatar.Fallback
-														class="size-4 bg-opacity-0">
+														class="bg-opacity-0 size-4">
 														<img src="/logo.png" alt="favicon" />
 													</Avatar.Fallback>
 												</Avatar.Root>
@@ -234,7 +234,7 @@
 						bind:vp={autoScrollMarkdown.ref}
 						class="flex flex-1 flex-col items-center">
 						<div
-							class="prose prose-neutral dark:prose-invert prose-p:my-0 pb-4 pt-2">
+							class="prose prose-neutral dark:prose-invert prose-p:my-0 pt-2 pb-4">
 							<Markdown
 								id="pdf-markdown"
 								content={pdf.value?.markdown || ''} />
@@ -255,7 +255,7 @@
 														alt="favicon"
 														class="size-4" />
 													<Avatar.Fallback
-														class="size-4 bg-opacity-0">
+														class="bg-opacity-0 size-4">
 														<img src="/logo.png" alt="favicon" />
 													</Avatar.Fallback>
 												</Avatar.Root>

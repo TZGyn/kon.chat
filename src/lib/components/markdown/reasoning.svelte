@@ -3,7 +3,7 @@
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { nanoid } from '$lib/nanoid'
 	import { ChevronDownIcon } from 'lucide-svelte'
-	import Markdown from '../markdown.svelte'
+	import Markdown from './markdown.svelte'
 
 	let { reasoning }: { reasoning: string } = $props()
 

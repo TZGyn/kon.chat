@@ -5,9 +5,9 @@
 	import { copy } from '$lib/clipboard'
 	import { browser } from '$app/environment'
 	import katex from 'katex'
-	import Self from './markdown-inline.svelte'
-	import Link from './markdown/link.svelte'
-	import Text from './markdown/text.svelte'
+	import Self from './inline.svelte'
+	import Link from './link.svelte'
+	import Text from './text.svelte'
 	import * as m from '$lib/paraglide/messages'
 
 	let { tokens = [] }: { tokens: Token[] | undefined } = $props()
