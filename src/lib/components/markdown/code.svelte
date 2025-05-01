@@ -56,9 +56,13 @@
 		codeTokens = tokens
 	}
 
+	let updateHTMLID = $state<number>()
 	$effect(() => {
 		code
-		requestIdleCallback(() => {
+		if (updateHTMLID) {
+			cancelIdleCallback(updateHTMLID)
+		}
+		updateHTMLID = requestIdleCallback(() => {
 			updateHTML(code)
 		})
 	})
