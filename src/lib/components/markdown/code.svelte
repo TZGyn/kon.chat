@@ -59,13 +59,17 @@
 	let updateHTMLID = $state<number>()
 	$effect(() => {
 		code
+		queueUpdateHTML()
+	})
+
+	const queueUpdateHTML = () => {
 		if (updateHTMLID) {
 			cancelIdleCallback(updateHTMLID)
 		}
 		updateHTMLID = requestIdleCallback(() => {
 			updateHTML(code)
 		})
-	})
+	}
 
 	interface ConsoleOutputContent {
 		type: 'text' | 'image'
