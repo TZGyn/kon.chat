@@ -69,6 +69,22 @@ export function flyAndScale(
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChild<T> = T extends { child?: any }
+	? Omit<T, 'child'>
+	: T
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type WithoutChildren<T> = T extends { children?: any }
+	? Omit<T, 'children'>
+	: T
+export type WithoutChildrenOrChild<T> = WithoutChildren<
+	WithoutChild<T>
+>
+export type WithElementRef<
+	T,
+	U extends HTMLElement = HTMLElement,
+> = T & { ref?: U | null }
+
 // https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
 export function byteToHumanReadable(
 	bytes: number,
