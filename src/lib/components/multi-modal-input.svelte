@@ -287,14 +287,14 @@
 			credits: 200,
 			disable: !user,
 		},
-		{
-			id: 'x_search',
-			name: m['mode.x_search.name'](),
-			description: m['mode.x_search.description'](),
-			icon: TwitterLogo,
-			credits: 200,
-			disable: !user,
-		},
+		// {
+		// 	id: 'x_search',
+		// 	name: m['mode.x_search.name'](),
+		// 	description: m['mode.x_search.description'](),
+		// 	icon: TwitterLogo,
+		// 	credits: 200,
+		// 	disable: !user,
+		// },
 		// {
 		// 	id: 'analysis',
 		// 	name: 'Analysis',
