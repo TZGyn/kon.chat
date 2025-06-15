@@ -361,6 +361,21 @@ export const useModels = () => {
 			disabled: plan === undefined,
 			credits: 500,
 		},
+		{
+			name: 'Clause 4 Sonnet',
+			info: '',
+			provider: 'anthropic',
+			id: 'claude-4-sonnet-20250514',
+			capabilities: {
+				image: true,
+				file: true,
+				fast: false,
+				reasoning: true,
+				searchGrounding: false,
+			},
+			disabled: plan === undefined,
+			credits: 500,
+		},
 	] as const)
 	return {
 		get freeModels() {
