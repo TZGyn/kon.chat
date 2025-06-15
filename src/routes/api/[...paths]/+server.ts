@@ -1,0 +1,4 @@
+import { api } from '../(src)'
+
+export const GET = ({ request }) => api.fetch(request)
+export const POST = ({ request }) => api.fetch(request)

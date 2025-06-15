@@ -1,0 +1,1 @@
+ALTER TABLE "chat" ADD COLUMN "updated_at" bigint DEFAULT 0 NOT NULL;

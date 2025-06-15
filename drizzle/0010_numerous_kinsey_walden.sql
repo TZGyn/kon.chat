@@ -1,0 +1,1 @@
+ALTER TABLE "message" ADD COLUMN "response_id" varchar DEFAULT md5(random()::text) NOT NULL;
