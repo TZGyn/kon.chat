@@ -9,7 +9,6 @@
 		MessageCircleIcon,
 	} from 'lucide-svelte'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
-	import { PUBLIC_API_URL } from '$env/static/public'
 	import { Button } from '$lib/components/ui/button'
 	import * as Table from '$lib/components/ui/table/index.js'
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
@@ -85,7 +84,7 @@
 				description: 'Monthly Subscription',
 				price: '5',
 				per: 'month',
-				link: PUBLIC_API_URL + '/billing/plan/basic',
+				link: '/api/billing/plan/basic',
 				included: [
 					{
 						title: '500 Credits/month',
@@ -104,7 +103,7 @@
 				description: 'Monthly Subscription',
 				price: '15',
 				per: 'month',
-				link: PUBLIC_API_URL + '/billing/plan/pro',
+				link: '/api/billing/plan/pro',
 				included: [
 					{
 						title: 'Everything in Basic',

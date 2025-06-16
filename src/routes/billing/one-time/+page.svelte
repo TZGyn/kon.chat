@@ -2,7 +2,6 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
 	import { InfoIcon } from 'lucide-svelte'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
-	import { PUBLIC_API_URL } from '$env/static/public'
 	import { Button } from '$lib/components/ui/button'
 </script>
 
@@ -14,7 +13,7 @@
 				description: 'One Time Purchase',
 				price: '5',
 				per: 'purchase',
-				link: PUBLIC_API_URL + '/billing/one-time/500',
+				link: '/api/billing/one-time/500',
 				included: [
 					{
 						title: '500 Credits',

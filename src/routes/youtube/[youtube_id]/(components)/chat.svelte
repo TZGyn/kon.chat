@@ -3,7 +3,6 @@
 	import { cn } from '$lib/utils'
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
-	import { PUBLIC_API_URL } from '$env/static/public'
 
 	import { useUser } from '../../../state.svelte'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
@@ -32,7 +31,7 @@
 				: []
 		},
 		get api() {
-			return PUBLIC_API_URL + `/youtube/${youtube_id}`
+			return `/api/youtube/${youtube_id}`
 		},
 		generateId: () => youtube_id,
 		onFinish: () => {

@@ -3,7 +3,6 @@
 	import { cn } from '$lib/utils'
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
-	import { PUBLIC_API_URL } from '$env/static/public'
 
 	import { useUser } from '../../../../state.svelte'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
@@ -29,7 +28,7 @@
 				: []
 		},
 		get api() {
-			return PUBLIC_API_URL + `/documents/pdf/${pdf_id}`
+			return `/api/documents/pdf/${pdf_id}`
 		},
 		get id() {
 			return pdf_id

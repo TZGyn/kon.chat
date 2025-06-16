@@ -61,7 +61,7 @@
 			}
 
 			const body = (await response.json()) as { id: string }
-			url = env.PUBLIC_API_URL + '/file-upload/' + body.id
+			url = '/api/file-upload/' + body.id
 			toast.success(`${m.file_uploaded()}: ${file.name}`)
 			status = 'ready'
 		} catch (error) {

@@ -167,9 +167,7 @@
 			<iframe
 				title="pdf"
 				class="flex-1"
-				src={env.PUBLIC_API_URL +
-					'/file-upload/' +
-					pdf.value?.uploadId}>
+				src={'/api/file-upload/' + pdf.value?.uploadId}>
 			</iframe>
 		</div>
 		<div class="flex flex-1 overflow-hidden">

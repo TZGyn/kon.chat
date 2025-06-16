@@ -6,7 +6,7 @@
 
 	import { cn } from '$lib/utils'
 	import { toast } from 'svelte-sonner'
-	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
+	import { PUBLIC_APP_URL } from '$env/static/public'
 
 	import { useChats, useUser } from '../../state.svelte.js'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
@@ -114,7 +114,7 @@
 	let useChat = new Chat({
 		initialMessages: [],
 		get api() {
-			return PUBLIC_API_URL + `/chat/${chat_id}`
+			return `/api/chat/${chat_id}`
 		},
 		get id() {
 			return chat_id
@@ -467,7 +467,7 @@
 			{#if !user.user}
 				<div class="grid gap-4">
 					<Button
-						href={`${PUBLIC_API_URL}/auth/login/github?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
+						href={`/api/auth/login/github?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
 						variant="outline"
 						class="w-full">
 						<svg
@@ -483,7 +483,7 @@
 						Login with Github
 					</Button>
 					<Button
-						href={`${PUBLIC_API_URL}/auth/login/google?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
+						href={`/api/auth/login/google?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
 						variant="outline"
 						class="w-full">
 						<svg
