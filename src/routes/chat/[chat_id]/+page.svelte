@@ -6,7 +6,6 @@
 
 	import { cn } from '$lib/utils'
 	import { toast } from 'svelte-sonner'
-	import { env } from '$env/dynamic/public'
 
 	import { useChats, useUser } from '../../state.svelte.js'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
@@ -415,7 +414,7 @@
 			{#if chat.value?.visibility === 'public'}
 				<div class="flex w-full justify-center">
 					<Snippet
-						text={env.PUBLIC_APP_URL + `/chat/${chat_id}`}
+						text={Bun.env.PUBLIC_APP_URL + `/chat/${chat_id}`}
 						class="w-full max-w-[100cqw]"
 						singleLineClass="overflow-hidden text-ellipsis" />
 				</div>
@@ -467,7 +466,7 @@
 			{#if !user.user}
 				<div class="grid gap-4">
 					<Button
-						href={`/api/auth/login/github?redirect=${env.PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
+						href={`/api/auth/login/github?redirect=${Bun.env.PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
 						variant="outline"
 						class="w-full">
 						<svg
@@ -483,7 +482,7 @@
 						Login with Github
 					</Button>
 					<Button
-						href={`/api/auth/login/google?redirect=${env.PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
+						href={`/api/auth/login/google?redirect=${Bun.env.PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
 						variant="outline"
 						class="w-full">
 						<svg

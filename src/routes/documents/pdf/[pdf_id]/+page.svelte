@@ -13,7 +13,6 @@
 	import { onMount } from 'svelte'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
-	import { env } from '$env/dynamic/public'
 
 	const autoScroll = new UseAutoScroll()
 	const autoScrollMarkdown = new UseAutoScroll()

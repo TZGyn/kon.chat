@@ -17,7 +17,6 @@
 	import Sparkles from 'lucide-svelte/icons/sparkles'
 	import { onMount } from 'svelte'
 	import { Button } from '$lib/components/ui/button'
-	import { env } from '$env/dynamic/public'
 	import { useUser } from '../state.svelte'
 	import { useChats } from '../state.svelte'
 	import { cn } from '$lib/utils'
@@ -263,7 +262,7 @@
 		</Dialog.Header>
 		<div class="grid gap-4">
 			<Button
-				href={`/api/auth/login/github?redirect=${env.PUBLIC_APP_URL + '/'}`}
+				href={`/api/auth/login/github?redirect=${Bun.env.PUBLIC_APP_URL + '/'}`}
 				variant="outline"
 				class="w-full">
 				<svg
@@ -279,7 +278,7 @@
 				Login with Github
 			</Button>
 			<Button
-				href={`/api/auth/login/google?redirect=${env.PUBLIC_APP_URL + '/'}`}
+				href={`/api/auth/login/google?redirect=${Bun.env.PUBLIC_APP_URL + '/'}`}
 				variant="outline"
 				class="w-full">
 				<svg

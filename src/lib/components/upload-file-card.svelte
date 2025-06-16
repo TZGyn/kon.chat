@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { env } from '$env/dynamic/public'
 	import { customFetch, customFetchRaw } from '$lib/fetch'
 	import {
 		FileTextIcon,

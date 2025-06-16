@@ -10,7 +10,6 @@ import { db } from '$api/db'
 import { user as userTable } from '$api/db/schema'
 import { eq } from 'drizzle-orm'
 import { Checkout, CustomerPortal } from '@polar-sh/hono'
-import { env } from '$env/dynamic/public'
 
 const polar = new Polar({
 	accessToken: Bun.env.POLAR_ACCESS_KEY,
@@ -206,7 +205,7 @@ app.get(
 	'/checkout',
 	Checkout({
 		accessToken: Bun.env.POLAR_ACCESS_KEY,
-		successUrl: env.PUBLIC_APP_URL + '/',
+		successUrl: Bun.env.PUBLIC_APP_URL + '/',
 		server:
 			Bun.env.APP_ENV === 'production' ? 'production' : 'sandbox',
 	}),
