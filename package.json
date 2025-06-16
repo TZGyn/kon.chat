@@ -73,8 +73,6 @@
 		"@polar-sh/hono": "^0.2.17",
 		"@scalar/hono-api-reference": "^0.9.4",
 		"@tavily/core": "^0.3.1",
-		"@tiptap-pro/extension-export": "^2.17.4",
-		"@tiptap-pro/extension-import": "^2.17.4",
 		"@types/youtube": "^0.1.0",
 		"@upstash/redis": "^1.34.4",
 		"@vercel/speed-insights": "^1.2.0",
