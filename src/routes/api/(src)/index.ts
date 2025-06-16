@@ -24,7 +24,7 @@ app.use(cors())
 app.use(logger())
 
 app.get('/', (c) => {
-	return c.redirect(Bun.env.FRONTEND_URL!)
+	return c.redirect('/')
 })
 
 app.get(
