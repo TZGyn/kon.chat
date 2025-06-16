@@ -1,8 +1,8 @@
-import { Tool } from '$api/ai/tools'
+import { type Tool } from '$api/ai/tools'
 import {
 	freeModels,
 	premiumModels,
-	Provider,
+	type Provider,
 	standardModels,
 } from '$api/model'
 
