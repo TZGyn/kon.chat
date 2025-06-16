@@ -1,10 +1,10 @@
-FROM oven/bun:debian
+FROM oven/bun:latest
 
 WORKDIR /app
 
 # Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install -y git 
+# RUN apt-get update -qq && \
+#     apt-get install -y git 
 
 
 COPY ./package.json ./
