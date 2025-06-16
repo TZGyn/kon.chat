@@ -79,6 +79,7 @@
 		"@vercel/speed-insights": "^1.2.0",
 		"ai": "^4.3.16",
 		"arctic": "^3.3.0",
+		"bun": "^1.2.16",
 		"drizzle-orm": "^0.39.3",
 		"exa-js": "^1.5.11",
 		"finnhub": "^1.2.19",
