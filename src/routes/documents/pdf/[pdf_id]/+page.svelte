@@ -18,9 +18,7 @@
 	const autoScroll = new UseAutoScroll()
 	const autoScrollMarkdown = new UseAutoScroll()
 
-	let selectedTab = $state(
-		page.url.searchParams.get('tab') || 'markdown',
-	)
+	let selectedTab = $state(page.url.searchParams.get('tab') || 'chat')
 
 	let status = $state<
 		'loading' | 'submitted' | 'streaming' | 'ready'

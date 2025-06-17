@@ -15,9 +15,7 @@
 	import { toast } from 'svelte-sonner'
 	import Markdown from '$lib/components/markdown'
 
-	let selectedTab = $state(
-		page.url.searchParams.get('tab') || 'summary',
-	)
+	let selectedTab = $state(page.url.searchParams.get('tab') || 'chat')
 	let player = $state<YT.Player>()
 	let tabDiv = $state<HTMLDivElement>()
 
