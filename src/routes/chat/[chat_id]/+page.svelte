@@ -420,10 +420,10 @@
 						singleLineClass="overflow-hidden text-ellipsis" />
 				</div>
 			{/if}
-			<div class="flex justify-center gap-6">
+			<div class="flex w-full max-w-[cqw] justify-center gap-6">
 				<Button
 					variant="outline"
-					class="w-full"
+					class="flex-1 gap-2"
 					onclick={() => {
 						shareChatDialogOpen = false
 					}}
@@ -433,7 +433,7 @@
 				<Button
 					variant="default"
 					onclick={() => shareChat(chat_id)}
-					class="flex w-full gap-2"
+					class="flex-1 gap-2"
 					disabled={sharingChat}>
 					{#if sharingChat}
 						<Loader2Icon class="animate-spin" />
