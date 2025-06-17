@@ -2,7 +2,12 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js'
 	import { onMount } from 'svelte'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
-	import { MessageCircleIcon, PlusIcon, XIcon } from 'lucide-svelte'
+	import {
+		EyeIcon,
+		MessageCircleIcon,
+		PlusIcon,
+		XIcon,
+	} from 'lucide-svelte'
 	import { page } from '$app/state'
 	import { useChats } from '../state.svelte.js'
 	import { cn } from '$lib/utils.js'
@@ -121,8 +126,12 @@
 												'h-12 rounded transition-[width,height] group-has-data-[sidebar=menu-action]/menu-item:pr-2 group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-6',
 											)}
 											data-sveltekit-preload-code="eager">
-											<!-- <span>{item.emoji}</span> -->
-											<span class="">{chat.title}</span>
+											{#if chat.visibility === 'public'}
+												<EyeIcon class="size-4" />
+											{/if}
+											<span>
+												{chat.title}
+											</span>
 										</a>
 									{/snippet}
 								</Sidebar.MenuButton>

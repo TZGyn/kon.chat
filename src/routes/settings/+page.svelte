@@ -193,7 +193,7 @@
 			<Dialog.Trigger
 				class={cn(
 					buttonVariants({ variant: 'destructive' }),
-					'border-destructive text-destructive hover:text-destructive-foreground w-fit border bg-transparent',
+					'border-destructive hover:text-destructive-foreground w-fit border bg-transparent',
 				)}>
 				{m['settings.account.delete_account']()}
 			</Dialog.Trigger>

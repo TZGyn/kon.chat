@@ -260,6 +260,7 @@
 			{
 				id: newChatId,
 				title: chatJSON.title + ' (branch)',
+				visibility: 'private',
 				createdAt: Date.now(),
 				updatedAt: Date.now(),
 			},
@@ -512,7 +513,7 @@
 				<div class="flex justify-center gap-6">
 					<Button
 						variant="outline"
-						class="w-full"
+						class="flex-1"
 						onclick={() => {
 							copyChatDialogOpen = false
 						}}
@@ -522,7 +523,7 @@
 					<Button
 						variant="default"
 						onclick={() => copyChat(chat_id)}
-						class="flex w-full gap-2"
+						class="flex flex-1 gap-2"
 						disabled={copyingChat}>
 						{#if copyingChat}
 							<Loader2Icon class="animate-spin" />

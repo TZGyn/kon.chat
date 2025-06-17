@@ -4,6 +4,7 @@ let chats = $state<
 	{
 		id: string
 		title: string
+		visibility: 'private' | 'public'
 		createdAt: number
 		updatedAt: number
 	}[]
@@ -17,6 +18,7 @@ export function useChats() {
 				chats: {
 					id: string
 					title: string
+					visibility: 'private' | 'public'
 					createdAt: number
 					updatedAt: number
 				}[]
