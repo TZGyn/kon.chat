@@ -51,9 +51,10 @@
 
 <div
 	bind:this={autoScroll.ref}
-	class="@container flex flex-1 flex-col items-center overflow-y-scroll p-4">
+	class="flex flex-1 flex-col items-center overflow-y-scroll">
 	<div class="flex w-full flex-col items-center pt-20 pb-40">
-		<div class="flex w-full max-w-[600px] flex-col gap-4">
+		<div
+			class="@container/chat flex w-full max-w-[600px] flex-col gap-4">
 			{#each useChat.messages as message, index (index)}
 				<MessageBlock
 					data={useChat.data}
