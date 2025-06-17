@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { Chat, type Message } from '@ai-sdk/svelte'
+	import { Chat } from '@ai-sdk/svelte'
 	import { cn } from '$lib/utils'
-	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 	import { PUBLIC_API_URL } from '$env/static/public'
 
 	import { useUser } from '../../../state.svelte'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
-	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 	import { browser } from '$app/environment'
@@ -50,9 +48,9 @@
 	})
 </script>
 
-<ScrollArea
-	bind:vp={autoScroll.ref}
-	class="flex flex-1 flex-col items-center p-4">
+<div
+	bind:this={autoScroll.ref}
+	class="@container flex flex-1 flex-col items-center overflow-y-scroll p-4">
 	<div class="flex w-full flex-col items-center pt-20 pb-40">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
 			{#each useChat.messages as message, index (index)}
@@ -94,7 +92,7 @@
 			{/if}
 		</div>
 	</div>
-</ScrollArea>
+</div>
 
 <MultiModalInput
 	bind:input={useChat.input}
