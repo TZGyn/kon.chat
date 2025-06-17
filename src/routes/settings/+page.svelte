@@ -199,10 +199,14 @@
 			</Dialog.Trigger>
 			<Dialog.Content>
 				<Dialog.Header>
-					<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+					<!-- <Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
 					<Dialog.Description>
 						This action cannot be undone. This will permanently delete
 						your account and remove your data from our servers.
+					</Dialog.Description> -->
+					<Dialog.Title>Coming Soon</Dialog.Title>
+					<Dialog.Description>
+						Account deletion is not implemented yet
 					</Dialog.Description>
 				</Dialog.Header>
 			</Dialog.Content>
