@@ -60,6 +60,7 @@ app.get('/', async (c) => {
 		columns: {
 			id: true,
 			title: true,
+			visibility: true,
 			createdAt: true,
 			updatedAt: true,
 		},
@@ -1313,7 +1314,9 @@ app.post('/:chat_id/copy', async (c) => {
 				),
 			),
 		with: {
-			messages: true,
+			messages: {
+				orderBy: (messages, t) => [t.asc(messages.createdAt)],
+			},
 		},
 	})
 

@@ -121,7 +121,7 @@ app.get('/:youtube_id', async (c) => {
 					})
 
 					const result = streamText({
-						model: google('gemini-2.0-pro-exp-02-05', {
+						model: google('gemini-2.5-flash-preview-04-17', {
 							structuredOutputs: false,
 						}),
 						system: `

@@ -20,6 +20,7 @@ export const costTable: {
 	'meta-llama/llama-4-maverick:free': 0,
 	'claude-3-5-sonnet-latest': 500,
 	'claude-3-7-sonnet-20250219': 500,
+	'claude-4-sonnet-20250514': 500,
 	'deepseek-r1-distill-llama-70b': 50,
 	'gpt-4o': 100,
 	'gpt-4.1': 80,

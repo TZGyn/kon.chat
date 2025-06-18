@@ -419,7 +419,7 @@ app.get('/:pdf_id/summary', async (c) => {
 	return createDataStreamResponse({
 		execute: async (dataStream) => {
 			const result = streamText({
-				model: google('gemini-2.0-pro-exp-02-05', {
+				model: google('gemini-2.5-flash-preview-04-17', {
 					structuredOutputs: false,
 				}),
 				maxSteps: 5,

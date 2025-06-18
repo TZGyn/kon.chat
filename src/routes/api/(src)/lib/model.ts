@@ -62,6 +62,7 @@ export const modelSchema = z
 			model: z.enum([
 				'claude-3-5-sonnet-latest',
 				'claude-3-7-sonnet-20250219',
+				'claude-4-sonnet-20250514',
 			]),
 		}),
 		z.object({
@@ -129,6 +130,7 @@ export const standardModels = [
 export const premiumModels = [
 	'claude-3-5-sonnet-latest',
 	'claude-3-7-sonnet-20250219',
+	'claude-4-sonnet-20250514',
 ] as const
 
 export const getModel = ({
@@ -191,7 +193,10 @@ export const getModel = ({
 		}
 	} else if (provider.name === 'anthropic') {
 		model = anthropic(provider.model)
-		if (provider.model === 'claude-3-7-sonnet-20250219') {
+		if (
+			provider.model === 'claude-3-7-sonnet-20250219' ||
+			provider.model === 'claude-4-sonnet-20250514'
+		) {
 			providerOptions = {
 				anthropic: {
 					thinking: { type: 'enabled', budgetTokens: 12000 },

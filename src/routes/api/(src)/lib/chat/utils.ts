@@ -52,7 +52,7 @@ export const updateUserChatAndLimit = async ({
 
 	if (!loggedInUser) return
 
-	const existingChat = await db.query.chat.findFirst({
+	let existingChat = await db.query.chat.findFirst({
 		where: (chat, { eq, and }) => and(eq(chat.id, chatId)),
 	})
 
@@ -62,15 +62,20 @@ export const updateUserChatAndLimit = async ({
 			message: userMessage,
 		})
 
-		await db.insert(chat).values({
-			id: chatId,
-			title: title,
-			userId: loggedInUser.id,
-			createdAt: Date.now(),
-			updatedAt: Date.now(),
-		})
-
-		newChat = true
+		try {
+			await db.insert(chat).values({
+				id: chatId,
+				title: title,
+				userId: loggedInUser.id,
+				createdAt: Date.now(),
+				updatedAt: Date.now(),
+			})
+			newChat = true
+		} catch (error) {
+			existingChat = await db.query.chat.findFirst({
+				where: (chat, { eq, and }) => and(eq(chat.id, chatId)),
+			})
+		}
 	}
 
 	if (existingChat && existingChat.title === 'New Chat') {
