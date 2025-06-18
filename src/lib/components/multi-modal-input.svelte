@@ -369,7 +369,7 @@
 		class="absolute right-1/2 bottom-[calc(100%+0.5rem)] flex translate-x-1/2 flex-col gap-2">
 		{#if !autoScroll?.isAtBottom}
 			<Button
-				class=""
+				class="bg-input/70 hover:bg-input dark:bg-input/70 dark:hover:bg-input"
 				variant="outline"
 				size="icon"
 				onclick={() => autoScroll?.scrollToBottom()}>
