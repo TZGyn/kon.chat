@@ -49,7 +49,7 @@
 		</div>
 		<div
 			class={cn(
-				'bg-background max-h-[max(50vh,500px)] w-full overflow-scroll p-2',
+				'bg-background max-h-[max(50vh,500px)] w-full overflow-y-scroll p-2',
 			)}>
 			<div class="prose prose-neutral dark:prose-invert prose-p:my-0">
 				<Markdown

@@ -56,7 +56,7 @@
 		<ImageGeneration result={toolInvocation.result} />
 	{/if}
 {:else if toolInvocation.toolName === 'x_search'}
-	<div class="flex items-center gap-4 p-4">
+	<div class="flex items-center gap-4 rounded border p-4">
 		<div
 			class="flex size-12 animate-pulse items-center justify-center rounded-full border object-cover p-3">
 			<TwitterLogo />
@@ -70,7 +70,7 @@
 		</div>
 	</div>
 {:else if toolInvocation.toolName === 'academic_search'}
-	<div class="flex items-center gap-4 p-4">
+	<div class="flex items-center gap-4 rounded border p-4">
 		<div
 			class="flex size-12 animate-pulse items-center justify-center rounded-full border object-cover p-3">
 			<BookIcon />
@@ -84,7 +84,7 @@
 		</div>
 	</div>
 {:else if toolInvocation.toolName === 'web_reader'}
-	<div class="flex items-center gap-4 p-4">
+	<div class="flex items-center gap-4 rounded border p-4">
 		<div
 			class="flex size-12 animate-pulse items-center justify-center rounded-full border object-cover p-3">
 			<LibraryBigIcon />
