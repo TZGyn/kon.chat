@@ -7,7 +7,6 @@ RUN apt-get update -qq && \
     apt-get install -y git 
 
 ARG PUBLIC_APP_URL
-ARG TIPTAP_TOKEN
 ARG APP_ENV
 ARG APP_URL
 ARG DATABASE_URL
