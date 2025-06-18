@@ -5,7 +5,7 @@
 	import { Input } from '$lib/components/ui/input'
 	import { Textarea } from '$lib/components/ui/textarea'
 	import { cn } from '$lib/utils'
-	import { useUser } from '../state.svelte'
+	import { useChats, useUser } from '../state.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import { useLocale } from '$lib/lang.svelte'
@@ -17,6 +17,7 @@
 	import { customFetch } from '$lib/fetch'
 
 	const user = useUser()
+	const chats = useChats()
 
 	const locale = useLocale()
 
@@ -56,6 +57,21 @@
 			}),
 		})
 		isLoading = false
+	}
+
+	let deleteAccountDialogOpen = $state(false)
+	let isDeletingAccount = $state(false)
+
+	const deleteAccount = async () => {
+		isDeletingAccount = true
+		await customFetch<{}>('/auth/account', {
+			method: 'DELETE',
+		})
+		chats.getChats()
+		await user.getUser()
+		deleteAccountDialogOpen = false
+		isDeletingAccount = false
+		localStorage.clear()
 	}
 </script>
 
@@ -189,7 +205,7 @@
 		<div class="text-destructive">
 			{m['settings.account.danger_zone']()}
 		</div>
-		<Dialog.Root>
+		<Dialog.Root bind:open={deleteAccountDialogOpen}>
 			<Dialog.Trigger
 				class={cn(
 					buttonVariants({ variant: 'destructive' }),
@@ -199,16 +215,24 @@
 			</Dialog.Trigger>
 			<Dialog.Content>
 				<Dialog.Header>
-					<!-- <Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+					<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
 					<Dialog.Description>
 						This action cannot be undone. This will permanently delete
 						your account and remove your data from our servers.
-					</Dialog.Description> -->
-					<Dialog.Title>Coming Soon</Dialog.Title>
-					<Dialog.Description>
-						Account deletion is not implemented yet
 					</Dialog.Description>
 				</Dialog.Header>
+				<Dialog.Footer>
+					<Button
+						variant="destructive"
+						onclick={deleteAccount}
+						class="flex flex-1 gap-2"
+						disabled={isDeletingAccount}>
+						{#if isDeletingAccount}
+							<Loader2Icon class="animate-spin" />
+						{/if}
+						{m.delete()}
+					</Button>
+				</Dialog.Footer>
 			</Dialog.Content>
 		</Dialog.Root>
 	</div>

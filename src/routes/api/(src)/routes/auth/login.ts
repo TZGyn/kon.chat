@@ -4,11 +4,8 @@ import 'zod-openapi/extend'
 import { getCookie, setCookie } from 'hono/cookie'
 import {
 	createSession,
-	deleteSessionTokenCookie,
 	generateSessionToken,
-	invalidateSession,
 	setSessionTokenCookie,
-	validateSessionToken,
 } from '$api/auth/session'
 import {
 	decodeIdToken,
@@ -19,115 +16,11 @@ import {
 import { github, google } from '$api/auth/provider'
 import { db } from '$api/db'
 import { user } from '$api/db/schema'
-import { redis } from '$api/redis'
-import { type Limit } from '$api/ratelimit'
 import { eq } from 'drizzle-orm'
 import { describeRoute } from 'hono-openapi'
 
 const app = new Hono()
-	.get('/me', describeRoute({ tags: ['auth'] }), async (c) => {
-		const token = getCookie(c, 'session') ?? null
-
-		if (token === null) {
-			return c.json({ user: null })
-		}
-
-		if (token.startsWith('free:')) {
-			let limit = await redis.get<Limit>(token + '-limit')
-			if (!limit) return c.json({ user: null })
-
-			return c.json({
-				user: {
-					email: '',
-					name: '',
-					plan: 'trial',
-					avatar: '',
-					credits: limit.credits,
-					purchased_credits: limit.purchased_credits,
-				},
-			})
-		}
-
-		const { session, user } = await validateSessionToken(token)
-
-		if (!user) {
-			return c.json({ user: null })
-		}
-
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
-			deleteSessionTokenCookie(c)
-		}
-
-		const currentUser = await db.query.user.findFirst({
-			where: (userTable, { eq }) => eq(userTable.id, user.id),
-			with: {
-				sessions: {
-					where: (session, { gte }) =>
-						gte(session.expiresAt, Date.now()),
-				},
-			},
-		})
-
-		if (currentUser) {
-			await Promise.all(
-				currentUser.sessions.map(async (session) => {
-					await redis.set<Limit>(
-						session.id + '-limit',
-						{
-							plan: currentUser.plan,
-							credits: currentUser.credits,
-							purchased_credits: currentUser.purchasedCredits,
-						},
-						{ ex: 60 * 60 * 24 },
-					)
-				}),
-			)
-		}
-
-		return c.json({
-			user: user
-				? {
-						email: user.email,
-						name: user.username,
-						plan: user.plan,
-						avatar: user.avatar,
-						credits: user.credits,
-						purchased_credits: user.purchasedCredits,
-						name_for_llm: user.nameForLLM,
-						additional_system_prompt: user.additionalSystemPrompt,
-					}
-				: null,
-		})
-	})
-
-	.post('/logout', describeRoute({}), async (c) => {
-		const token = getCookie(c, 'session') ?? null
-
-		if (token === null) {
-			return c.json({ user: null })
-		}
-
-		const { session, user } = await validateSessionToken(token)
-
-		if (!user) {
-			return c.json({}, 401)
-		}
-
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
-			deleteSessionTokenCookie(c)
-		}
-
-		await invalidateSession(user.id)
-		deleteSessionTokenCookie(c)
-
-		return c.json({}, 200)
-	})
-
-	.get('/login/google', describeRoute({}), (c) => {
+	.get('/google', describeRoute({}), (c) => {
 		const redirect = c.req.query('redirect')
 
 		const state = encodeURI(
@@ -157,7 +50,7 @@ const app = new Hono()
 		return c.redirect(url.toString(), 302)
 	})
 
-	.get('/login/google/callback', describeRoute({}), async (c) => {
+	.get('/google/callback', describeRoute({}), async (c) => {
 		const code = c.req.query('code')
 		const state = c.req.query('state')
 		const storedState = getCookie(c, 'google_oauth_state') ?? null
@@ -257,7 +150,7 @@ const app = new Hono()
 		return c.redirect(redirectUrl, 302)
 	})
 
-	.get('/login/github', (c) => {
+	.get('/github', (c) => {
 		const redirect = c.req.query('redirect')
 
 		const state = encodeURI(
@@ -276,7 +169,7 @@ const app = new Hono()
 		return c.redirect(url.toString(), 302)
 	})
 
-	.get('/login/github/callback', async (c) => {
+	.get('/github/callback', async (c) => {
 		const code = c.req.query('code')
 		const state = c.req.query('state')
 		const storedState = getCookie(c, 'github_oauth_state') ?? null
@@ -375,4 +268,4 @@ const app = new Hono()
 		return c.redirect(redirectUrl, 302)
 	})
 
-export { app as AuthRoutes }
+export { app as LoginRoutes }
