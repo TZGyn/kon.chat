@@ -324,7 +324,7 @@
 			<div class="flex justify-center gap-6">
 				<Button
 					variant="outline"
-					class="w-full"
+					class="flex-1"
 					onclick={() => {
 						logoutDialogOpen = false
 					}}
@@ -334,7 +334,7 @@
 				<Button
 					variant="destructive"
 					onclick={logout}
-					class="flex w-full gap-2"
+					class="flex flex-1 gap-2"
 					disabled={isLoggingOut}>
 					{#if isLoggingOut}
 						<Loader2Icon class="animate-spin" />

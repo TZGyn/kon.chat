@@ -15,9 +15,7 @@
 	import { toast } from 'svelte-sonner'
 	import Markdown from '$lib/components/markdown'
 
-	let selectedTab = $state(
-		page.url.searchParams.get('tab') || 'summary',
-	)
+	let selectedTab = $state(page.url.searchParams.get('tab') || 'chat')
 	let player = $state<YT.Player>()
 	let tabDiv = $state<HTMLDivElement>()
 
@@ -328,7 +326,7 @@
 						<Separator />
 					</div>
 				</div>
-				<ScrollArea class="flex flex-1 flex-col items-center">
+				<div class="flex flex-1 flex-col overflow-y-scroll">
 					<div class="flex flex-1 flex-col gap-4 px-4 py-2">
 						<div class="bg-secondary rounded-lg p-2">
 							{#if status === 'loading'}
@@ -340,7 +338,7 @@
 							</div>
 						</div>
 					</div>
-				</ScrollArea>
+				</div>
 			</div>
 		</div>
 		<div bind:this={tabDiv} class="flex flex-1 overflow-hidden">
@@ -365,7 +363,7 @@
 							class="prose prose-neutral dark:prose-invert prose-p:my-0 pt-2 pb-4">
 							<Markdown id="youtube-summary" content={summary} />
 						</div>
-						{#if status === 'loading'}
+						{#if status === 'loading' || status === 'streaming'}
 							<div
 								class={cn(
 									'flex min-h-[calc(100vh-25rem)] gap-2 place-self-start',

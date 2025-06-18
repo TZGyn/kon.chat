@@ -17,9 +17,7 @@
 	const autoScroll = new UseAutoScroll()
 	const autoScrollMarkdown = new UseAutoScroll()
 
-	let selectedTab = $state(
-		page.url.searchParams.get('tab') || 'markdown',
-	)
+	let selectedTab = $state(page.url.searchParams.get('tab') || 'chat')
 
 	let status = $state<
 		'loading' | 'submitted' | 'streaming' | 'ready'
@@ -186,9 +184,9 @@
 				<Tabs.Content
 					value="summary"
 					class="flex flex-1 overflow-hidden">
-					<ScrollArea
-						bind:vp={autoScroll.ref}
-						class="flex flex-1 flex-col items-center">
+					<div
+						bind:this={autoScroll.ref}
+						class="@container flex flex-1 flex-col overflow-y-scroll">
 						<div
 							class="prose prose-neutral dark:prose-invert prose-p:my-0 pt-2 pb-4">
 							<Markdown
@@ -222,14 +220,14 @@
 								</div>
 							</div>
 						{/if}
-					</ScrollArea>
+					</div>
 				</Tabs.Content>
 				<Tabs.Content
 					value="markdown"
 					class="flex flex-1 overflow-hidden">
-					<ScrollArea
-						bind:vp={autoScrollMarkdown.ref}
-						class="flex flex-1 flex-col items-center">
+					<div
+						bind:this={autoScrollMarkdown.ref}
+						class="flex flex-1 flex-col overflow-y-scroll">
 						<div
 							class="prose prose-neutral dark:prose-invert prose-p:my-0 pt-2 pb-4">
 							<Markdown
@@ -263,7 +261,7 @@
 								</div>
 							</div>
 						{/if}
-					</ScrollArea>
+					</div>
 				</Tabs.Content>
 				<Tabs.Content
 					value="chat"

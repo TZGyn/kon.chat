@@ -328,6 +328,8 @@
 		}
 	})
 
+	let modelSearch = $state('')
+
 	let modelsList = $derived([
 		{
 			name: 'Free Models',
@@ -354,8 +356,6 @@
 			),
 		},
 	])
-
-	let modelSearch = $state('')
 
 	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
 
@@ -551,9 +551,7 @@
 									</Select.Trigger>
 									<Select.Content>
 										<Select.Group>
-											<Select.GroupHeading>
-												Reasoning Effort
-											</Select.GroupHeading>
+											<Select.Label>Reasoning Effort</Select.Label>
 											<Select.Item value="low">Low</Select.Item>
 											<Select.Item value="medium">Medium</Select.Item>
 											<Select.Item value="high">High</Select.Item>
@@ -779,31 +777,31 @@
 	{#if capabilities.searchGrounding}
 		<div
 			class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
-			<SearchIcon />
+			<SearchIcon class="text-green-500" />
 		</div>
 	{/if}
 	{#if capabilities.fast}
 		<div
 			class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
-			<ZapIcon />
+			<ZapIcon class="text-yellow-500" />
 		</div>
 	{/if}
 	{#if capabilities.reasoning}
 		<div
 			class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
-			<BrainIcon />
+			<BrainIcon class="text-purple-500" />
 		</div>
 	{/if}
 	{#if capabilities.image}
 		<div
 			class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
-			<ImageIcon />
+			<ImageIcon class="text-blue-500" />
 		</div>
 	{/if}
 	{#if capabilities.file}
 		<div
 			class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
-			<FileTextIcon />
+			<FileTextIcon class="text-cyan-500" />
 		</div>
 	{/if}
 {/snippet}

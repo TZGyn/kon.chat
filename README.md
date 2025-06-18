@@ -1,28 +1,18 @@
-# sv
+<p align="center">
+	<img width="100" src="./docs/logo.png" alt="logo">
+</p>
+<h1 align="center">
+	Kon.Chat
+</h1>
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+All in one chat app with search tools and file uploads
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
+> The project in undergoing a backend merge, it is recommended not to self host before the merge is complete, it will be significantly easier to self host after the merge. No migration tools will be given for deployments before the merge
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+bun --bun run dev
 ```
 
 ## Building
@@ -30,9 +20,5 @@ npm run dev -- --open
 To create a production version of your app:
 
 ```bash
-npm run build
+bun --bun run build
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

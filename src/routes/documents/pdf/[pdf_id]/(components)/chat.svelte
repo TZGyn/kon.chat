@@ -48,11 +48,12 @@
 	})
 </script>
 
-<ScrollArea
-	bind:vp={autoScroll.ref}
-	class="flex flex-1 flex-col items-center p-4">
+<div
+	bind:this={autoScroll.ref}
+	class="flex flex-1 flex-col items-center overflow-y-scroll">
 	<div class="flex w-full flex-col items-center pt-20 pb-40">
-		<div class="flex w-full max-w-[600px] flex-col gap-4">
+		<div
+			class="@container/chat flex w-full max-w-[600px] flex-col gap-4">
 			{#each useChat.messages as message, index (index)}
 				<MessageBlock
 					data={useChat.data}
@@ -93,7 +94,7 @@
 			{/if}
 		</div>
 	</div>
-</ScrollArea>
+</div>
 
 <MultiModalInput
 	bind:input={useChat.input}
