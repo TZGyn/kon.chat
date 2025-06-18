@@ -6,7 +6,6 @@ import {
 	mistral,
 	openai,
 	openRouter,
-	vertex,
 	xai,
 } from '$api/ai/model'
 import {
