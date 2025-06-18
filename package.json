@@ -24,11 +24,14 @@
 		"@tailwindcss/typography": "^0.5.16",
 		"@tailwindcss/vite": "^4.0.0",
 		"@tanstack/table-core": "^8.20.5",
+		"@types/bun": "^1.2.9",
 		"@types/dom-speech-recognition": "^0.0.4",
 		"@types/lodash": "^4.17.16",
+		"@types/pg": "^8.11.12",
 		"@types/tabulator-tables": "^6.2.4",
 		"bits-ui": "1.5.0",
 		"clsx": "^2.1.1",
+		"drizzle-kit": "^0.30.4",
 		"embla-carousel-svelte": "^8.6.0",
 		"formsnap": "^2.0.1",
 		"layerchart": "2.0.0-next.6",
@@ -49,10 +52,7 @@
 		"tw-animate-css": "^1.3.0",
 		"typescript": "^5.0.0",
 		"vaul-svelte": "^1.0.0-next.7",
-		"vite": "^6.2.5",
-		"@types/bun": "^1.2.9",
-		"@types/pg": "^8.11.12",
-		"drizzle-kit": "^0.30.4"
+		"vite": "^6.3.5"
 	},
 	"dependencies": {
 		"@ai-sdk/anthropic": "^1.2.12",
