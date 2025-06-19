@@ -39,9 +39,10 @@ import {
 	replaceAttachment,
 } from '$api/chat/attachments'
 import type { Message } from '$api/db/type'
+import { describeRoute } from 'hono-openapi'
 
 const app = new Hono()
-	.get('/', async (c) => {
+	.get('/', describeRoute({ tags: ['chat'] }), async (c) => {
 		const token = getCookie(c, 'session') ?? null
 
 		if (token === null) {
@@ -75,7 +76,7 @@ const app = new Hono()
 		return c.json({ chats })
 	})
 
-	.get('/sync', async (c) => {
+	.get('/sync', describeRoute({ tags: ['chat'] }), async (c) => {
 		const token = getCookie(c, 'session') ?? null
 
 		if (token === null) {
@@ -132,6 +133,7 @@ const app = new Hono()
 
 	.post(
 		'/branch',
+		describeRoute({ tags: ['chat'] }),
 		zValidator(
 			'json',
 			z.object({
@@ -269,7 +271,7 @@ const app = new Hono()
 		},
 	)
 
-	.get('/:chat_id', async (c) => {
+	.get('/:chat_id', describeRoute({ tags: ['chat'] }), async (c) => {
 		const token = getCookie(c, 'session') ?? null
 		const chatId = c.req.param('chat_id')
 
@@ -383,6 +385,7 @@ const app = new Hono()
 
 	.post(
 		'/:chat_id',
+		describeRoute({ tags: ['chat'] }),
 		zValidator(
 			'json',
 			z.object({
@@ -785,59 +788,64 @@ const app = new Hono()
 		},
 	)
 
-	.delete('/:chat_id', async (c) => {
-		const token = getCookie(c, 'session') ?? null
-		const chatId = c.req.param('chat_id')
+	.delete(
+		'/:chat_id',
+		describeRoute({ tags: ['chat'] }),
+		async (c) => {
+			const token = getCookie(c, 'session') ?? null
+			const chatId = c.req.param('chat_id')
 
-		if (token === null) return c.json({ success: false })
+			if (token === null) return c.json({ success: false })
 
-		const { session, user } = await validateSessionToken(token)
+			const { session, user } = await validateSessionToken(token)
 
-		if (!user) return c.json({ success: false })
+			if (!user) return c.json({ success: false })
 
-		const existingChat = await db.query.chat.findFirst({
-			where: (chat, { eq, and }) =>
-				and(eq(chat.id, chatId), eq(chat.userId, user.id)),
-			with: {
-				messages: true,
-			},
-		})
+			const existingChat = await db.query.chat.findFirst({
+				where: (chat, { eq, and }) =>
+					and(eq(chat.id, chatId), eq(chat.userId, user.id)),
+				with: {
+					messages: true,
+				},
+			})
 
-		if (!existingChat) return c.json({ success: false })
+			if (!existingChat) return c.json({ success: false })
 
-		await db
-			.delete(chat)
-			.where(and(eq(chat.id, chatId), eq(chat.userId, user.id)))
+			await db
+				.delete(chat)
+				.where(and(eq(chat.id, chatId), eq(chat.userId, user.id)))
 
-		const delete_messages = await db
-			.delete(message)
-			.where(eq(message.chatId, chatId))
-			.returning()
+			const delete_messages = await db
+				.delete(message)
+				.where(eq(message.chatId, chatId))
+				.returning()
 
-		const attachments = getUploadIDsFromMessages(delete_messages)
+			const attachments = getUploadIDsFromMessages(delete_messages)
 
-		const deleted_uploads = await db
-			.delete(upload)
-			.where(
-				and(
-					inArray(upload.id, attachments),
-					eq(upload.userId, user.id),
-				),
+			const deleted_uploads = await db
+				.delete(upload)
+				.where(
+					and(
+						inArray(upload.id, attachments),
+						eq(upload.userId, user.id),
+					),
+				)
+				.returning()
+
+			await Promise.all(
+				deleted_uploads.map(async (upload) => {
+					const s3file = s3Client.file(upload.key)
+					await s3file.delete()
+				}),
 			)
-			.returning()
 
-		await Promise.all(
-			deleted_uploads.map(async (upload) => {
-				const s3file = s3Client.file(upload.key)
-				await s3file.delete()
-			}),
-		)
-
-		return c.json({ success: true })
-	})
+			return c.json({ success: true })
+		},
+	)
 
 	.post(
 		'/:chat_id/upload',
+		describeRoute({ tags: ['chat'] }),
 		zValidator(
 			'form',
 			z.object({
@@ -930,6 +938,7 @@ const app = new Hono()
 
 	.put(
 		'/:chat_id/change_visibility',
+		describeRoute({ tags: ['chat'] }),
 		zValidator(
 			'json',
 			z.object({
@@ -996,110 +1005,115 @@ const app = new Hono()
 		},
 	)
 
-	.post('/:chat_id/copy', async (c) => {
-		const token = getCookie(c, 'session') ?? null
+	.post(
+		'/:chat_id/copy',
+		describeRoute({ tags: ['chat'] }),
+		async (c) => {
+			const token = getCookie(c, 'session') ?? null
 
-		if (token === null) {
-			return c.json({ id: '' }, 401)
-		}
+			if (token === null) {
+				return c.json({ id: '' }, 401)
+			}
 
-		const { session, user } = await validateSessionToken(token)
+			const { session, user } = await validateSessionToken(token)
 
-		if (!user) {
-			return c.json({ id: '' }, 401)
-		}
+			if (!user) {
+				return c.json({ id: '' }, 401)
+			}
 
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
-			deleteSessionTokenCookie(c)
-		}
+			if (session !== null) {
+				setSessionTokenCookie(c, token, session.expiresAt)
+			} else {
+				deleteSessionTokenCookie(c)
+			}
 
-		const chat_id = c.req.param('chat_id')
+			const chat_id = c.req.param('chat_id')
 
-		const existingChat = await db.query.chat.findFirst({
-			where: (chat, t) =>
-				t.and(
-					t.eq(chat.id, chat_id),
-					t.or(
-						t.eq(chat.userId, user.id),
-						t.eq(chat.visibility, 'public'),
+			const existingChat = await db.query.chat.findFirst({
+				where: (chat, t) =>
+					t.and(
+						t.eq(chat.id, chat_id),
+						t.or(
+							t.eq(chat.userId, user.id),
+							t.eq(chat.visibility, 'public'),
+						),
 					),
-				),
-			with: {
-				messages: {
-					orderBy: (messages, t) => [t.asc(messages.createdAt)],
+				with: {
+					messages: {
+						orderBy: (messages, t) => [t.asc(messages.createdAt)],
+					},
 				},
-			},
-		})
+			})
 
-		if (!existingChat) return c.json({ id: '' }, 404)
+			if (!existingChat) return c.json({ id: '' }, 404)
 
-		const attachments = getUploadIDsFromMessages(
-			existingChat.messages,
-		)
+			const attachments = getUploadIDsFromMessages(
+				existingChat.messages,
+			)
 
-		const newChatId = nanoid()
+			const newChatId = nanoid()
 
-		await db.insert(chat).values({
-			id: newChatId,
-			title: existingChat.title,
-			userId: user.id,
-			visibility: 'private',
-			createdAt: Date.now(),
-		})
+			await db.insert(chat).values({
+				id: newChatId,
+				title: existingChat.title,
+				userId: user.id,
+				visibility: 'private',
+				createdAt: Date.now(),
+			})
 
-		const uploads = await db.query.upload.findMany({
-			where: (upload, t) => t.and(t.inArray(upload.id, attachments)),
-		})
+			const uploads = await db.query.upload.findMany({
+				where: (upload, t) =>
+					t.and(t.inArray(upload.id, attachments)),
+			})
 
-		const uploadsData = await Promise.all(
-			uploads.map(async (upload) => {
-				const existing = s3Client.file(upload.key)
+			const uploadsData = await Promise.all(
+				uploads.map(async (upload) => {
+					const existing = s3Client.file(upload.key)
 
-				const copyId = `${
-					user.id
-				}/chat/${newChatId}/upload/${nanoid()}-${upload.name}`
+					const copyId = `${
+						user.id
+					}/chat/${newChatId}/upload/${nanoid()}-${upload.name}`
 
-				const uploadId =
-					nanoid() + `.${upload.mimeType.split('/').pop()}`
-				const copy = s3Client.file(copyId)
+					const uploadId =
+						nanoid() + `.${upload.mimeType.split('/').pop()}`
+					const copy = s3Client.file(copyId)
 
-				await copy.write(existing)
-				return {
-					originalId: upload.id,
-					id: uploadId,
-					name: upload.name,
-					createdAt: Date.now(),
-					userId: user.id,
-					key: copyId,
-					size: upload.size,
-					mimeType: upload.mimeType,
-					visibility: 'private' as const,
-				}
-			}),
-		)
-
-		if (existingChat.messages.length > 0) {
-			const now = Date.now()
-			await db.insert(message).values(
-				existingChat.messages.map((message, index) => {
+					await copy.write(existing)
 					return {
-						...message,
-						id: nanoid(),
-						chatId: newChatId,
-						createdAt: now + index,
-						content: replaceAttachment(message, uploadsData),
+						originalId: upload.id,
+						id: uploadId,
+						name: upload.name,
+						createdAt: Date.now(),
+						userId: user.id,
+						key: copyId,
+						size: upload.size,
+						mimeType: upload.mimeType,
+						visibility: 'private' as const,
 					}
 				}),
 			)
-		}
 
-		if (uploadsData.length > 0) {
-			await db.insert(upload).values([...uploadsData])
-		}
+			if (existingChat.messages.length > 0) {
+				const now = Date.now()
+				await db.insert(message).values(
+					existingChat.messages.map((message, index) => {
+						return {
+							...message,
+							id: nanoid(),
+							chatId: newChatId,
+							createdAt: now + index,
+							content: replaceAttachment(message, uploadsData),
+						}
+					}),
+				)
+			}
 
-		return c.json({ id: newChatId }, 200)
-	})
+			if (uploadsData.length > 0) {
+				await db.insert(upload).values([...uploadsData])
+			}
+
+			return c.json({ id: newChatId }, 200)
+		},
+	)
 
 export { app as ChatRoutes }
