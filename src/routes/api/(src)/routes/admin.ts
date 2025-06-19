@@ -5,6 +5,8 @@ import { describeRoute } from 'hono-openapi'
 import 'zod-openapi/extend'
 import { validator as zValidator } from 'hono-openapi/zod'
 import { z } from 'zod'
+import { message } from '$api/db/schema'
+import { eq } from 'drizzle-orm'
 
 const app = new Hono().post(
 	'/migrate_message_assets',
@@ -39,19 +41,23 @@ const app = new Hono().post(
 			messages
 				.map((message) => message.id)
 				.map(async (id) => {
-					const message = await db.query.message.findFirst({
+					const existingMessage = await db.query.message.findFirst({
 						where: (message, t) => t.eq(message.id, id),
 					})
 
-					if (!message) {
+					if (!existingMessage) {
 						return
 					}
 
-					let newContent = message.content
+					let newContent = existingMessage.content
+
+					console.log('OLD CONTENT:', existingMessage.content)
 
 					if (typeof newContent === 'string') {
+						console.log('Skipped...')
 						return
 					}
+
 					if (Array.isArray(newContent)) {
 						for (const content of newContent) {
 							if (content.type === 'text') {
@@ -104,6 +110,15 @@ const app = new Hono().post(
 							}
 						}
 					}
+
+					console.log('NEW CONTENT:', newContent)
+
+					await db
+						.update(message)
+						.set({
+							content: newContent,
+						})
+						.where(eq(message.id, existingMessage.id))
 				}),
 		)
 		return c.json({ success: true }, 200)
