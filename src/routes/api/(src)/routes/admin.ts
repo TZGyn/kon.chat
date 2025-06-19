@@ -16,6 +16,7 @@ const app = new Hono().post(
 		z.object({
 			oldUrl: z.string().url(),
 			newUrl: z.string().url(),
+			addPathPrefix: z.string().optional(),
 			password: z.string(),
 		}),
 	),
@@ -23,6 +24,7 @@ const app = new Hono().post(
 		const {
 			newUrl: newUrlInput,
 			oldUrl: oldUrlInput,
+			addPathPrefix,
 			password,
 		} = c.req.valid('json')
 
@@ -72,6 +74,9 @@ const app = new Hono().post(
 								if (url.startsWith(oldUrlInput)) {
 									const newUrl = new URL(url)
 									newUrl.hostname = new URL(newUrlInput).hostname
+									if (addPathPrefix) {
+										newUrl.pathname = addPathPrefix + newUrl.pathname
+									}
 									content.image = newUrl.href
 								}
 
@@ -82,27 +87,25 @@ const app = new Hono().post(
 								if (url.startsWith(oldUrlInput)) {
 									const newUrl = new URL(url)
 									newUrl.hostname = new URL(newUrlInput).hostname
+									if (addPathPrefix) {
+										newUrl.pathname = addPathPrefix + newUrl.pathname
+									}
 									content.image = newUrl.href
 								}
 							} else if (
 								content.type === 'tool-result' &&
 								'files' in content.result
 							) {
-								const files: string[] = []
-								for (const url of content.result.files as string[]) {
-									if (url.startsWith(oldUrlInput)) {
-										const id = (url as string).split('/').pop()
-
-										if (!id) continue
-										files.push(id)
-									}
-								}
 								content.result.files = (
 									content.result.files as string[]
 								).map((url) => {
 									if (url.startsWith(oldUrlInput)) {
 										const newUrl = new URL(url)
 										newUrl.hostname = new URL(newUrlInput).hostname
+										if (addPathPrefix) {
+											newUrl.pathname =
+												addPathPrefix + newUrl.pathname
+										}
 										return newUrl.href
 									}
 									return url
