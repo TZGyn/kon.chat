@@ -10,7 +10,7 @@ import { eq } from 'drizzle-orm'
 
 const app = new Hono().post(
 	'/migrate_message_assets',
-	describeRoute({}),
+	describeRoute({ tags: ['admin'] }),
 	zValidator(
 		'json',
 		z.object({
