@@ -9,6 +9,7 @@
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 	import * as m from '$lib/paraglide/messages'
+	import { makeClient } from '$api/api-client'
 
 	let {
 		file,

@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { Chat } from '@ai-sdk/svelte'
-	import { customFetch, customFetchRaw } from '$lib/fetch'
+	import type {
+		Chat as ChatType,
+		Message as MessageType,
+	} from '$api/db/type.js'
 	import { page } from '$app/state'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
 
@@ -36,36 +39,33 @@
 	import { nanoid } from '$lib/nanoid.js'
 	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
+	import { makeClient } from '$api/api-client.js'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
 	let upload_url = $derived(`/chat/${chat_id}/upload`)
 
-	type Message = {
-		id: string
-		createdAt: number
-		chatId: string
-		responseId: string
-		role: string
-		content: unknown
-		model: string | null
-		providerMetadata: any
-		provider: string | null
-	}
+	const client = makeClient(fetch)
 
-	type Chat = {
-		id: string
-		createdAt: number
-		isOwner: boolean
-		title: string
-		visibility: 'private' | 'public'
-		messages: Message[]
-	} | null
+	type Message = Omit<
+		MessageType,
+		'promptTokens' | 'completionTokens' | 'totalTokens'
+	>
+
+	type Chat =
+		| (Omit<ChatType, 'userId' | 'updatedAt'> & {
+				isOwner: boolean
+				messages: Message[]
+		  })
+		| null
 
 	const getChat = async (id: string) => {
 		if (page.url.searchParams.get('type') === 'new_branch') return
-		const data = (await customFetch<{ chat: Chat }>(`/chat/${id}`))
-			.chat
+
+		const response = await client.chat[':chat_id'].$get({
+			param: { chat_id: id },
+		})
+		const data = (await response.json()).chat
 
 		localStorage.setItem(`chat:${id}`, JSON.stringify(data))
 		if (chat_id !== id) return
@@ -178,19 +178,16 @@
 		sharingChat = true
 		const data = chat.value
 		if (!data) return
-		const response = await customFetchRaw(
-			`/chat/${chat_id}/change_visibility`,
-			{
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					visibility:
-						data.visibility === 'private' ? 'public' : 'private',
-				}),
+
+		const response = await client.chat[
+			':chat_id'
+		].change_visibility.$put({
+			param: { chat_id: chat_id },
+			json: {
+				visibility:
+					data.visibility === 'private' ? 'public' : 'private',
 			},
-		)
+		})
 
 		if (response.status === 200) {
 			chat.value = {
@@ -209,8 +206,9 @@
 
 	const copyChat = async (chat_id: string) => {
 		copyingChat = true
-		const response = await customFetchRaw(`/chat/${chat_id}/copy`, {
-			method: 'POST',
+
+		const response = await client.chat[':chat_id'].copy.$post({
+			param: { chat_id: chat_id },
 		})
 
 		if (response.status !== 200) {
@@ -269,16 +267,12 @@
 
 		goto(`/chat/${newChatId}?type=new_branch`)
 
-		const response = await customFetchRaw('/chat/branch', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
+		await client.chat.branch.$post({
+			json: {
 				chat_id: chat_id,
 				new_chat_id: newChatId,
 				at_message_id: at_message_id,
-			}),
+			},
 		})
 	}
 </script>

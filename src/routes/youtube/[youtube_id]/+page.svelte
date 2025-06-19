@@ -4,7 +4,6 @@
 	import * as Tabs from '$lib/components/ui/tabs/index.js'
 	import Chat from './(components)/chat.svelte'
 	import { page } from '$app/state'
-	import { customFetchRaw } from '$lib/fetch'
 	import { processDataStream } from '@ai-sdk/ui-utils'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import { Separator } from '$lib/components/ui/separator'
@@ -14,6 +13,9 @@
 	import { Skeleton } from '$lib/components/ui/skeleton'
 	import { toast } from 'svelte-sonner'
 	import Markdown from '$lib/components/markdown'
+	import { makeClient } from '$api/api-client'
+
+	const client = makeClient(fetch)
 
 	let selectedTab = $state(page.url.searchParams.get('tab') || 'chat')
 	let player = $state<YT.Player>()
@@ -148,9 +150,13 @@
 
 	const getYoutubeData = async () => {
 		status = 'loading'
-		const response = await customFetchRaw(
-			`/youtube/${page.params.youtube_id}`,
-		)
+
+		const response = await client.youtube[':youtube_id'].$get({
+			param: {
+				youtube_id: page.params.youtube_id,
+			},
+		})
+
 		if (!response.ok) {
 			toast.error(await response.text())
 			return

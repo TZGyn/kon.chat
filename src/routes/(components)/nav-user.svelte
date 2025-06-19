@@ -4,7 +4,6 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js'
 	import * as Dialog from '$lib/components/ui/dialog'
 	import { useSidebar } from '$lib/components/ui/sidebar/index.js'
-	import { customFetch } from '$lib/fetch'
 	import {
 		Loader2Icon,
 		LogInIcon,
@@ -31,11 +30,13 @@
 	import { useLocale } from '$lib/lang.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
+	import { makeClient } from '$api/api-client'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
 	const chats = useChats()
 	let user = $derived(userState.user)
+	const client = makeClient(fetch)
 
 	onMount(() => {
 		userState.getUser()
@@ -48,9 +49,8 @@
 
 	const logout = async () => {
 		isLoggingOut = true
-		await customFetch<{}>('/auth/logout', {
-			method: 'POST',
-		})
+		const response = await client.auth.logout.$post()
+
 		chats.getChats()
 		await userState.getUser()
 		logoutDialogOpen = false
@@ -125,46 +125,6 @@
 						</div>
 					</div>
 				</DropdownMenu.Label>
-				<DropdownMenu.Separator />
-				<DropdownMenu.Label class="p-0 font-normal">
-					<div
-						class="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
-						<div class="grid flex-1 text-left text-sm leading-tight">
-							<span
-								class="text-muted-foreground truncate text-xs font-semibold">
-								{m.credits()}: {(user
-									? user.credits + user.purchased_credits || 0
-									: 0) / 100}
-							</span>
-						</div>
-					</div>
-				</DropdownMenu.Label>
-				{#if user === null || user.plan === 'free' || user.plan === 'trial'}
-					<DropdownMenu.Separator />
-					<DropdownMenu.Group>
-						<a href="/billing/plan">
-							<DropdownMenu.Item>
-								<Sparkles class="text-primary" />
-								Upgrade to Pro
-							</DropdownMenu.Item>
-						</a>
-					</DropdownMenu.Group>
-				{/if}
-				{#if user !== null && user.plan !== 'free'}
-					<DropdownMenu.Separator />
-					<DropdownMenu.Group>
-						<!-- <DropdownMenu.Item>
-						<BadgeCheck />
-						Account
-					</DropdownMenu.Item> -->
-						<a href={'/api/billing/portal'}>
-							<DropdownMenu.Item>
-								<CreditCard />
-								{m.billing()}
-							</DropdownMenu.Item>
-						</a>
-					</DropdownMenu.Group>
-				{/if}
 				<DropdownMenu.Separator />
 
 				<DropdownMenu.Group>

@@ -15,30 +15,21 @@
 		FileDropZone,
 		type FileDropZoneProps,
 	} from '$lib/components/ui/file-drop-zone'
-	import { customFetch, customFetchRaw } from '$lib/fetch'
 	import { goto, preloadCode } from '$app/navigation'
 	import { onMount } from 'svelte'
 	import PdfIcon from '../(icons)/PDF-icon.svelte'
 	import { toast } from 'svelte-sonner'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
+	import { makeClient } from '$api/api-client'
+	import type { PDF } from '$api/db/type'
 
 	let open = $state(false)
 	const isDesktop = new MediaQuery('(min-width: 768px)')
+	const client = makeClient(fetch)
 
 	let page = $state(0)
 
-	let pdfs = useLocalStorage<
-		{
-			id: string
-			name: string
-			createdAt: number
-			userId: string
-			summary: string | null
-			type: 'pdf'
-			url: string
-			markdown: string | null
-		}[]
-	>('pdfs', [])
+	let pdfs = useLocalStorage<PDF[]>('pdfs', [])
 
 	let file = $state<File>()
 
@@ -50,20 +41,11 @@
 	}
 
 	const fetchPDFs = async () => {
-		pdfs.value = (
-			await customFetch<{
-				pdfs: {
-					id: string
-					name: string
-					createdAt: number
-					userId: string
-					summary: string | null
-					type: 'pdf'
-					url: string
-					markdown: string | null
-				}[]
-			}>('/documents/pdf')
-		).pdfs
+		const response = await client.documents.pdf.$get()
+		if (response.status === 200) {
+			const data = await response.json()
+			pdfs.value = data.pdfs
+		}
 	}
 
 	let uploadStatus = $state<'submitting' | 'done'>('done')
@@ -73,11 +55,9 @@
 		}
 
 		uploadStatus = 'submitting'
-		const formData = new FormData()
-		formData.append('file', file)
-		const response = await customFetchRaw('/documents/pdf/new', {
-			method: 'POST',
-			body: formData,
+
+		const response = await client.documents.pdf.new.$post({
+			form: { file: file },
 		})
 
 		uploadStatus = 'done'
@@ -94,14 +74,14 @@
 	const deletePDF = async (pdf_id: string) => {
 		const prev = pdfs.value
 		pdfs.value = pdfs.value.filter((pdf) => pdf.id !== pdf_id)
-		const success = (
-			await customFetch<{ success: boolean }>(
-				`/documents/pdf/${pdf_id}`,
-				{
-					method: 'DELETE',
-				},
-			)
-		).success
+
+		const response = await client.documents.pdf[':pdf_id'].$delete({
+			param: {
+				pdf_id: pdf_id,
+			},
+		})
+
+		const success = (await response.json()).success
 
 		if (success) {
 			toast.success('PDF Deleted')

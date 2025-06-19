@@ -18,12 +18,14 @@
 	} from 'lucide-svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
-	import { customFetchRaw } from '$lib/fetch'
 	import { processDataStream } from '@ai-sdk/ui-utils'
 	import { useUser } from '../state.svelte'
 	import { mode } from 'mode-watcher'
+	import { makeClient } from '$api/api-client'
 
 	const user = useUser()
+
+	const client = makeClient(fetch)
 
 	let editorElement: HTMLDivElement
 	let editor: monaco.editor.IStandaloneCodeEditor
@@ -105,19 +107,18 @@
 
 	const submit = async () => {
 		status = 'submitted'
-		const payload = new FormData()
-		payload.append('prompt', input)
-		payload.append('currentHtml', editor.getValue())
-		payload.append('userAvatar', user.user?.avatar ?? '')
-		for (const file of fileInputs) {
-			payload.append('file', file)
-		}
 
-		const response = await customFetchRaw('/website', {
-			method: 'POST',
-			body: payload,
-			signal: controller.signal,
-		})
+		const response = await client.website.$post(
+			{
+				form: {
+					currentHtml: editor.getValue(),
+					prompt: input,
+					userAvatar: user.user?.avatar ?? '',
+					file: fileInputs[0] ?? undefined,
+				},
+			},
+			{ init: { signal: controller.signal } },
+		)
 
 		status = 'streaming'
 
@@ -225,7 +226,7 @@
 								<Button
 									variant="ghost"
 									size="icon"
-									onclick={(e) => {
+									onclick={(e: any) => {
 										if (e.shiftKey) return
 										chatOpen = !chatOpen
 										if (chatOpen) {
@@ -318,7 +319,7 @@
 		</Resizable.Pane>
 		<Resizable.Handle
 			class={cn(
-				'after:bg-border relative hidden w-3 bg-transparent p-0 after:absolute after:top-1/2 after:right-0 after:h-8 after:w-[6px] after:-translate-y-1/2 after:translate-x-[-1px] after:rounded-full after:transition-all after:hover:h-10 sm:block',
+				'after:bg-border relative hidden w-3 bg-transparent p-0 after:absolute after:top-1/2 after:right-0 after:h-8 after:w-[6px] after:translate-x-[-1px] after:-translate-y-1/2 after:rounded-full after:transition-all after:hover:h-10 sm:block',
 			)} />
 		<Resizable.Pane class="flex border" defaultSize={60}>
 			<iframe

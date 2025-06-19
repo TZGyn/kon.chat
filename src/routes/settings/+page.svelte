@@ -14,12 +14,14 @@
 	import { MoonIcon, SunIcon } from '@lucide/svelte'
 	import { resetMode, setMode, mode } from 'mode-watcher'
 	import { onMount } from 'svelte'
-	import { customFetch } from '$lib/fetch'
+	import { makeClient } from '$api/api-client'
 
 	const user = useUser()
 	const chats = useChats()
 
 	const locale = useLocale()
+
+	const client = makeClient(fetch)
 
 	let name = $state('')
 	let additional_system_prompt = $state('')
@@ -46,16 +48,14 @@
 					additional_system_prompt: additional_system_prompt,
 				}
 			: null
-		await customFetch<{ success: boolean }>(`/user/settings`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
+
+		await client.user.settings.$post({
+			json: {
 				name,
 				additional_system_prompt,
-			}),
+			},
 		})
+
 		isLoading = false
 	}
 
@@ -64,9 +64,9 @@
 
 	const deleteAccount = async () => {
 		isDeletingAccount = true
-		await customFetch<{}>('/auth/account', {
-			method: 'DELETE',
-		})
+
+		await client.auth.account.$delete()
+
 		chats.getChats()
 		await user.getUser()
 		deleteAccountDialogOpen = false
@@ -82,22 +82,6 @@
 			<Avatar.Fallback class="text-6xl">K</Avatar.Fallback>
 		</Avatar.Root>
 		<span class="pb-6">{user.user?.email}</span>
-		<span
-			class="bg-secondary flex items-center gap-4 rounded-lg py-2 pr-2 pl-4">
-			<span class="flex items-center gap-2">
-				{((user.user?.credits ?? 0) +
-					(user.user?.purchased_credits ?? 0)) /
-					100}
-				<span class="text-muted-foreground">
-					{m.credits().toLocaleLowerCase()}
-				</span>
-			</span>
-			<Button
-				href="/billing/one-time"
-				data-sveltekit-preload-code="eager">
-				{m.add_credits()}
-			</Button>
-		</span>
 	</div>
 	<div class="grid grid-cols-[auto_1fr] items-center gap-2 py-4">
 		<div>{m.language()}</div>

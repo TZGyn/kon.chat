@@ -17,8 +17,6 @@ import { getMostRecentUserMessage } from '$api/utils'
 // import { type TranscriptSegment } from 'youtubei.js/dist/src/parser/nodes'
 import { getModel, modelSchema } from '$api/model'
 
-const app = new Hono()
-
 // https://stackoverflow.com/questions/19700283/how-to-convert-time-in-milliseconds-to-hours-min-sec-format-in-javascript
 function msToTime(duration: number) {
 	var milliseconds = Math.floor((duration % 1000) / 100),
@@ -45,84 +43,85 @@ function msToTime(duration: number) {
 	)
 }
 
-app.get('/:youtube_id', async (c) => {
-	let token = getCookie(c, 'session') ?? null
-	if (!token || token.startsWith('free:')) {
-		return c.text('You must be logged in to use this feature', {
-			status: 400,
+const app = new Hono()
+	.get('/:youtube_id', async (c) => {
+		let token = getCookie(c, 'session') ?? null
+		if (!token || token.startsWith('free:')) {
+			return c.text('You must be logged in to use this feature', {
+				status: 400,
+			})
+		}
+		const youtube_id = c.req.param('youtube_id')
+
+		const youtubeData = await db.query.youtube.findFirst({
+			where: (youtube, { eq }) => eq(youtube.id, youtube_id),
 		})
-	}
-	const youtube_id = c.req.param('youtube_id')
 
-	const youtubeData = await db.query.youtube.findFirst({
-		where: (youtube, { eq }) => eq(youtube.id, youtube_id),
-	})
+		if (youtubeData) {
+			c.header('Content-Type', 'application/json')
+			return c.json({ youtube: youtubeData })
+		}
 
-	if (youtubeData) {
-		c.header('Content-Type', 'application/json')
-		return c.json({ youtube: youtubeData })
-	}
+		return stream(c, (stream) =>
+			stream.pipe(
+				createDataStream({
+					execute: async (dataStream) => {
+						let info
+						try {
+							const innerTube = await Innertube.create({
+								lang: 'en',
+								retrieve_player: false,
+							})
 
-	return stream(c, (stream) =>
-		stream.pipe(
-			createDataStream({
-				execute: async (dataStream) => {
-					let info
-					try {
-						const innerTube = await Innertube.create({
-							lang: 'en',
-							retrieve_player: false,
-						})
+							info = await innerTube.getInfo(youtube_id)
+						} catch (error) {
+							dataStream.writeData({
+								type: 'error',
+								message: 'Invalid Youtube Link',
+							})
+							return
+						}
+						const title = info.primary_info?.title.text
+						const description = info.secondary_info?.description
+						const channelName = info.basic_info.channel?.name
+						const channelUrl = info.basic_info.channel?.url
+						const uploadTime = info.primary_info?.published
+						const channelThumbnailUrl =
+							info.secondary_info?.owner?.author.best_thumbnail
+								?.url || ''
 
-						info = await innerTube.getInfo(youtube_id)
-					} catch (error) {
 						dataStream.writeData({
-							type: 'error',
-							message: 'Invalid Youtube Link',
+							type: 'youtube_info',
+							info: {
+								title: title || '',
+								description: description?.toString() || '',
+								descriptionHTML: description?.toHTML() || '',
+								channelName: channelName || '',
+								channelUrl: channelUrl || '',
+								uploadTime: uploadTime?.toString() || '',
+								channelThumbnailUrl,
+							},
 						})
-						return
-					}
-					const title = info.primary_info?.title.text
-					const description = info.secondary_info?.description
-					const channelName = info.basic_info.channel?.name
-					const channelUrl = info.basic_info.channel?.url
-					const uploadTime = info.primary_info?.published
-					const channelThumbnailUrl =
-						info.secondary_info?.owner?.author.best_thumbnail?.url ||
-						''
+						const transcriptData = await info.getTranscript()
 
-					dataStream.writeData({
-						type: 'youtube_info',
-						info: {
-							title: title || '',
-							description: description?.toString() || '',
-							descriptionHTML: description?.toHTML() || '',
-							channelName: channelName || '',
-							channelUrl: channelUrl || '',
-							uploadTime: uploadTime?.toString() || '',
-							channelThumbnailUrl,
-						},
-					})
-					const transcriptData = await info.getTranscript()
+						const transcript =
+							transcriptData.transcript.content?.body?.initial_segments
+								.filter(
+									(segment) =>
+										segment.type !== 'TranscriptSectionHeader',
+								)
+								.map((segment) => segment) || []
 
-					const transcript =
-						transcriptData.transcript.content?.body?.initial_segments
-							.filter(
-								(segment) =>
-									segment.type !== 'TranscriptSectionHeader',
-							)
-							.map((segment) => segment) || []
+						dataStream.writeData({
+							type: 'youtube_transcript',
+							transcript: JSON.stringify(transcript),
+						})
 
-					dataStream.writeData({
-						type: 'youtube_transcript',
-						transcript: JSON.stringify(transcript),
-					})
-
-					const result = streamText({
-						model: google('gemini-2.5-flash-preview-04-17', {
-							structuredOutputs: false,
-						}),
-						system: `
+						const result = streamText({
+							model: google('gemini-2.5-flash-preview-04-17', {
+								structuredOutputs: false,
+							}),
+							system: `
 							- You will be given a transcript of a video
 							- The transcript will be in {start timestamp}-{end timestamp}:{text} format for each line
 							- timestamp and only be in these format: h:mm:ss or mm:ss, where h is hour, mm is minute and ss is seconds
@@ -157,108 +156,108 @@ app.get('/:youtube_id', async (c) => {
 							The video channel name is ${channelName}
 							Upload date is ${uploadTime}
 						`,
-						prompt: transcript
-							.filter(
-								(segment) =>
-									segment.type !== 'TranscriptSectionHeader',
-							)
-							.map(
-								(segment) =>
-									`${msToTime(Number(segment.start_ms))}-${msToTime(
-										Number(segment.end_ms),
-									)}:${segment.snippet.text}`,
-							)
-							.join('\n'),
-						experimental_transform: smoothStream({
-							delayInMs: 10, // optional: defaults to 10ms
-							chunking: 'word', // optional: defaults to 'word'
-						}),
-						onFinish: async ({ usage, response, text }) => {
-							const youtubeData = await db.query.youtube.findFirst({
-								where: (youtube, { eq }) =>
-									eq(youtube.id, youtube_id),
-							})
-							if (youtubeData) return
+							prompt: transcript
+								.filter(
+									(segment) =>
+										segment.type !== 'TranscriptSectionHeader',
+								)
+								.map(
+									(segment) =>
+										`${msToTime(Number(segment.start_ms))}-${msToTime(
+											Number(segment.end_ms),
+										)}:${segment.snippet.text}`,
+								)
+								.join('\n'),
+							experimental_transform: smoothStream({
+								delayInMs: 10, // optional: defaults to 10ms
+								chunking: 'word', // optional: defaults to 'word'
+							}),
+							onFinish: async ({ usage, response, text }) => {
+								const youtubeData = await db.query.youtube.findFirst({
+									where: (youtube, { eq }) =>
+										eq(youtube.id, youtube_id),
+								})
+								if (youtubeData) return
 
-							await db.insert(youtube).values({
-								id: youtube_id,
-								channelName: channelName || '',
-								channelUrl: channelUrl || '',
-								channelThumbnailUrl: channelThumbnailUrl,
-								description: description?.toString() || '',
-								descriptionHTML: description?.toHTML() || '',
-								summary: text,
-								uploadTime: uploadTime?.toString() || '',
-								title: title || '',
-								transcript: transcript,
-								createdAt: Date.now(),
-							})
-						},
-					})
+								await db.insert(youtube).values({
+									id: youtube_id,
+									channelName: channelName || '',
+									channelUrl: channelUrl || '',
+									channelThumbnailUrl: channelThumbnailUrl,
+									description: description?.toString() || '',
+									descriptionHTML: description?.toHTML() || '',
+									summary: text,
+									uploadTime: uploadTime?.toString() || '',
+									title: title || '',
+									transcript: transcript,
+									createdAt: Date.now(),
+								})
+							},
+						})
 
-					result.mergeIntoDataStream(dataStream)
-				},
+						result.mergeIntoDataStream(dataStream)
+					},
+				}),
+			),
+		)
+	})
+
+	.post(
+		'/:youtube_id',
+		zValidator(
+			'json',
+			z.object({
+				messages: z.any(),
+				provider: modelSchema,
+				transcript: z.custom<any>().array(),
+				searchGrounding: z.boolean().default(false),
 			}),
 		),
-	)
-})
+		async (c) => {
+			const youtube_id = c.req.param('youtube_id')
 
-app.post(
-	'/:youtube_id',
-	zValidator(
-		'json',
-		z.object({
-			messages: z.any(),
-			provider: modelSchema,
-			transcript: z.custom<any>().array(),
-			searchGrounding: z.boolean().default(false),
-		}),
-	),
-	async (c) => {
-		const youtube_id = c.req.param('youtube_id')
+			const { provider, searchGrounding, transcript, messages } =
+				c.req.valid('json')
 
-		const { provider, searchGrounding, transcript, messages } =
-			c.req.valid('json')
+			let coreMessages = convertToCoreMessages(messages)
+			const userMessage = getMostRecentUserMessage(coreMessages)
 
-		let coreMessages = convertToCoreMessages(messages)
-		const userMessage = getMostRecentUserMessage(coreMessages)
+			if (!userMessage) {
+				return c.text('No User Message', { status: 400 })
+			}
 
-		if (!userMessage) {
-			return c.text('No User Message', { status: 400 })
-		}
+			const { model, error, providerOptions } = getModel({
+				provider,
+				searchGrounding,
+			})
 
-		const { model, error, providerOptions } = getModel({
-			provider,
-			searchGrounding,
-		})
+			if (error !== null) {
+				return c.text(error, 400)
+			}
 
-		if (error !== null) {
-			return c.text(error, 400)
-		}
+			return stream(c, (stream) =>
+				stream.pipe(
+					createDataStream({
+						execute: async (dataStream) => {
+							dataStream.writeMessageAnnotation({
+								type: 'model',
+								model: provider.model,
+							})
 
-		return stream(c, (stream) =>
-			stream.pipe(
-				createDataStream({
-					execute: async (dataStream) => {
-						dataStream.writeMessageAnnotation({
-							type: 'model',
-							model: provider.model,
-						})
+							dataStream.writeData({
+								type: 'message',
+								message: 'Understanding prompt',
+							})
 
-						dataStream.writeData({
-							type: 'message',
-							message: 'Understanding prompt',
-						})
+							dataStream.writeData({
+								type: 'message',
+								message: 'Generating Response',
+							})
 
-						dataStream.writeData({
-							type: 'message',
-							message: 'Generating Response',
-						})
-
-						const result = streamText({
-							model: model,
-							messages: coreMessages,
-							system: `
+							const result = streamText({
+								model: model,
+								messages: coreMessages,
+								system: `
 								You are a youtube chat assistant
 								${
 									!searchGrounding &&
@@ -308,40 +307,40 @@ app.post(
 									),
 								)}
 							`,
-							providerOptions,
-							onChunk: ({ chunk }) => {},
-							onStepFinish: (data) => {},
-							onError: (error) => {
-								console.log(error)
-							},
-							experimental_transform: smoothStream({
-								delayInMs: 20, // optional: defaults to 10ms
-								chunking: 'word', // optional: defaults to 'word'
-							}),
-							onFinish: async ({
-								response,
-								usage,
-								reasoning,
-								providerMetadata,
-							}) => {},
-						})
+								providerOptions,
+								onChunk: ({ chunk }) => {},
+								onStepFinish: (data) => {},
+								onError: (error) => {
+									console.log(error)
+								},
+								experimental_transform: smoothStream({
+									delayInMs: 20, // optional: defaults to 10ms
+									chunking: 'word', // optional: defaults to 'word'
+								}),
+								onFinish: async ({
+									response,
+									usage,
+									reasoning,
+									providerMetadata,
+								}) => {},
+							})
 
-						result.mergeIntoDataStream(dataStream, {
-							sendReasoning: true,
-						})
-					},
-					onError: (error) => {
-						// Error messages are masked by default for security reasons.
-						// If you want to expose the error message to the client, you can do so here:
-						console.log(error)
-						return error instanceof Error
-							? error.message
-							: String(error)
-					},
-				}),
-			),
-		)
-	},
-)
+							result.mergeIntoDataStream(dataStream, {
+								sendReasoning: true,
+							})
+						},
+						onError: (error) => {
+							// Error messages are masked by default for security reasons.
+							// If you want to expose the error message to the client, you can do so here:
+							console.log(error)
+							return error instanceof Error
+								? error.message
+								: String(error)
+						},
+					}),
+				),
+			)
+		},
+	)
 
 export { app as YoutubeRoutes }

@@ -107,4 +107,4 @@
 	enableSearch={false}
 	customData={() => ({ markdown: markdown })}
 	{autoScroll}
-	{stop} />
+	stop={useChat.stop} />
