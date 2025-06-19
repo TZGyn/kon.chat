@@ -25,7 +25,6 @@ import { Hono } from 'hono'
 import { type GoogleGenerativeAIProviderMetadata } from '@ai-sdk/google'
 import { getModel, modelSchema } from '$api/model'
 import { checkNewChat, processMessages } from '$api/message'
-import { checkRatelimit } from '$api/ratelimit'
 import {
 	mergeChunksToResponse,
 	updateUserChatAndLimit,
@@ -594,22 +593,24 @@ app.post(
 			)
 		}
 
-		const {
-			error: ratelimitError,
-			limit,
-			token,
-			cookie,
-		} = await checkRatelimit({
-			c,
-			provider,
-			mode,
-		})
+		const chatId = c.req.param('chat_id')
 
-		if (ratelimitError !== undefined) {
-			return c.text(ratelimitError, { status: 400 })
+		const token = getCookie(c, 'session') ?? null
+
+		if (token === null) {
+			return c.json({ error: { message: 'Unauthenticated' } }, 400)
 		}
 
-		const chatId = c.req.param('chat_id')
+		let cookie: 'none' | 'set' | 'delete' = 'none'
+		const { session, user } = await validateSessionToken(token)
+		if (!user)
+			return c.json({ error: { message: 'Unauthenticated' } }, 400)
+
+		if (session !== null) {
+			cookie = 'set'
+		} else {
+			cookie = 'delete'
+		}
 
 		const {
 			coreMessages,
@@ -628,24 +629,9 @@ app.post(
 			token: token,
 		})
 
-		if (limit.plan === 'free' || limit.plan === 'trial') {
-			if (Array.isArray(userMessage.content)) {
-				if (
-					userMessage.content.some((content) => {
-						return content.type !== 'text'
-					})
-				) {
-					return c.text('No image upload allowed for free plan', {
-						status: 400,
-					})
-				}
-			}
-		}
-
 		const { model, error, providerOptions } = getModel({
 			provider,
 			searchGrounding,
-			token,
 		})
 
 		if (error !== null) {
@@ -1097,12 +1083,6 @@ app.post(
 
 		if (!user) {
 			return c.json({ link: '' }, 401)
-		}
-		if (!['pro', 'basic'].includes(user.plan)) {
-			return c.text(
-				'You need to have basic/pro plan to use this feature',
-				400,
-			)
 		}
 
 		if (session !== null) {

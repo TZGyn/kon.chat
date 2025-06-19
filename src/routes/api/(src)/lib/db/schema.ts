@@ -17,15 +17,6 @@ export const user = pgTable('user', {
 	githubId: varchar('github_id', { length: 255 }),
 	username: varchar('username', { length: 255 }).notNull(),
 	email: varchar('email', { length: 255 }).notNull(),
-	credits: bigint('credits', { mode: 'number' }).notNull().default(0),
-	purchasedCredits: bigint('purchased_credits', { mode: 'number' })
-		.notNull()
-		.default(0),
-	polarCustomerId: varchar('polar_customer_id', { length: 255 }),
-	plan: varchar('plan', { length: 255 })
-		.notNull()
-		.$type<'free' | 'pro' | 'basic' | 'owner'>()
-		.default('free'),
 	nameForLLM: varchar('name_for_llm', { length: 255 })
 		.notNull()
 		.default(''),

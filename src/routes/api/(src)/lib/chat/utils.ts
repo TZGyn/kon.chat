@@ -7,7 +7,6 @@ import { validateSessionToken } from '$api/auth/session'
 import { db } from '$api/db'
 import { chat, message } from '$api/db/schema'
 import { type Provider } from '$api/model'
-import { updateUserRatelimit } from '$api/ratelimit'
 import { nanoid } from '$api/utils'
 import {
 	type CoreAssistantMessage,
@@ -152,31 +151,6 @@ export const updateUserChatAndLimit = async ({
 			),
 		)
 	}
-
-	await updateUserRatelimit({
-		provider,
-		user: loggedInUser,
-		mode,
-	})
-}
-
-export const updateUserLimit = async ({
-	token,
-	provider,
-}: {
-	token: string
-	provider: Provider
-}) => {
-	const { session, user: loggedInUser } =
-		await validateSessionToken(token)
-
-	if (!loggedInUser) return
-
-	await updateUserRatelimit({
-		provider,
-		user: loggedInUser,
-		mode: 'chat',
-	})
 }
 
 export const mergeChunksToResponse = (

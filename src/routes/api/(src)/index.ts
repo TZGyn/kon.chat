@@ -12,7 +12,6 @@ import { UserRoutes } from './routes/user'
 import { ChatRoutes } from './routes/chat'
 import { FileUploadRoutes } from './routes/file-upload'
 import { WebhookRoutes } from './routes/webhook'
-import { BillingRoutes } from './routes/billing'
 import { DocumentsRoutes } from './routes/document'
 import { YoutubeRoutes } from './routes/youtube'
 import { WebsiteRoutes } from './routes/website'
@@ -52,14 +51,16 @@ app.get(
 	}),
 )
 
-app.route('/auth', AuthRoutes)
-app.route('/user', UserRoutes)
-app.route('/chat', ChatRoutes)
-app.route('/file-upload', FileUploadRoutes)
-app.route('/webhook', WebhookRoutes)
-app.route('/billing', BillingRoutes)
-app.route('/documents', DocumentsRoutes)
-app.route('/youtube', YoutubeRoutes)
-app.route('/website', WebsiteRoutes)
+const router = app
+	.route('/auth', AuthRoutes)
+	.route('/user', UserRoutes)
+	.route('/chat', ChatRoutes)
+	.route('/file-upload', FileUploadRoutes)
+	.route('/webhook', WebhookRoutes)
+	.route('/documents', DocumentsRoutes)
+	.route('/youtube', YoutubeRoutes)
+	.route('/website', WebsiteRoutes)
 
 export const api = new Hono().route('/api', app)
+
+export type Router = typeof router

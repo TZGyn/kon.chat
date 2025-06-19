@@ -9,12 +9,11 @@ import {
 	setSessionTokenCookie,
 	validateSessionToken,
 } from '$api/auth/session'
-import { updateUserLimit } from '$api/chat/utils'
 import { db } from '$api/db'
 import { document, embeddings, upload } from '$api/db/schema'
 import { processMessages } from '$api/message'
+import { authMiddleware } from '$api/middleware/auth'
 import { getModel, modelSchema } from '$api/model'
-import { checkRatelimit } from '$api/ratelimit'
 import { s3Client } from '$api/s3'
 import { nanoid } from '$api/utils'
 import { zValidator } from '@hono/zod-validator'
@@ -132,7 +131,9 @@ app.post(
 				}
 
 				const pdfContent = await response.blob()
-				file = pdfContent
+				file = new File([pdfContent], 'download.pdf', {
+					type: pdfContent.type,
+				})
 			} catch (error) {
 				return c.json({ id: '' }, 401)
 			}
@@ -501,6 +502,7 @@ app.get('/:pdf_id', async (c) => {
 
 app.post(
 	'/:pdf_id',
+	authMiddleware,
 	zValidator(
 		'json',
 		z.object({
@@ -524,21 +526,6 @@ app.post(
 			c.req.valid('json')
 
 		const {
-			error: ratelimitError,
-			limit,
-			token,
-			cookie,
-		} = await checkRatelimit({
-			c,
-			provider,
-			mode,
-		})
-
-		if (ratelimitError !== undefined) {
-			return c.text(ratelimitError, { status: 400 })
-		}
-
-		const {
 			coreMessages,
 			error: processMessageError,
 			userMessage,
@@ -549,24 +536,9 @@ app.post(
 			return c.text(processMessageError, { status: 400 })
 		}
 
-		if (limit.plan === 'free' || limit.plan === 'trial') {
-			if (Array.isArray(userMessage.content)) {
-				if (
-					userMessage.content.some((content) => {
-						return content.type !== 'text'
-					})
-				) {
-					return c.text('No image upload allowed for free plan', {
-						status: 400,
-					})
-				}
-			}
-		}
-
 		const modelDetails = getModel({
 			provider,
 			searchGrounding,
-			token,
 		})
 
 		if (modelDetails.error !== null) {
@@ -653,12 +625,7 @@ app.post(
 						usage,
 						reasoning,
 						providerMetadata,
-					}) => {
-						updateUserLimit({
-							provider,
-							token,
-						})
-					},
+					}) => {},
 				})
 
 				result.mergeIntoDataStream(dataStream)
@@ -667,24 +634,8 @@ app.post(
 	},
 )
 
-app.delete('/:pdf_id', async (c) => {
-	const token = getCookie(c, 'session') ?? null
-
-	if (token === null) {
-		return c.json({ success: false }, 400)
-	}
-
-	const { session, user } = await validateSessionToken(token)
-
-	if (!user) {
-		return c.json({ success: false }, 400)
-	}
-
-	if (session !== null) {
-		setSessionTokenCookie(c, token, session.expiresAt)
-	} else {
-		deleteSessionTokenCookie(c)
-	}
+app.delete('/:pdf_id', authMiddleware, async (c) => {
+	const user = c.var.user
 
 	const pdf_id = c.req.param('pdf_id')
 

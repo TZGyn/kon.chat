@@ -135,11 +135,9 @@ export const premiumModels = [
 export const getModel = ({
 	provider,
 	searchGrounding,
-	token,
 }: {
 	provider: Provider
 	searchGrounding: boolean
-	token: string
 }):
 	| {
 			model: LanguageModelV1

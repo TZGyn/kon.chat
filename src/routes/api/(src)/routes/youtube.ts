@@ -16,8 +16,6 @@ import { getCookie } from 'hono/cookie'
 import { getMostRecentUserMessage } from '$api/utils'
 // import { type TranscriptSegment } from 'youtubei.js/dist/src/parser/nodes'
 import { getModel, modelSchema } from '$api/model'
-import { checkRatelimit } from '$api/ratelimit'
-import { updateUserLimit } from '$api/chat/utils'
 
 const app = new Hono()
 
@@ -222,20 +220,6 @@ app.post(
 		const { provider, searchGrounding, transcript, messages } =
 			c.req.valid('json')
 
-		const {
-			error: ratelimitError,
-			limit,
-			token,
-		} = await checkRatelimit({
-			c,
-			provider,
-			mode: 'chat',
-		})
-
-		if (ratelimitError !== undefined) {
-			return c.text(ratelimitError, { status: 400 })
-		}
-
 		let coreMessages = convertToCoreMessages(messages)
 		const userMessage = getMostRecentUserMessage(coreMessages)
 
@@ -246,7 +230,6 @@ app.post(
 		const { model, error, providerOptions } = getModel({
 			provider,
 			searchGrounding,
-			token,
 		})
 
 		if (error !== null) {
@@ -340,12 +323,7 @@ app.post(
 								usage,
 								reasoning,
 								providerMetadata,
-							}) => {
-								updateUserLimit({
-									provider,
-									token,
-								})
-							},
+							}) => {},
 						})
 
 						result.mergeIntoDataStream(dataStream, {

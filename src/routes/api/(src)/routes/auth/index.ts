@@ -17,8 +17,6 @@ import {
 	upload,
 	user,
 } from '$api/db/schema'
-import { redis } from '$api/redis'
-import { type Limit } from '$api/ratelimit'
 import { and, eq, inArray } from 'drizzle-orm'
 import { describeRoute } from 'hono-openapi'
 import { LoginRoutes } from './login'
@@ -31,22 +29,6 @@ const app = new Hono()
 
 		if (token === null) {
 			return c.json({ user: null })
-		}
-
-		if (token.startsWith('free:')) {
-			let limit = await redis.get<Limit>(token + '-limit')
-			if (!limit) return c.json({ user: null })
-
-			return c.json({
-				user: {
-					email: '',
-					name: '',
-					plan: 'trial',
-					avatar: '',
-					credits: limit.credits,
-					purchased_credits: limit.purchased_credits,
-				},
-			})
 		}
 
 		const { session, user } = await validateSessionToken(token)
@@ -71,31 +53,12 @@ const app = new Hono()
 			},
 		})
 
-		if (currentUser) {
-			await Promise.all(
-				currentUser.sessions.map(async (session) => {
-					await redis.set<Limit>(
-						session.id + '-limit',
-						{
-							plan: currentUser.plan,
-							credits: currentUser.credits,
-							purchased_credits: currentUser.purchasedCredits,
-						},
-						{ ex: 60 * 60 * 24 },
-					)
-				}),
-			)
-		}
-
 		return c.json({
 			user: user
 				? {
 						email: user.email,
 						name: user.username,
-						plan: user.plan,
 						avatar: user.avatar,
-						credits: user.credits,
-						purchased_credits: user.purchasedCredits,
 						name_for_llm: user.nameForLLM,
 						additional_system_prompt: user.additionalSystemPrompt,
 					}
@@ -103,7 +66,7 @@ const app = new Hono()
 		})
 	})
 
-	.post('/logout', describeRoute({}), async (c) => {
+	.post('/logout', describeRoute({ tags: ['auth'] }), async (c) => {
 		const token = getCookie(c, 'session') ?? null
 
 		if (token === null) {
@@ -128,59 +91,97 @@ const app = new Hono()
 		return c.json({}, 200)
 	})
 
-	.delete('/account', async (c) => {
-		const token = getCookie(c, 'session') ?? null
+	.delete(
+		'/account',
+		describeRoute({ tags: ['auth'] }),
+		async (c) => {
+			const token = getCookie(c, 'session') ?? null
 
-		if (token === null) {
-			return c.json({ user: null })
-		}
+			if (token === null) {
+				return c.json({ user: null })
+			}
 
-		const { session, user: loggedInUser } =
-			await validateSessionToken(token)
+			const { session, user: loggedInUser } =
+				await validateSessionToken(token)
 
-		if (!loggedInUser) {
-			return c.json({}, 401)
-		}
+			if (!loggedInUser) {
+				return c.json({}, 401)
+			}
 
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
+			if (session !== null) {
+				setSessionTokenCookie(c, token, session.expiresAt)
+			} else {
+				deleteSessionTokenCookie(c)
+			}
+
+			await invalidateSession(loggedInUser.id)
 			deleteSessionTokenCookie(c)
-		}
 
-		await invalidateSession(loggedInUser.id)
-		deleteSessionTokenCookie(c)
+			await db.delete(user).where(eq(user.id, loggedInUser.id))
 
-		await db.delete(user).where(eq(user.id, loggedInUser.id))
+			const chats = await db.query.chat.findMany({
+				where: (chat, t) => t.and(t.eq(chat.userId, loggedInUser.id)),
+			})
 
-		const chats = await db.query.chat.findMany({
-			where: (chat, t) => t.and(t.eq(chat.userId, loggedInUser.id)),
-		})
-
-		if (chats.length > 0) {
-			await db.delete(chat).where(
-				inArray(
-					chat.id,
-					chats.map((chat) => chat.id),
-				),
-			)
-
-			const messages = await db
-				.delete(message)
-				.where(
+			if (chats.length > 0) {
+				await db.delete(chat).where(
 					inArray(
-						message.chatId,
+						chat.id,
 						chats.map((chat) => chat.id),
 					),
 				)
+
+				const messages = await db
+					.delete(message)
+					.where(
+						inArray(
+							message.chatId,
+							chats.map((chat) => chat.id),
+						),
+					)
+					.returning()
+
+				const uploads = getUploadIDsFromMessages(messages)
+
+				if (uploads.length > 0) {
+					const deletedUploads = await db
+						.delete(upload)
+						.where(inArray(upload.id, uploads))
+						.returning()
+
+					await Promise.all(
+						deletedUploads.map(async (upload) => {
+							const file = s3Client.file(upload.key)
+							await file.delete()
+						}),
+					)
+				}
+			}
+
+			const documents = await db
+				.delete(document)
+				.where(eq(document.userId, loggedInUser.id))
 				.returning()
 
-			const uploads = getUploadIDsFromMessages(messages)
+			if (documents.length > 0) {
+				await db.delete(embeddings).where(
+					and(
+						eq(embeddings.resourceType, 'document'),
+						inArray(
+							embeddings.resourceId,
+							documents.map((document) => document.id),
+						),
+					),
+				)
 
-			if (uploads.length > 0) {
 				const deletedUploads = await db
 					.delete(upload)
-					.where(inArray(upload.id, uploads))
+					.where(
+						inArray(
+							upload.id,
+							documents.map((document) => document.uploadId),
+						),
+					)
 					.returning()
 
 				await Promise.all(
@@ -190,44 +191,10 @@ const app = new Hono()
 					}),
 				)
 			}
-		}
 
-		const documents = await db
-			.delete(document)
-			.where(eq(document.userId, loggedInUser.id))
-			.returning()
-
-		if (documents.length > 0) {
-			await db.delete(embeddings).where(
-				and(
-					eq(embeddings.resourceType, 'document'),
-					inArray(
-						embeddings.resourceId,
-						documents.map((document) => document.id),
-					),
-				),
-			)
-
-			const deletedUploads = await db
-				.delete(upload)
-				.where(
-					inArray(
-						upload.id,
-						documents.map((document) => document.uploadId),
-					),
-				)
-				.returning()
-
-			await Promise.all(
-				deletedUploads.map(async (upload) => {
-					const file = s3Client.file(upload.key)
-					await file.delete()
-				}),
-			)
-		}
-
-		return c.json({}, 200)
-	})
+			return c.json({}, 200)
+		},
+	)
 
 app.route('/login', LoginRoutes)
 

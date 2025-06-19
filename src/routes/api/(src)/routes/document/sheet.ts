@@ -5,9 +5,7 @@ import { stream } from 'hono/streaming'
 import { z } from 'zod'
 import * as mathjs from 'mathjs'
 import { getModel, modelSchema } from '$api/model'
-import { checkRatelimit } from '$api/ratelimit'
 import { processMessages } from '$api/message'
-import { updateUserLimit } from '$api/chat/utils'
 
 const app = new Hono()
 
@@ -41,20 +39,6 @@ app.post(
 		} = c.req.valid('json')
 
 		const {
-			error: ratelimitError,
-			limit,
-			token,
-		} = await checkRatelimit({
-			c,
-			provider,
-			mode: 'chat',
-		})
-
-		if (ratelimitError !== undefined) {
-			return c.text(ratelimitError, { status: 400 })
-		}
-
-		const {
 			coreMessages,
 			error: processMessageError,
 			userMessage,
@@ -68,7 +52,6 @@ app.post(
 		const { model, error, providerOptions } = getModel({
 			provider,
 			searchGrounding,
-			token,
 		})
 
 		if (error !== null) {
@@ -392,12 +375,7 @@ app.post(
 								usage,
 								reasoning,
 								providerMetadata,
-							}) => {
-								updateUserLimit({
-									provider,
-									token,
-								})
-							},
+							}) => {},
 						})
 
 						result.mergeIntoDataStream(dataStream, {
