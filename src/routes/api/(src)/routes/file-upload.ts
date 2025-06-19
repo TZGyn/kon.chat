@@ -12,14 +12,11 @@ const app = new Hono().get('/:upload_id', async (c) => {
 		return c.text('', { status: 404 })
 	}
 
-	console.log(uploadContent)
-
 	const s3file = s3Client.file(uploadContent.key)
 
 	return c.newResponse(s3file.stream(), {
 		headers: {
 			'Cache-Control': 'public, max-age=31536000, immutable',
-			'Content-Type': s3file.type,
 		},
 	})
 })
