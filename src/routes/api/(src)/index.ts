@@ -15,6 +15,7 @@ import { WebhookRoutes } from './routes/webhook'
 import { DocumentsRoutes } from './routes/document'
 import { YoutubeRoutes } from './routes/youtube'
 import { WebsiteRoutes } from './routes/website'
+import { AdminRoutes } from './routes/admin'
 
 const app = new Hono()
 app.use(cors())
@@ -60,6 +61,7 @@ const router = app
 	.route('/documents', DocumentsRoutes)
 	.route('/youtube', YoutubeRoutes)
 	.route('/website', WebsiteRoutes)
+	.route('/admin', AdminRoutes)
 
 export const api = new Hono().route('/api', app)
 
