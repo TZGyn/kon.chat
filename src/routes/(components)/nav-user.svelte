@@ -30,6 +30,7 @@
 	import * as m from '$lib/paraglide/messages'
 	import { useLocale } from '$lib/lang.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
+	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
@@ -262,7 +263,7 @@
 		</Dialog.Header>
 		<div class="grid gap-4">
 			<Button
-				href={`/api/auth/login/github?redirect=${Bun.env.PUBLIC_APP_URL + '/'}`}
+				href={`/api/auth/login/github?redirect=${PUBLIC_APP_URL + '/'}`}
 				variant="outline"
 				class="w-full">
 				<svg
@@ -278,7 +279,7 @@
 				Login with Github
 			</Button>
 			<Button
-				href={`/api/auth/login/google?redirect=${Bun.env.PUBLIC_APP_URL + '/'}`}
+				href={`/api/auth/login/google?redirect=${PUBLIC_APP_URL + '/'}`}
 				variant="outline"
 				class="w-full">
 				<svg

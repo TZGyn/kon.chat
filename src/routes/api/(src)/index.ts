@@ -15,7 +15,6 @@ import { WebhookRoutes } from './routes/webhook'
 import { BillingRoutes } from './routes/billing'
 import { DocumentsRoutes } from './routes/document'
 import { YoutubeRoutes } from './routes/youtube'
-import { VersionRoutes } from './routes/version'
 import { WebsiteRoutes } from './routes/website'
 
 const app = new Hono()
@@ -61,7 +60,6 @@ app.route('/webhook', WebhookRoutes)
 app.route('/billing', BillingRoutes)
 app.route('/documents', DocumentsRoutes)
 app.route('/youtube', YoutubeRoutes)
-app.route('/version', VersionRoutes)
 app.route('/website', WebsiteRoutes)
 
 export const api = new Hono().route('/api', app)

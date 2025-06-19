@@ -35,6 +35,7 @@
 	import { Snippet } from '$lib/components/ui/snippet'
 	import { nanoid } from '$lib/nanoid.js'
 	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
+	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -415,7 +416,7 @@
 			{#if chat.value?.visibility === 'public'}
 				<div class="flex w-full justify-center">
 					<Snippet
-						text={Bun.env.PUBLIC_APP_URL + `/chat/${chat_id}`}
+						text={PUBLIC_APP_URL + `/chat/${chat_id}`}
 						class="w-full max-w-[100cqw]"
 						singleLineClass="overflow-hidden text-ellipsis" />
 				</div>
@@ -467,7 +468,7 @@
 			{#if !user.user}
 				<div class="grid gap-4">
 					<Button
-						href={`/api/auth/login/github?redirect=${Bun.env.PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
+						href={`/api/auth/login/github?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
 						variant="outline"
 						class="w-full">
 						<svg
@@ -483,7 +484,7 @@
 						Login with Github
 					</Button>
 					<Button
-						href={`/api/auth/login/google?redirect=${Bun.env.PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
+						href={`/api/auth/login/google?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
 						variant="outline"
 						class="w-full">
 						<svg
