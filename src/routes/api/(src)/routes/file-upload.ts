@@ -12,6 +12,8 @@ const app = new Hono().get('/:upload_id', async (c) => {
 		return c.text('', { status: 404 })
 	}
 
+	console.log(uploadContent)
+
 	const s3file = s3Client.file(uploadContent.key)
 
 	return c.newResponse(s3file.stream(), {
