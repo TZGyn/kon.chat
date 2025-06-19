@@ -14,6 +14,7 @@ import { db } from './db'
 import { generateTitleFromUserMessage } from './ai/utils'
 import { chat } from './db/schema'
 import { validateSessionToken } from './auth/session'
+import { PUBLIC_APP_URL } from '$env/static/public'
 
 export const processMessages = ({
 	messages,
@@ -58,8 +59,7 @@ export const processMessages = ({
 									if (content.type === 'image') {
 										if (
 											content.image instanceof URL &&
-											Bun.env.APP_URL &&
-											content.image.origin === Bun.env.APP_URL
+											content.image.origin === PUBLIC_APP_URL
 										) {
 											return [
 												{
@@ -102,10 +102,7 @@ export const processMessages = ({
 				) {
 					const files = (
 						message.content[0].result as { files: string[] }
-					).files.filter(
-						(url) =>
-							Bun.env.APP_URL && url.startsWith(Bun.env.APP_URL),
-					)
+					).files.filter((url) => url.startsWith(PUBLIC_APP_URL))
 
 					if (files.length <= 0) {
 						return [message] as (

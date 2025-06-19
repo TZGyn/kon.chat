@@ -8,6 +8,7 @@ import {
 } from 'ai'
 import { z } from 'zod'
 import { getCookie } from 'hono/cookie'
+import { APP_ENV } from '$env/static/private'
 
 // For extending the Zod schema with OpenAPI properties
 import 'zod-openapi/extend'
@@ -33,6 +34,11 @@ import { serialize } from 'hono/utils/cookie'
 import { tools } from '$api/ai/tools'
 import { nanoid } from '$api/utils'
 import { s3Client } from '$api/s3'
+import {
+	getUploadIDsFromMessages,
+	replaceAttachment,
+} from '$api/chat/attachments'
+import type { Message } from '$api/db/type'
 
 const app = new Hono()
 	.get('/', async (c) => {
@@ -183,76 +189,14 @@ const app = new Hono()
 				return c.text('New chat already exist', 400)
 			}
 
-			const attachments = existingChat.messages
-				.slice(
+			const attachments = getUploadIDsFromMessages(
+				existingChat.messages.slice(
 					0,
 					existingChat.messages.findIndex(
 						(message) => message.id === at_message_id,
 					) + 1,
-				)
-				.flatMap((message) => {
-					let res: string[] = []
-					if (typeof message.content === 'string') {
-						return []
-					}
-					if (Array.isArray(message.content)) {
-						for (const content of message.content) {
-							if (content.type === 'text') {
-								continue
-							} else if (content.type === 'reasoning') {
-								continue
-							} else if (content.type === 'tool-call') {
-								continue
-							} else if (content.type === 'image') {
-								const url = content.image as string
-
-								if (
-									Bun.env.APP_URL &&
-									url.startsWith(Bun.env.APP_URL)
-								) {
-									const id = (content.image as string)
-										.split('/')
-										.pop()
-									if (!id) continue
-									res.push(id)
-								}
-
-								continue
-							} else if (content.type === 'file') {
-								const url = content.data as string
-
-								if (
-									Bun.env.APP_URL &&
-									url.startsWith(Bun.env.APP_URL)
-								) {
-									const id = (content.data as string).split('/').pop()
-
-									if (!id) continue
-									res.push(id)
-								}
-							} else if (
-								content.type === 'tool-result' &&
-								content.toolName === 'image_generation' &&
-								'files' in content.result
-							) {
-								const files: string[] = []
-								for (const url of content.result.files as string[]) {
-									if (
-										Bun.env.APP_URL &&
-										url.startsWith(Bun.env.APP_URL)
-									) {
-										const id = (url as string).split('/').pop()
-
-										if (!id) continue
-										files.push(id)
-									}
-								}
-								res = [...res, ...files]
-							}
-						}
-					}
-					return res
-				})
+				),
+			)
 
 			await db.insert(chat).values({
 				id: new_chat_id,
@@ -306,124 +250,12 @@ const app = new Hono()
 							) + 1,
 						)
 						.map((message, index) => {
-							const replaceAttachment = (content: unknown) => {
-								let res = []
-								if (typeof message.content === 'string') {
-									return message.content
-								}
-								if (Array.isArray(message.content)) {
-									for (const content of message.content) {
-										if (content.type === 'text') {
-											res.push(content)
-										} else if (content.type === 'reasoning') {
-											res.push(content)
-										} else if (content.type === 'tool-call') {
-											res.push(content)
-										} else if (
-											content.type === 'tool-result' &&
-											content.toolName === 'image_generation' &&
-											'files' in content.result
-										) {
-											const files = content.result.files as string[]
-
-											const final_files: string[] = []
-											for (const url of files) {
-												if (
-													Bun.env.APP_URL &&
-													url.startsWith(Bun.env.APP_URL)
-												) {
-													const id = url.split('/').pop()
-													if (!id) continue
-													const upload = uploadsData.find(
-														(data) => data.originalId === id,
-													)
-													if (upload) {
-														final_files.push(
-															Bun.env.APP_URL +
-																'/file-upload/' +
-																upload.id,
-														)
-													}
-													continue
-												}
-											}
-
-											res.push({
-												...content,
-												result: { files: final_files },
-											})
-										} else if (content.type === 'image') {
-											const url = content.image as string
-
-											if (
-												Bun.env.APP_URL &&
-												url.startsWith(Bun.env.APP_URL)
-											) {
-												const id = (content.image as string)
-													.split('/')
-													.pop()
-												if (!id) continue
-												const upload = uploadsData.find(
-													(data) => data.originalId === id,
-												)
-												if (upload) {
-													res.push({
-														type: 'image',
-														image:
-															Bun.env.APP_URL +
-															'/file-upload/' +
-															upload.id,
-													})
-												} else {
-													res.push(content)
-												}
-												continue
-											}
-
-											continue
-										} else if (content.type === 'file') {
-											const url = content.data as string
-
-											if (
-												Bun.env.APP_URL &&
-												url.startsWith(Bun.env.APP_URL)
-											) {
-												const id = (content.data as string)
-													.split('/')
-													.pop()
-
-												if (!id) continue
-
-												const upload = uploadsData.find(
-													(data) => data.originalId === id,
-												)
-												if (upload) {
-													res.push({
-														type: 'file',
-														data:
-															Bun.env.APP_URL +
-															'/file-upload/' +
-															upload.id,
-														mimeType: upload.mimeType,
-													})
-												} else {
-													res.push(content)
-												}
-												continue
-											}
-										} else {
-											res.push(content)
-										}
-									}
-								}
-								return res
-							}
 							return {
 								...message,
 								id: nanoid(),
 								chatId: new_chat_id,
 								createdAt: now + index,
-								content: replaceAttachment(message.content),
+								content: replaceAttachment(message, uploadsData),
 							}
 						}),
 				)
@@ -649,7 +481,7 @@ const app = new Hono()
 					'Set-Cookie': serialize('session', '', {
 						httpOnly: true,
 						path: '/',
-						secure: Bun.env.APP_ENV === 'production',
+						secure: APP_ENV === 'production',
 						sameSite: 'lax',
 						expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
 					}),
@@ -659,7 +491,7 @@ const app = new Hono()
 					'Set-Cookie': serialize('session', token, {
 						httpOnly: true,
 						path: '/',
-						secure: Bun.env.APP_ENV === 'production',
+						secure: APP_ENV === 'production',
 						sameSite: 'lax',
 						expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
 					}),
@@ -982,58 +814,7 @@ const app = new Hono()
 			.where(eq(message.chatId, chatId))
 			.returning()
 
-		const attachments = delete_messages.flatMap((message) => {
-			let res = []
-			if (typeof message.content === 'string') {
-				return []
-			}
-			if (Array.isArray(message.content)) {
-				for (const content of message.content) {
-					if (content.type === 'text') {
-						continue
-					} else if (content.type === 'reasoning') {
-						continue
-					} else if (content.type === 'tool-call') {
-						continue
-					} else if (
-						content.type === 'tool-result' &&
-						content.toolName === 'image_generation' &&
-						'files' in content.result
-					) {
-						for (const url of content.result.files as string[]) {
-							if (
-								Bun.env.APP_URL &&
-								url.startsWith(Bun.env.APP_URL)
-							) {
-								const id = url.split('/').pop()
-								if (!id) continue
-								res.push(id)
-							}
-						}
-					} else if (content.type === 'image') {
-						const url = content.image as string
-
-						if (Bun.env.APP_URL && url.startsWith(Bun.env.APP_URL)) {
-							const id = (content.image as string).split('/').pop()
-							if (!id) continue
-							res.push(id)
-						}
-
-						continue
-					} else if (content.type === 'file') {
-						const url = content.data as string
-
-						if (Bun.env.APP_URL && url.startsWith(Bun.env.APP_URL)) {
-							const id = (content.data as string).split('/').pop()
-
-							if (!id) continue
-							res.push(id)
-						}
-					}
-				}
-			}
-			return res
-		})
+		const attachments = getUploadIDsFromMessages(delete_messages)
 
 		const deleted_uploads = await db
 			.delete(upload)
@@ -1194,73 +975,8 @@ const app = new Hono()
 					})
 					.where(and(eq(chat.id, chat_id), eq(chat.userId, user.id)))
 
-				const attachments = existingChat.messages.flatMap(
-					(message) => {
-						let res: string[] = []
-						if (typeof message.content === 'string') {
-							return []
-						}
-						if (Array.isArray(message.content)) {
-							for (const content of message.content) {
-								if (content.type === 'text') {
-									continue
-								} else if (content.type === 'reasoning') {
-									continue
-								} else if (content.type === 'tool-call') {
-									continue
-								} else if (content.type === 'image') {
-									const url = content.image as string
-
-									if (
-										Bun.env.APP_URL &&
-										url.startsWith(Bun.env.APP_URL)
-									) {
-										const id = (content.image as string)
-											.split('/')
-											.pop()
-										if (!id) continue
-										res.push(id)
-									}
-
-									continue
-								} else if (content.type === 'file') {
-									const url = content.data as string
-
-									if (
-										Bun.env.APP_URL &&
-										url.startsWith(Bun.env.APP_URL)
-									) {
-										const id = (content.data as string)
-											.split('/')
-											.pop()
-
-										if (!id) continue
-										res.push(id)
-									}
-								} else if (
-									content.type === 'tool-result' &&
-									content.toolName === 'image_generation' &&
-									'files' in content.result
-								) {
-									const files: string[] = []
-									for (const url of content.result
-										.files as string[]) {
-										if (
-											Bun.env.APP_URL &&
-											url.startsWith(Bun.env.APP_URL)
-										) {
-											const id = (url as string).split('/').pop()
-
-											if (!id) continue
-											files.push(id)
-										}
-									}
-									res = [...res, ...files]
-								}
-							}
-						}
-						return res
-					},
+				const attachments = getUploadIDsFromMessages(
+					existingChat.messages,
 				)
 
 				await db
@@ -1319,60 +1035,9 @@ const app = new Hono()
 
 		if (!existingChat) return c.json({ id: '' }, 404)
 
-		const attachments = existingChat.messages.flatMap((message) => {
-			let res: string[] = []
-			if (typeof message.content === 'string') {
-				return []
-			}
-			if (Array.isArray(message.content)) {
-				for (const content of message.content) {
-					if (content.type === 'text') {
-						continue
-					} else if (content.type === 'reasoning') {
-						continue
-					} else if (content.type === 'tool-call') {
-						continue
-					} else if (content.type === 'image') {
-						const url = content.image as string
-
-						if (Bun.env.APP_URL && url.startsWith(Bun.env.APP_URL)) {
-							const id = (content.image as string).split('/').pop()
-							if (!id) continue
-							res.push(id)
-						}
-
-						continue
-					} else if (content.type === 'file') {
-						const url = content.data as string
-
-						if (Bun.env.APP_URL && url.startsWith(Bun.env.APP_URL)) {
-							const id = (content.data as string).split('/').pop()
-
-							if (!id) continue
-							res.push(id)
-						}
-					} else if (
-						content.type === 'tool-result' &&
-						'files' in content.result
-					) {
-						const files: string[] = []
-						for (const url of content.result.files as string[]) {
-							if (
-								Bun.env.APP_URL &&
-								url.startsWith(Bun.env.APP_URL)
-							) {
-								const id = (url as string).split('/').pop()
-
-								if (!id) continue
-								files.push(id)
-							}
-						}
-						res = [...res, ...files]
-					}
-				}
-			}
-			return res
-		})
+		const attachments = getUploadIDsFromMessages(
+			existingChat.messages,
+		)
 
 		const newChatId = nanoid()
 
@@ -1419,91 +1084,12 @@ const app = new Hono()
 			const now = Date.now()
 			await db.insert(message).values(
 				existingChat.messages.map((message, index) => {
-					const replaceAttachment = (content: unknown) => {
-						let res = []
-						if (typeof message.content === 'string') {
-							return message.content
-						}
-						if (Array.isArray(message.content)) {
-							for (const content of message.content) {
-								if (content.type === 'text') {
-									res.push(content)
-								} else if (content.type === 'reasoning') {
-									res.push(content)
-								} else if (content.type === 'tool-call') {
-									res.push(content)
-								} else if (content.type === 'image') {
-									const url = content.image as string
-
-									if (
-										Bun.env.APP_URL &&
-										url.startsWith(Bun.env.APP_URL)
-									) {
-										const id = (content.image as string)
-											.split('/')
-											.pop()
-										if (!id) continue
-										const upload = uploadsData.find(
-											(data) => data.originalId === id,
-										)
-										if (upload) {
-											res.push({
-												type: 'image',
-												image:
-													Bun.env.APP_URL +
-													'/file-upload/' +
-													upload.id,
-											})
-										} else {
-											res.push(content)
-										}
-										continue
-									}
-
-									continue
-								} else if (content.type === 'file') {
-									const url = content.data as string
-
-									if (
-										Bun.env.APP_URL &&
-										url.startsWith(Bun.env.APP_URL)
-									) {
-										const id = (content.data as string)
-											.split('/')
-											.pop()
-
-										if (!id) continue
-
-										const upload = uploadsData.find(
-											(data) => data.originalId === id,
-										)
-										if (upload) {
-											res.push({
-												type: 'file',
-												data:
-													Bun.env.APP_URL +
-													'/file-upload/' +
-													upload.id,
-												mimeType: upload.mimeType,
-											})
-										} else {
-											res.push(content)
-										}
-										continue
-									}
-								} else {
-									res.push(content)
-								}
-							}
-						}
-						return res
-					}
 					return {
 						...message,
 						id: nanoid(),
 						chatId: newChatId,
 						createdAt: now + index,
-						content: replaceAttachment(message.content),
+						content: replaceAttachment(message, uploadsData),
 					}
 				}),
 			)

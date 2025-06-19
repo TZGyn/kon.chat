@@ -6,9 +6,11 @@ import { db } from '$api/db'
 import { s3Client } from '$api/s3'
 import { upload } from '$api/db/schema'
 import OpenAI, { toFile } from 'openai'
+import { OPENAI_API_KEY } from '$env/static/private'
+import { PUBLIC_APP_URL } from '$env/static/public'
 
 const client = new OpenAI({
-	apiKey: Bun.env.OPENAI_API_KEY,
+	apiKey: OPENAI_API_KEY,
 })
 
 export const openai_imagen = ({
@@ -128,7 +130,7 @@ export const openai_imagen = ({
 						createdAt: Date.now(),
 					})
 
-					files.push(Bun.env.APP_URL + '/file-upload/' + uploadId)
+					files.push(PUBLIC_APP_URL + '/api/file-upload/' + uploadId)
 				}
 
 				return { files }

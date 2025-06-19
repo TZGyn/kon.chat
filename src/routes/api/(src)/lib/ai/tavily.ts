@@ -1,2 +1,4 @@
 import { tavily as Tavily } from '@tavily/core'
-export const tavily = Tavily({ apiKey: Bun.env.TAVILY_API_KEY })
+import { TAVILY_API_KEY } from '$env/static/private'
+
+export const tavily = Tavily({ apiKey: TAVILY_API_KEY })

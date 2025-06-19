@@ -1,4 +1,5 @@
 import { fetch } from 'bun'
+import { JINA_API_KEY } from '$env/static/private'
 
 export const jinaRead = async (url: string) => {
 	try {
@@ -7,7 +8,7 @@ export const jinaRead = async (url: string) => {
 			{
 				method: 'GET',
 				headers: {
-					Authorization: `Bearer ${Bun.env.JINA_API_KEY}`,
+					Authorization: `Bearer ${JINA_API_KEY}`,
 					Accept: 'application/json',
 					'Content-Type': 'application/json',
 					'X-No-Cache': 'true',

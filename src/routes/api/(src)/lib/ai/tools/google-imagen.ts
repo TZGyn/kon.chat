@@ -6,6 +6,7 @@ import { nanoid } from '$api/utils'
 import { db } from '$api/db'
 import { s3Client } from '$api/s3'
 import { upload } from '$api/db/schema'
+import { PUBLIC_APP_URL } from '$env/static/public'
 
 export const image_generation = ({
 	chatId,
@@ -99,7 +100,9 @@ export const image_generation = ({
 							createdAt: Date.now(),
 						})
 
-						files.push(Bun.env.APP_URL + '/file-upload/' + uploadId)
+						files.push(
+							PUBLIC_APP_URL + '/api/file-upload/' + uploadId,
+						)
 					}
 				}
 

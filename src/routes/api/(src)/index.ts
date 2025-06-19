@@ -16,6 +16,7 @@ import { DocumentsRoutes } from './routes/document'
 import { YoutubeRoutes } from './routes/youtube'
 import { WebsiteRoutes } from './routes/website'
 import { AdminRoutes } from './routes/admin'
+import { PUBLIC_APP_URL } from '$env/static/public'
 
 const app = new Hono()
 app.use(cors())
@@ -36,7 +37,7 @@ app.get(
 			},
 			servers: [
 				{
-					url: Bun.env.PUBLIC_APP_URL + '/api',
+					url: PUBLIC_APP_URL + '/api',
 					description: 'Local server',
 				},
 			],

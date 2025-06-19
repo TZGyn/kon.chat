@@ -7,6 +7,8 @@ import { eq } from 'drizzle-orm'
 import { type Context } from 'hono'
 import { setCookie } from 'hono/cookie'
 
+import { APP_ENV } from '$env/static/private'
+
 export async function validateSessionToken(token: string) {
 	const sessionId = encodeHexLowerCase(
 		sha256(new TextEncoder().encode(token)),
@@ -58,7 +60,7 @@ export function setSessionTokenCookie(
 	setCookie(event, 'session', token, {
 		httpOnly: true,
 		path: '/',
-		secure: Bun.env.APP_ENV === 'production',
+		secure: APP_ENV === 'production',
 		sameSite: 'lax',
 		expires: new Date(expiresAt),
 	})
@@ -68,7 +70,7 @@ export function deleteSessionTokenCookie(event: Context): void {
 	setCookie(event, 'session', '', {
 		httpOnly: true,
 		path: '/',
-		secure: Bun.env.APP_ENV === 'production',
+		secure: APP_ENV === 'production',
 		sameSite: 'lax',
 		maxAge: 0,
 	})
