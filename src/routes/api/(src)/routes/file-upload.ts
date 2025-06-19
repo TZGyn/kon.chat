@@ -17,6 +17,7 @@ const app = new Hono().get('/:upload_id', async (c) => {
 	return c.newResponse(s3file.stream(), {
 		headers: {
 			'Cache-Control': 'public, max-age=31536000, immutable',
+			'Content-Type': s3file.type,
 		},
 	})
 })
