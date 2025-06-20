@@ -93,7 +93,6 @@
 	let modelState = useModels()
 
 	let userState = useUser()
-	let plan = $derived(userState.user?.plan)
 
 	let inputElement: HTMLTextAreaElement | null = $state(null)
 
@@ -160,8 +159,6 @@
 			reasoning: false,
 			searchGrounding: true,
 		},
-		disabled: false,
-		credits: 0,
 	})
 
 	$effect(() => {
@@ -268,24 +265,18 @@
 			description: m['mode.chat.description'](),
 			credits: 0,
 			icon: MessageCircleIcon,
-			disable: false,
 		},
 		{
 			id: 'gpt-image-1',
 			name: m['mode.gpt-image-1.name'](),
 			description: m['mode.gpt-image-1.description'](),
 			icon: ImagesIcon,
-			credits: 1200,
-			disable:
-				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
 		{
 			id: 'web_search',
 			name: m['mode.web_search.name'](),
 			description: m['mode.web_search.description'](),
 			icon: GlobeIcon,
-			credits: 200,
-			disable: !user,
 		},
 		// {
 		// 	id: 'x_search',
@@ -307,16 +298,12 @@
 			name: m['mode.academic_search.name'](),
 			description: m['mode.academic_search.description'](),
 			icon: BookIcon,
-			credits: 200,
-			disable: !user,
 		},
 		{
 			id: 'web_reader',
 			name: m['mode.web_reader.name'](),
 			description: m['mode.web_reader.description'](),
 			icon: LibraryBigIcon,
-			credits: 200,
-			disable: !user,
 		},
 	] as const)
 
@@ -430,7 +417,6 @@
 									class="grid grid-cols-1 gap-2 @md:grid-cols-2 @lg:grid-cols-3">
 									{#each modelGroup.models as model}
 										<DropdownMenu.Item
-											disabled={model.disabled}
 											class={cn(
 												'bg-background flex flex-col p-3',
 												model.id === selectedModel.id && 'bg-accent',
@@ -445,13 +431,6 @@
 											<div
 												class="flex w-full items-center justify-between">
 												<div class="flex items-center gap-2">
-													<div
-														class="flex flex-col items-start gap-1">
-														<span
-															class="text-muted-foreground text-xs">
-															Credits: {model.credits / 100}
-														</span>
-													</div>
 													{#if model.info}
 														<Tooltip.Provider>
 															<Tooltip.Root>
@@ -585,33 +564,12 @@
 								variant="ghost"
 								size="icon"
 								class=""
-								disabled={!selectedModel.capabilities.image ||
-									plan === 'free' ||
-									plan === 'trial' ||
-									plan === undefined}>
+								disabled={!selectedModel.capabilities.image}>
 								<ImageIcon />
 							</Button>
 						</Tooltip.Trigger>
 						<Tooltip.Content class="max-w-[300px]">
-							{#if plan === 'free' || plan === undefined}
-								<div class="flex flex-col gap-4 p-2">
-									<div class="flex flex-col gap-1">
-										<span class="text-lg">
-											Upgrade to basic or higher plan
-										</span>
-										<p
-											class="text-muted-foreground text-sm text-wrap">
-											Get access to image upload and more by upgrading
-											your plan
-										</p>
-									</div>
-									<Button href={'/billing/plan'} class="w-full">
-										Checkout plans
-									</Button>
-								</div>
-							{:else}
-								<p>Image Upload</p>
-							{/if}
+							<p>Image Upload</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
 				</Tooltip.Provider>
@@ -635,33 +593,12 @@
 								variant="ghost"
 								size="icon"
 								class=""
-								disabled={!selectedModel.capabilities.file ||
-									plan === 'free' ||
-									plan === 'trial' ||
-									plan === undefined}>
+								disabled={!selectedModel.capabilities.file}>
 								<PaperclipIcon />
 							</Button>
 						</Tooltip.Trigger>
 						<Tooltip.Content class="max-w-[300px]">
-							{#if plan === 'free' || plan === undefined}
-								<div class="flex flex-col gap-4 p-2">
-									<div class="flex flex-col gap-1">
-										<span class="text-lg">
-											Upgrade to basic or higher plan
-										</span>
-										<p
-											class="text-muted-foreground text-sm text-wrap">
-											Get access to file upload and more by upgrading
-											your plan
-										</p>
-									</div>
-									<Button href={'/billing/plan'} class="w-full">
-										Checkout plans
-									</Button>
-								</div>
-							{:else}
-								<p>File Upload</p>
-							{/if}
+							<p>File Upload</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
 				</Tooltip.Provider>
@@ -678,11 +615,7 @@
 						})
 						attachments = attachments
 					}}
-					disabled={!selectedModel.capabilities.image ||
-						plan === 'free' ||
-						plan === 'trial' ||
-						plan === undefined}
-					{plan} />
+					disabled={!selectedModel.capabilities.image} />
 			{/if}
 		</div>
 		<div class="flex items-center gap-2">
@@ -704,8 +637,7 @@
 							{#each modes as mode}
 								<DropdownMenu.Item
 									class="p-3"
-									onclick={() => (selectedMode = mode)}
-									disabled={mode.disable}>
+									onclick={() => (selectedMode = mode)}>
 									<div
 										class="flex w-full items-center justify-between">
 										<div class="flex flex-col gap-2">
@@ -717,11 +649,6 @@
 												class="text-muted-foreground max-w-[200px] text-sm">
 												{mode.description}
 											</div>
-											{#if mode.credits !== 0}
-												<div class="text-muted-foreground text-xs">
-													{m.credits()}: +{mode.credits / 100}
-												</div>
-											{/if}
 										</div>
 									</div>
 								</DropdownMenu.Item>
