@@ -3,6 +3,7 @@ import {
 	createDataStreamResponse,
 	smoothStream,
 	streamText,
+	formatDataStreamPart,
 	type TextStreamPart,
 	type ToolSet,
 } from 'ai'
@@ -38,8 +39,19 @@ import {
 	getUploadIDsFromMessages,
 	replaceAttachment,
 } from '$api/chat/attachments'
-import type { Message } from '$api/db/type'
 import { describeRoute } from 'hono-openapi'
+import { createRedis, redis } from '$api/redis'
+import { streamSSE } from 'hono/streaming'
+
+const arrToObj = (arr: string[]) => {
+	const obj: Record<string, string> = {}
+
+	for (let i = 0; i < arr.length; i += 2) {
+		obj[arr[i]] = JSON.parse(arr[i + 1])
+	}
+
+	return obj
+}
 
 const app = new Hono()
 	.get('/', describeRoute({ tags: ['chat'] }), async (c) => {
@@ -383,6 +395,53 @@ const app = new Hono()
 		return c.json({ chat: null })
 	})
 
+	.post('/:chat_id/sse', async (c) => {
+		return streamSSE(c, async (stream) => {
+			const chatId = c.req.param('chat_id')
+			const streamKey = `session:${chatId}`
+			const subscription = createRedis()
+
+			subscription.subscribe(streamKey)
+			subscription.on('message', async (channel, message) => {
+				if (channel === streamKey) {
+					try {
+						await stream.writeSSE({
+							data: message,
+							event: 'new-message',
+							id: nanoid(),
+						})
+					} catch (error) {
+						console.error(error)
+					}
+				}
+			})
+
+			subscription.on('error', (error) => {
+				console.error(
+					`SSE subscription error on ${streamKey}:`,
+					error,
+				)
+				stream.close()
+			})
+
+			c.req.raw.signal.addEventListener('abort', () => {
+				console.log('Client disconnected, cleaning up subscription')
+				subscription.unsubscribe(streamKey)
+				stream.close()
+			})
+
+			while (true) {
+				const message = `It is ${new Date().toISOString()}`
+				await stream.writeSSE({
+					data: message,
+					event: 'keep-alive',
+					id: nanoid(),
+				})
+				await stream.sleep(5000)
+			}
+		})
+	})
+
 	.post(
 		'/:chat_id',
 		describeRoute({ tags: ['chat'] }),
@@ -414,6 +473,7 @@ const app = new Hono()
 					.optional()
 					.nullable()
 					.default(''),
+				clientId: z.string(),
 			}),
 		),
 		async (c) => {
@@ -424,6 +484,7 @@ const app = new Hono()
 				mode,
 				additional_system_prompt,
 				name_for_llm,
+				clientId,
 			} = c.req.valid('json')
 
 			if (searchGrounding && mode !== 'chat') {
@@ -500,6 +561,14 @@ const app = new Hono()
 					}),
 				}
 			}
+
+			const key = nanoid()
+
+			const streamKey = `llm:stream:${chatId}:${key}`
+
+			const chatSessionKey = `session:${chatId}`
+
+			const publisher = createRedis()
 
 			const chunks: Extract<
 				TextStreamPart<ToolSet>,
@@ -725,11 +794,49 @@ const app = new Hono()
 						sendReasoning: true,
 					})
 
-					// for await (const part of result.textStream) {
-					// 	console.log(part)
-					// }
+					let start = true
+					for await (const stream of result.fullStream) {
+						let values: string[] = []
+						for (const key in stream) {
+							// @ts-ignore
+							if (!stream[key]) continue
+							values.push(
+								// @ts-ignore
+								...[key, JSON.stringify(stream[key])],
+							)
+						}
+						await redis.xadd(streamKey, '*', ...values)
+
+						if (start) {
+							await publisher.publish(
+								chatSessionKey,
+								JSON.stringify({
+									message: 'message',
+									id: key,
+									data: messages[messages.length - 1],
+									clientId: clientId,
+								}),
+							)
+							start = false
+						}
+						await publisher.publish(
+							streamKey,
+							JSON.stringify({ type: 'chunk' }),
+						)
+					}
+
+					await publisher.publish(
+						streamKey,
+						JSON.stringify({ type: 'finish' }),
+					)
+					await redis.expire(streamKey, 300)
 				},
 				onError: (error) => {
+					publisher.publish(
+						streamKey,
+						JSON.stringify({ type: 'finish' }),
+					)
+					redis.expire(streamKey, 300)
 					const responseMessages = mergeChunksToResponse(chunks)
 					updateUserChatAndLimit({
 						chatId,
@@ -785,6 +892,215 @@ const app = new Hono()
 						: String(error)
 				},
 			})
+		},
+	)
+
+	.post(
+		'/:chat_id/resume',
+		describeRoute({ tags: ['chat'] }),
+		zValidator('json', z.object({ id: z.string() })),
+		async (c) => {
+			const { id } = c.req.valid('json')
+			const chatId = c.req.param('chat_id')
+
+			const subscription = createRedis()
+
+			const streamKey = `llm:stream:${chatId}:${id}`
+			const keyExists = await redis.exists(streamKey)
+
+			if (!keyExists) {
+				return c.json(
+					{ error: 'Stream does not (yet) exist' },
+					{ status: 412 },
+				)
+			}
+			const groupName = `sse-group-${nanoid()}`
+
+			await redis.xgroup('CREATE', streamKey, groupName, '0')
+
+			return new Response(
+				new ReadableStream({
+					async start(controller) {
+						const readStreamMessages = async () => {
+							const chunks = (await redis.xreadgroup(
+								'GROUP',
+								groupName,
+								'consumer-1',
+								'STREAMS',
+								streamKey,
+								'>',
+							)) as any[]
+
+							if (chunks?.length > 0) {
+								const [_streamKey, messages] = chunks[0]
+								for (const [_messageId, fields] of messages) {
+									const chunk = arrToObj(
+										fields,
+									) as TextStreamPart<ToolSet>
+
+									const chunkType = chunk.type
+									if (chunkType == 'text-delta') {
+										controller.enqueue(
+											formatDataStreamPart('text', chunk.textDelta),
+										)
+									} else if (chunkType == 'reasoning') {
+										controller.enqueue(
+											formatDataStreamPart(
+												'reasoning',
+												chunk.textDelta,
+											),
+										)
+									} else if (chunkType == 'redacted-reasoning') {
+										controller.enqueue(
+											formatDataStreamPart('redacted_reasoning', {
+												data: chunk.data,
+											}),
+										)
+									} else if (chunkType == 'reasoning-signature') {
+										controller.enqueue(
+											formatDataStreamPart('reasoning_signature', {
+												signature: chunk.signature,
+											}),
+										)
+									} else if (chunkType == 'file') {
+										controller.enqueue(
+											formatDataStreamPart('file', {
+												mimeType: chunk.mimeType,
+												data: chunk.base64,
+											}),
+										)
+									} else if (chunkType == 'source') {
+										controller.enqueue(
+											formatDataStreamPart('source', chunk.source),
+										)
+									} else if (
+										chunkType == 'tool-call-streaming-start'
+									) {
+										controller.enqueue(
+											formatDataStreamPart(
+												'tool_call_streaming_start',
+												{
+													toolCallId: chunk.toolCallId,
+													toolName: chunk.toolName,
+												},
+											),
+										)
+									} else if (chunkType == 'tool-call-delta') {
+										controller.enqueue(
+											formatDataStreamPart('tool_call_delta', {
+												toolCallId: chunk.toolCallId,
+												argsTextDelta: chunk.argsTextDelta,
+											}),
+										)
+									} else if (chunkType == 'tool-call') {
+										controller.enqueue(
+											formatDataStreamPart('tool_call', {
+												toolCallId: chunk.toolCallId,
+												toolName: chunk.toolName,
+												args: chunk.args,
+											}),
+										)
+									}
+									// @ts-ignore
+									else if (chunkType == 'tool-result') {
+										controller.enqueue(
+											formatDataStreamPart('tool_result', {
+												// @ts-ignore
+												toolCallId: chunk.toolCallId,
+												// @ts-ignore
+												result: chunk.result,
+											}),
+										)
+									} else if (chunkType == 'error') {
+										controller.enqueue(
+											formatDataStreamPart(
+												'error',
+												'An Error Occured',
+												// getErrorMessage(chunk.error),
+											),
+										)
+									} else if (chunkType == 'step-start') {
+										controller.enqueue(
+											formatDataStreamPart('start_step', {
+												messageId: chunk.messageId,
+											}),
+										)
+									} else if (chunkType == 'step-finish') {
+										controller.enqueue(
+											formatDataStreamPart('finish_step', {
+												finishReason: chunk.finishReason,
+												usage: {
+													promptTokens: chunk.usage.promptTokens,
+													completionTokens:
+														chunk.usage.completionTokens,
+												},
+												isContinued: chunk.isContinued,
+											}),
+										)
+									} else if (chunkType == 'finish') {
+										controller.enqueue(
+											formatDataStreamPart('finish_message', {
+												finishReason: chunk.finishReason,
+												usage: {
+													promptTokens: chunk.usage.promptTokens,
+													completionTokens:
+														chunk.usage.completionTokens,
+												},
+											}),
+										)
+									} else {
+										const exhaustiveCheck: never = chunkType
+										throw new Error(
+											`Unknown chunk type: ${exhaustiveCheck}`,
+										)
+									}
+								}
+							}
+						}
+
+						try {
+							await readStreamMessages()
+
+							subscription.subscribe(streamKey)
+							subscription.on('message', async (channel, message) => {
+								if (channel === streamKey) {
+									const type = JSON.parse(message).type
+									await readStreamMessages()
+									if (type === 'finish') {
+										subscription.unsubscribe(streamKey)
+										controller.close()
+									}
+								}
+							})
+
+							subscription.on('error', (error) => {
+								console.error(
+									`SSE subscription error on ${streamKey}:`,
+									error,
+								)
+								controller.close()
+							})
+
+							c.req.raw.signal.addEventListener('abort', () => {
+								console.log(
+									'Client disconnected, cleaning up subscription',
+								)
+								subscription.unsubscribe(streamKey)
+								controller.close()
+							})
+						} catch (error) {
+							console.error(error)
+						}
+					},
+				}),
+				{
+					headers: {
+						'Content-Type': 'text/event-stream',
+						'Cache-Control': 'no-cache, no-transform',
+						Connection: 'keep-alive',
+					},
+				},
+			)
 		},
 	)
 

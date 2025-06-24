@@ -37,15 +37,25 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
 	import { Snippet } from '$lib/components/ui/snippet'
 	import { nanoid } from '$lib/nanoid.js'
-	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
+	import {
+		callChatApi,
+		type ChatRequestOptions,
+		type UIMessage,
+	} from '@ai-sdk/ui-utils'
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { makeClient } from '$api/api-client.js'
+	import { customFetchRaw } from '$lib/fetch.js'
+	import { processStream } from '$lib/stream.js'
+	import { parseSSE } from '$lib/sse.js'
+	import { browser } from '$app/environment'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
 	let upload_url = $derived(`/chat/${chat_id}/upload`)
 
 	const client = makeClient(fetch)
+
+	const clientId = nanoid()
 
 	type Message = Omit<
 		MessageType,
@@ -275,6 +285,73 @@
 			},
 		})
 	}
+
+	const resumeChat = async (chat_id: string) => {
+		const response = await client.chat[':chat_id'].sse.$post({
+			param: { chat_id },
+		})
+
+		if (!response.body) return
+
+		await processStream({
+			stream: response.body,
+			onValue: async ({ value }) => {
+				const event = parseSSE(value)
+				console.log(event)
+				if (!event) return
+
+				if (
+					event.event === 'new-message' &&
+					event.data.clientId != clientId
+				) {
+					useChat.messages.push(event.data.data as UIMessage)
+					const messages = $state.snapshot(useChat.messages)
+
+					const abortController = new AbortController()
+					await callChatApi({
+						api: `/api/chat/${chat_id}/resume`,
+						body: {
+							id: event.data.id,
+						},
+						headers: {},
+						streamProtocol: 'data',
+						credentials: 'include',
+						abortController: () => abortController,
+						onUpdate: ({ message, data, replaceLastMessage }) => {
+							useChat.messages = messages
+							if (replaceLastMessage) {
+								useChat.messages[useChat.messages.length - 1] =
+									message
+							} else {
+								useChat.messages.push(message)
+							}
+
+							if (data?.length) {
+								// useChat.data = existingData;
+								useChat.data?.push(...data)
+							}
+						},
+						onResponse: () => {},
+						onFinish: () => {
+							abortController.abort()
+						},
+						onToolCall: () => {},
+						restoreMessagesOnFailure: () => {},
+						fetch: undefined,
+						lastMessage: $state.snapshot(
+							useChat.messages[useChat.messages.length - 1],
+						),
+						generateId: () => nanoid(),
+					})
+				}
+			},
+		})
+	}
+
+	$effect(() => {
+		chat_id
+		browser && resumeChat(chat_id)
+	})
 </script>
 
 <div class="relative flex flex-1 overflow-hidden">
@@ -580,7 +657,10 @@
 			} catch (error) {
 				console.log(error)
 			}
-			useChat.handleSubmit(e, chatRequestOptions)
+			useChat.handleSubmit(e, {
+				...chatRequestOptions,
+				body: { ...chatRequestOptions?.body, clientId },
+			})
 		}}
 		bind:messages={useChat.messages}
 		bind:data={useChat.data}
