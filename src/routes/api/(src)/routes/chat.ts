@@ -1095,9 +1095,9 @@ const app = new Hono()
 				}),
 				{
 					headers: {
-						'Content-Type': 'text/event-stream',
-						'Cache-Control': 'no-cache, no-transform',
-						Connection: 'keep-alive',
+						'Content-Type': 'text/plain',
+						// 'Cache-Control': 'no-cache, no-transform',
+						// Connection: 'keep-alive',
 					},
 				},
 			)
