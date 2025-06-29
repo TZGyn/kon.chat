@@ -322,24 +322,39 @@
 			name: 'Free Models',
 			models: modelState.freeModels.filter(
 				(model) =>
-					model.name.includes(modelSearch) ||
-					model.provider.includes(modelSearch),
+					(model.name
+						.toLowerCase()
+						.includes(modelSearch.toLowerCase()) ||
+						model.provider
+							.toLowerCase()
+							.includes(modelSearch.toLowerCase())) &&
+					modelState.available_models.includes(model.provider),
 			),
 		},
 		{
 			name: 'Standard Models',
 			models: modelState.standardModels.filter(
 				(model) =>
-					model.name.includes(modelSearch) ||
-					model.provider.includes(modelSearch),
+					(model.name
+						.toLowerCase()
+						.includes(modelSearch.toLowerCase()) ||
+						model.provider
+							.toLowerCase()
+							.includes(modelSearch.toLowerCase())) &&
+					modelState.available_models.includes(model.provider),
 			),
 		},
 		{
 			name: 'Premium Models',
 			models: modelState.premiumModels.filter(
 				(model) =>
-					model.name.includes(modelSearch) ||
-					model.provider.includes(modelSearch),
+					(model.name
+						.toLowerCase()
+						.includes(modelSearch.toLowerCase()) ||
+						model.provider
+							.toLowerCase()
+							.includes(modelSearch.toLowerCase())) &&
+					modelState.available_models.includes(model.provider),
 			),
 		},
 	])
@@ -395,6 +410,84 @@
 	{/if}
 	<div class="flex justify-between">
 		<div class="flex items-center gap-1">
+			<Popover.Root>
+				<Popover.Trigger
+					class={buttonVariants({ variant: 'outline' })}>
+					{@render modelIcon(selectedModel.provider)}
+					{selectedModel.name}
+					<ChevronDownIcon />
+				</Popover.Trigger>
+				<Popover.Content
+					class="@container w-[100vw] max-w-[600px] p-0"
+					align="start">
+					<div
+						class="h-full max-h-[70vh] space-y-4 overflow-y-scroll p-4">
+						{#each modelsList.filter((list) => list.models.length > 0) as modelGroup}
+							<div>
+								<div
+									class="text-muted-foreground px-0 py-1.5 text-sm font-semibold">
+									{modelGroup.name}
+								</div>
+								<div
+									class="grid grid-cols-1 gap-2 @md:grid-cols-2 @lg:grid-cols-3">
+									{#each modelGroup.models as model}
+										<!-- svelte-ignore a11y_click_events_have_key_events -->
+										<!-- svelte-ignore a11y_no_static_element_interactions -->
+										<div
+											class={cn(
+												'bg-background hover:bg-accent flex flex-col flex-wrap gap-2 rounded p-3 text-sm [&_svg:not([class*="size-"])]:size-4',
+												model.id === selectedModel.id && 'bg-accent',
+											)}
+											onclick={() => (selectedModel = model)}>
+											<div class="flex w-full items-center gap-2">
+												{@render modelIcon(model.provider)}
+												<span>
+													{model.name}
+												</span>
+											</div>
+											<div
+												class="flex w-full items-center justify-between">
+												<div class="flex items-center gap-2">
+													{#if model.info}
+														<Tooltip.Provider>
+															<Tooltip.Root>
+																<Tooltip.Trigger
+																	class={buttonVariants({
+																		variant: 'outline',
+																	})}>
+																	Hover
+																</Tooltip.Trigger>
+																<Tooltip.Content>
+																	<p>Add to library</p>
+																</Tooltip.Content>
+															</Tooltip.Root>
+														</Tooltip.Provider>
+													{/if}
+												</div>
+											</div>
+
+											<div class="flex w-full items-center gap-2">
+												{@render modelCapabilitiesIcon(
+													model.capabilities,
+												)}
+												<div class="flex w-0 overflow-hidden py-1">
+													<SearchIcon class="w-0 max-w-0" />
+												</div>
+											</div>
+										</div>
+									{/each}
+								</div>
+							</div>
+						{/each}
+					</div>
+					<div class="flex w-full border-t p-4">
+						<Input
+							bind:value={modelSearch}
+							placeholder="search..."
+							class="bg-background rounded" />
+					</div>
+				</Popover.Content>
+			</Popover.Root>
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger
 					class={buttonVariants({ variant: 'outline' })}>
@@ -407,7 +500,7 @@
 					align="start">
 					<div
 						class="h-full max-h-[70vh] space-y-4 overflow-y-scroll p-4">
-						{#each modelsList as modelGroup}
+						{#each modelsList.filter((list) => list.models.length > 0) as modelGroup}
 							<DropdownMenu.Group>
 								<DropdownMenu.GroupHeading
 									class="text-muted-foreground px-0">

@@ -4,7 +4,9 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createGroq } from '@ai-sdk/groq'
 import { createXai } from '@ai-sdk/xai'
 import { createMistral } from '@ai-sdk/mistral'
-import {
+import { env } from '$env/dynamic/private'
+
+const {
 	OPENAI_API_KEY,
 	CLAUDE_API_KEY,
 	GEMINI_API_KEY,
@@ -12,7 +14,7 @@ import {
 	XAI_API_KEY,
 	MISTRAL_API_KEY,
 	OPENROUTER_API_KEY,
-} from '$env/static/private'
+} = env
 
 export const openai = createOpenAI({
 	apiKey: OPENAI_API_KEY,

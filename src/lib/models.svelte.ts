@@ -1,4 +1,38 @@
+import { makeClient } from '$api/api-client'
+import { onMount } from 'svelte'
+
+let available_models = $state<
+	(
+		| 'openai'
+		| 'anthropic'
+		| 'google'
+		| 'groq'
+		| 'xai'
+		| 'mistral'
+		| 'open_router'
+	)[]
+>([])
+
 export const useModels = () => {
+	const getAvailableModels = async () => {
+		available_models = JSON.parse(
+			localStorage.getItem('available_models') || '[]',
+		)
+		const response =
+			await makeClient(fetch).user.available_models.$get()
+
+		available_models = (await response.json()).available_models
+
+		localStorage.setItem(
+			'available_models',
+			JSON.stringify(available_models || []),
+		)
+	}
+
+	onMount(() => {
+		getAvailableModels()
+	})
+
 	let freeModels = $derived([
 		{
 			name: 'Gemini 2.0 Flash',
@@ -267,6 +301,9 @@ export const useModels = () => {
 		},
 		get premiumModels() {
 			return premiumModels
+		},
+		get available_models() {
+			return available_models
 		},
 	}
 }
