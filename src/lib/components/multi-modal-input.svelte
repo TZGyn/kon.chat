@@ -143,11 +143,7 @@
 		attachments = attachments
 	})
 
-	let selectedModel = $state<
-		| (typeof modelState.freeModels)[number]
-		| (typeof modelState.premiumModels)[number]
-		| (typeof modelState.standardModels)[number]
-	>({
+	let selectedModel = $state<(typeof modelState.models)[number]>({
 		name: 'Gemini 2.0 Flash',
 		info: '',
 		provider: 'google',
@@ -319,34 +315,8 @@
 
 	let modelsList = $derived([
 		{
-			name: 'Free Models',
-			models: modelState.freeModels.filter(
-				(model) =>
-					(model.name
-						.toLowerCase()
-						.includes(modelSearch.toLowerCase()) ||
-						model.provider
-							.toLowerCase()
-							.includes(modelSearch.toLowerCase())) &&
-					modelState.available_models.includes(model.provider),
-			),
-		},
-		{
-			name: 'Standard Models',
-			models: modelState.standardModels.filter(
-				(model) =>
-					(model.name
-						.toLowerCase()
-						.includes(modelSearch.toLowerCase()) ||
-						model.provider
-							.toLowerCase()
-							.includes(modelSearch.toLowerCase())) &&
-					modelState.available_models.includes(model.provider),
-			),
-		},
-		{
-			name: 'Premium Models',
-			models: modelState.premiumModels.filter(
+			name: 'Models',
+			models: modelState.models.filter(
 				(model) =>
 					(model.name
 						.toLowerCase()
@@ -362,6 +332,8 @@
 	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
 
 	let thinkingBudget = $state(0)
+
+	let modelSelectPopoverOpen = $state(false)
 </script>
 
 <form
@@ -410,7 +382,7 @@
 	{/if}
 	<div class="flex justify-between">
 		<div class="flex items-center gap-1">
-			<Popover.Root>
+			<Popover.Root bind:open={modelSelectPopoverOpen}>
 				<Popover.Trigger
 					class={buttonVariants({ variant: 'outline' })}>
 					{@render modelIcon(selectedModel.provider)}
@@ -438,7 +410,10 @@
 												'bg-background hover:bg-accent flex flex-col flex-wrap gap-2 rounded p-3 text-sm [&_svg:not([class*="size-"])]:size-4',
 												model.id === selectedModel.id && 'bg-accent',
 											)}
-											onclick={() => (selectedModel = model)}>
+											onclick={() => {
+												selectedModel = model
+												modelSelectPopoverOpen = false
+											}}>
 											<div class="flex w-full items-center gap-2">
 												{@render modelIcon(model.provider)}
 												<span>
@@ -488,82 +463,6 @@
 					</div>
 				</Popover.Content>
 			</Popover.Root>
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger
-					class={buttonVariants({ variant: 'outline' })}>
-					{@render modelIcon(selectedModel.provider)}
-					{selectedModel.name}
-					<ChevronDownIcon />
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content
-					class="@container w-[100vw] max-w-[600px]"
-					align="start">
-					<div
-						class="h-full max-h-[70vh] space-y-4 overflow-y-scroll p-4">
-						{#each modelsList.filter((list) => list.models.length > 0) as modelGroup}
-							<DropdownMenu.Group>
-								<DropdownMenu.GroupHeading
-									class="text-muted-foreground px-0">
-									{modelGroup.name}
-								</DropdownMenu.GroupHeading>
-								<div
-									class="grid grid-cols-1 gap-2 @md:grid-cols-2 @lg:grid-cols-3">
-									{#each modelGroup.models as model}
-										<DropdownMenu.Item
-											class={cn(
-												'bg-background flex flex-col p-3',
-												model.id === selectedModel.id && 'bg-accent',
-											)}
-											onclick={() => (selectedModel = model)}>
-											<div class="flex w-full items-center gap-2">
-												{@render modelIcon(model.provider)}
-												<span>
-													{model.name}
-												</span>
-											</div>
-											<div
-												class="flex w-full items-center justify-between">
-												<div class="flex items-center gap-2">
-													{#if model.info}
-														<Tooltip.Provider>
-															<Tooltip.Root>
-																<Tooltip.Trigger
-																	class={buttonVariants({
-																		variant: 'outline',
-																	})}>
-																	Hover
-																</Tooltip.Trigger>
-																<Tooltip.Content>
-																	<p>Add to library</p>
-																</Tooltip.Content>
-															</Tooltip.Root>
-														</Tooltip.Provider>
-													{/if}
-												</div>
-											</div>
-
-											<div class="flex w-full items-center gap-2">
-												{@render modelCapabilitiesIcon(
-													model.capabilities,
-												)}
-												<div class="flex w-0 overflow-hidden py-1">
-													<SearchIcon class="w-0 max-w-0" />
-												</div>
-											</div>
-										</DropdownMenu.Item>
-									{/each}
-								</div>
-							</DropdownMenu.Group>
-						{/each}
-					</div>
-					<div class="flex w-full border-t p-4">
-						<Input
-							bind:value={modelSearch}
-							placeholder="search..."
-							class="bg-background" />
-					</div>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
 			{#if 'thinkingBudget' in selectedModel.capabilities && selectedModel.capabilities.thinkingBudget.enable}
 				<Popover.Root>
 					<Popover.Trigger

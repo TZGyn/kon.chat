@@ -33,7 +33,7 @@ export const useModels = () => {
 		getAvailableModels()
 	})
 
-	let freeModels = $derived([
+	let models = $derived([
 		{
 			name: 'Gemini 2.0 Flash',
 			info: '',
@@ -47,8 +47,6 @@ export const useModels = () => {
 				searchGrounding: true,
 			},
 		},
-	] as const)
-	let standardModels = $derived([
 		{
 			name: 'GPT 4.1',
 			info: '',
@@ -249,9 +247,6 @@ export const useModels = () => {
 				searchGrounding: false,
 			},
 		},
-	] as const)
-
-	let premiumModels = $derived([
 		{
 			name: 'Clause 3.5 Sonnet',
 			info: '',
@@ -293,14 +288,8 @@ export const useModels = () => {
 		},
 	] as const)
 	return {
-		get freeModels() {
-			return freeModels
-		},
-		get standardModels() {
-			return standardModels
-		},
-		get premiumModels() {
-			return premiumModels
+		get models() {
+			return models
 		},
 		get available_models() {
 			return available_models
