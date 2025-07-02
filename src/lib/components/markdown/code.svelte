@@ -411,3 +411,17 @@
 		</iframe>
 	</Tabs.Content>
 </Tabs.Root>
+
+<style>
+	code {
+		counter-reset: line;
+	}
+	:global(.line:before) {
+		counter-increment: line;
+		content: counter(line);
+		width: calc(var(--spacing) * 16);
+		padding-right: calc(var(--spacing) * 4);
+		text-align: right;
+		color: var(--color-code-number);
+	}
+</style>
