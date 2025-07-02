@@ -5,7 +5,8 @@
 	"delete_account": "You are about to delete your account",
 	"settings": {
 		"navigation": {
-			"account": "Account"
+			"account": "Account",
+			"models": "Models"
 		},
 		"account": {
 			"what_should_we_call_you": "What should we call you?",
@@ -14,6 +15,20 @@
 			"your_additional_system_prompts_here": "your additional system prompts here...",
 			"danger_zone": "Danger Zone",
 			"delete_account": "Delete Account"
+		},
+		"model": {
+			"model": "Model",
+			"provider": "Provider",
+			"add_model": "Add Model",
+			"delete": "Delete",
+			"remove_this_model": "Remove this model",
+			"delete_this_model": "Delete this model?",
+			"add_a_new_model": "Add a new model",
+			"add_a_new_model_description": "Select a provider and enter the model id",
+			"select_a_provider": "Select a provider",
+			"model_added": "Model Added",
+			"model_deleted": "Model Deleted",
+			"model_deletion_failed": "Model deletion failed"
 		},
 		"settings": "Settings"
 	},

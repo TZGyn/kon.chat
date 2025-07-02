@@ -23,8 +23,19 @@ export const user = pgTable('user', {
 	additionalSystemPrompt: text('additional_system_prompt')
 		.notNull()
 		.default(''),
+	openAIApiKey: text('openai_api_key'),
+	geminiApiKey: text('gemini_api_key'),
+	claudeApiKey: text('claude_api_key'),
+	openRouterApiKey: text('openrouter_api_key'),
 	createdAt: bigint('created_at', { mode: 'number' }).notNull(),
 })
+
+export const model = pgTable('model', (t) => ({
+	id: t.text('id').primaryKey(),
+	userId: t.text('user_id').notNull(),
+	provider: t.varchar('provider', { length: 255 }).notNull(),
+	model: t.varchar('model', { length: 255 }).notNull(),
+}))
 
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
@@ -126,6 +137,7 @@ export const embeddings = pgTable(
 
 export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),
+	models: many(model),
 }))
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -154,5 +166,12 @@ export const documentRelations = relations(document, ({ one }) => ({
 	upload: one(upload, {
 		fields: [document.uploadId],
 		references: [upload.id],
+	}),
+}))
+
+export const modelRelations = relations(model, ({ one }) => ({
+	user: one(user, {
+		fields: [model.userId],
+		references: [user.id],
 	}),
 }))

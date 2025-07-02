@@ -18,6 +18,7 @@ import { WebsiteRoutes } from './routes/website'
 import { AdminRoutes } from './routes/admin'
 
 import { PUBLIC_APP_URL } from '$env/static/public'
+import { ModelRoutes } from './routes/model'
 
 const app = new Hono()
 app.use(cors())
@@ -57,6 +58,7 @@ app.get(
 const router = app
 	.route('/auth', AuthRoutes)
 	.route('/user', UserRoutes)
+	.route('/model', ModelRoutes)
 	.route('/chat', ChatRoutes)
 	.route('/file-upload', FileUploadRoutes)
 	.route('/webhook', WebhookRoutes)

@@ -8,13 +8,13 @@
 
 	const routes = [
 		{ label: 'settings.navigation.account', href: '/settings' },
-		// { label: 'Models', href: '/settings/models' },
+		{ label: 'settings.navigation.models', href: '/settings/models' },
 	] as const
 </script>
 
 <div class="relative flex flex-1 overflow-hidden">
 	<ScrollArea
-		class="bg-popover @container/settings flex flex-1 flex-col items-center p-4">
+		class="@container/settings flex flex-1 flex-col items-center p-4">
 		<div class="flex w-full flex-col items-center">
 			<div class="flex gap-2 p-4">
 				<div class="flex w-full max-w-48 flex-col gap-4 border-r p-4">
