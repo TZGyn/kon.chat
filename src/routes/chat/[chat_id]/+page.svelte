@@ -269,6 +269,7 @@
 				id: newChatId,
 				title: chatJSON.title + ' (branch)',
 				visibility: 'private',
+				status: 'ready',
 				createdAt: Date.now(),
 				updatedAt: Date.now(),
 			},
@@ -612,7 +613,10 @@
 		bind:input={useChat.input}
 		{upload_url}
 		selectedModelLocator={`model:chat:${chat_id}`}
-		handleSubmit={(e, chatRequestOptions?: ChatRequestOptions) => {
+		handleSubmit={async (
+			e,
+			chatRequestOptions?: ChatRequestOptions,
+		) => {
 			const message: Message = {
 				chatId: useChat.id,
 				content: [
@@ -657,10 +661,12 @@
 			} catch (error) {
 				console.log(error)
 			}
-			useChat.handleSubmit(e, {
+			chats.updateChatStatus({ id: chat_id, status: 'streaming' })
+			await useChat.handleSubmit(e, {
 				...chatRequestOptions,
 				body: { ...chatRequestOptions?.body, clientId },
 			})
+			chats.updateChatStatus({ id: chat_id, status: 'ready' })
 		}}
 		bind:messages={useChat.messages}
 		bind:data={useChat.data}

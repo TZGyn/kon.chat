@@ -113,7 +113,11 @@
 							}
 							return 0
 						}) as chat}
-							<Sidebar.MenuItem class="group/menu-button">
+							<Sidebar.MenuItem
+								class={cn(
+									'group/menu-button',
+									chat.status === 'streaming' && 'animate-pulse',
+								)}>
 								<Sidebar.MenuButton
 									isActive={page.url.pathname === `/chat/${chat.id}`}>
 									{#snippet child({ props })}

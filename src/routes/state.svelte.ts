@@ -5,6 +5,7 @@ let chats = $state<
 		id: string
 		title: string
 		visibility: 'private' | 'public'
+		status: 'streaming' | 'ready'
 		createdAt: number
 		updatedAt: number
 	}[]
@@ -15,7 +16,7 @@ export function useChats() {
 		chats = JSON.parse(localStorage.getItem('chats') || '[]')
 		const response = await makeClient(fetch).chat.$get()
 		const data = await response.json()
-		chats = data.chats
+		chats = data.chats.map((chat) => ({ ...chat, status: 'ready' }))
 		localStorage.setItem('chats', JSON.stringify(chats || []))
 	}
 
@@ -47,6 +48,21 @@ export function useChats() {
 		}
 	}
 
+	function updateChatStatus({
+		id,
+		status,
+	}: {
+		id: string
+		status: 'ready' | 'streaming'
+	}) {
+		chats = chats.map((chat) => {
+			if (chat.id === id) {
+				chat.status = status
+			}
+			return chat
+		})
+	}
+
 	return {
 		get chats() {
 			return chats
@@ -57,6 +73,7 @@ export function useChats() {
 		getChats,
 		deleteChats,
 		syncChats,
+		updateChatStatus,
 	}
 }
 
