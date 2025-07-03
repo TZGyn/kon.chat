@@ -75,7 +75,7 @@
 	}
 </script>
 
-<div class="flex flex-col gap-2 p-4">
+<div class="flex flex-col gap-2">
 	<div class="flex flex-col items-center gap-4 py-6">
 		<Avatar.Root class="size-32">
 			<Avatar.Image src={user.user?.avatar} alt="kon.chat" />
