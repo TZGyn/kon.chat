@@ -76,7 +76,7 @@
 						size="lg"
 						{...props}
 						class={cn(
-							'data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:cursor-pointer',
+							'data-[state=open]:bg-sidebar-accent bg-popover data-[state=open]:text-sidebar-accent-foreground hover:cursor-pointer',
 						)}
 						variant="outline">
 						<Avatar.Root
