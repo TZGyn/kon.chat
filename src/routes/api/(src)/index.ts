@@ -19,8 +19,15 @@ import { AdminRoutes } from './routes/admin'
 
 import { PUBLIC_APP_URL } from '$env/static/public'
 import { ModelRoutes } from './routes/model'
+import type { AuthType } from '$api/auth/type'
+import { getCookie } from 'hono/cookie'
+import {
+	deleteSessionTokenCookie,
+	setSessionTokenCookie,
+	validateSessionToken,
+} from '$api/auth/session'
 
-const app = new Hono()
+const app = new Hono<{ Variables: AuthType }>()
 app.use(cors())
 app.use(logger())
 
@@ -56,6 +63,37 @@ app.get(
 )
 
 const router = app
+	.use('*', async (c, next) => {
+		if (c.req.path.startsWith('/api/auth')) {
+			return next()
+		}
+		console.log(c.req.path)
+		const token = getCookie(c, 'session') ?? null
+
+		if (token === null) {
+			return c.json({ success: false }, 401)
+		}
+
+		const { session, user } = await validateSessionToken(token)
+
+		if (!user) {
+			return c.json({ success: false }, 401)
+		}
+
+		if (session !== null) {
+			setSessionTokenCookie(c, token, session.expiresAt)
+		} else {
+			deleteSessionTokenCookie(c)
+		}
+
+		if (!session) {
+			return c.json({ success: false }, 401)
+		}
+
+		c.set('user', user)
+		c.set('session', session)
+		return next()
+	})
 	.route('/auth', AuthRoutes)
 	.route('/user', UserRoutes)
 	.route('/model', ModelRoutes)

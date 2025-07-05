@@ -1,9 +1,19 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input'
 	import { Label } from '$lib/components/ui/label/index.js'
+	import { Checkbox } from '$lib/components/ui/checkbox/index.js'
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
-	import { PlusIcon, TrashIcon } from '@lucide/svelte'
+	import {
+		BrainIcon,
+		FileTextIcon,
+		ImageIcon,
+		PenBoxIcon,
+		PlusIcon,
+		SearchIcon,
+		TrashIcon,
+		ZapIcon,
+	} from '@lucide/svelte'
 	import * as Card from '$lib/components/ui/card/index.js'
 	import * as Select from '$lib/components/ui/select/index.js'
 	import { makeClient } from '$api/api-client'
@@ -18,6 +28,7 @@
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
 	import GroqIcon from '$lib/icons/groq-icon.svelte'
 	import { m } from '$lib/paraglide/messages'
+	import EditModelDialog from './(components)/edit-model-dialog.svelte'
 
 	const client = makeClient(fetch)
 
@@ -53,6 +64,11 @@
 	let addModelDialogOpen = $state(false)
 	let selectedProvider = $state('')
 	let modelID = $state('')
+	let image = $state(false)
+	let file = $state(false)
+	let fast = $state(false)
+	let reasoning = $state(false)
+	let searchGrounding = $state(false)
 
 	const triggerContent = $derived(
 		providers.find((f) => f.value === selectedProvider) ?? {
@@ -66,6 +82,11 @@
 			json: {
 				model: modelID,
 				provider: selectedProvider as any,
+				image,
+				file,
+				fast,
+				reasoning,
+				searchGrounding,
 			},
 		})
 
@@ -146,7 +167,7 @@
 					</Select.Root>
 				</div>
 				<div class="grid grid-cols-4 items-center gap-4">
-					<Label for="model" class="text-right">
+					<Label for="model">
 						{m['settings.model.model']()}
 					</Label>
 					<Input
@@ -154,6 +175,60 @@
 						bind:value={modelID}
 						class="col-span-3"
 						placeholder="gpt-4.1-nano" />
+				</div>
+				<div class="grid grid-cols-4 items-center gap-4">
+					<Label>
+						{m['settings.model.capabilities.capabilities']()}
+					</Label>
+				</div>
+				<div class="grid grid-cols-4 items-center gap-4">
+					<Checkbox
+						id="image"
+						bind:checked={image}
+						class="col-span-1" />
+					<Label for="image" class="text-muted-foreground col-span-3">
+						{m['settings.model.capabilities.image']()}
+					</Label>
+				</div>
+				<div class="grid grid-cols-4 items-center gap-4">
+					<Checkbox
+						id="file"
+						bind:checked={file}
+						class="col-span-1" />
+					<Label for="file" class="text-muted-foreground col-span-3">
+						{m['settings.model.capabilities.file']()}
+					</Label>
+				</div>
+				<div class="grid grid-cols-4 items-center gap-4">
+					<Checkbox
+						id="fast"
+						bind:checked={fast}
+						class="col-span-1" />
+					<Label for="fast" class="text-muted-foreground col-span-3">
+						{m['settings.model.capabilities.fast']()}
+					</Label>
+				</div>
+				<div class="grid grid-cols-4 items-center gap-4">
+					<Checkbox
+						id="reasoning"
+						bind:checked={reasoning}
+						class="col-span-1" />
+					<Label
+						for="reasoning"
+						class="text-muted-foreground col-span-3">
+						{m['settings.model.capabilities.reasoning']()}
+					</Label>
+				</div>
+				<div class="grid grid-cols-4 items-center gap-4">
+					<Checkbox
+						id="search_grounding"
+						bind:checked={searchGrounding}
+						class="col-span-1" />
+					<Label
+						for="search_grounding"
+						class="text-muted-foreground col-span-3">
+						{m['settings.model.capabilities.searchGrounding']()}
+					</Label>
 				</div>
 			</div>
 			<Dialog.Footer>
@@ -169,11 +244,23 @@
 		<Card.Root>
 			<Card.Content>
 				<div class="flex justify-between">
-					<div class="flex items-center gap-4">
+					<div
+						class="flex items-center gap-4 [&_svg:not([class*='size-'])]:size-4">
 						{@render modelIcon(model.provider)}
 						<span>{model.model}</span>
 					</div>
-					<div>
+					<div
+						class="flex items-center gap-2 [&_svg:not([class*='size-'])]:size-4">
+						{@render modelCapabilitiesIcon({
+							fast: model.fast,
+							file: model.file,
+							image: model.image,
+							reasoning: model.reasoning,
+							searchGrounding: model.searchGrounding,
+						})}
+					</div>
+					<div class="flex items-center gap-2">
+						<EditModelDialog {getModels} {model} />
 						<Dialog.Root>
 							<Dialog.Trigger
 								class={buttonVariants({ variant: 'destructive' })}>
@@ -219,5 +306,44 @@
 		<MistralIcon />
 	{:else if provider === 'open_router'}
 		<OpenRouterIcon />
+	{/if}
+{/snippet}
+
+{#snippet modelCapabilitiesIcon(capabilities: {
+	fast: boolean
+	reasoning: boolean
+	searchGrounding: boolean
+	image: boolean
+	file: boolean
+})}
+	{#if capabilities.searchGrounding}
+		<div
+			class="flex items-center justify-center rounded bg-green-500/10 p-1 text-green-500 transition-colors hover:bg-green-500/20">
+			<SearchIcon class="text-green-500" />
+		</div>
+	{/if}
+	{#if capabilities.fast}
+		<div
+			class="flex items-center justify-center rounded bg-yellow-500/10 p-1 text-yellow-500 transition-colors hover:bg-yellow-500/20">
+			<ZapIcon class="text-yellow-500" />
+		</div>
+	{/if}
+	{#if capabilities.reasoning}
+		<div
+			class="flex items-center justify-center rounded bg-purple-500/10 p-1 text-purple-500 transition-colors hover:bg-purple-500/20">
+			<BrainIcon class="text-purple-500" />
+		</div>
+	{/if}
+	{#if capabilities.image}
+		<div
+			class="flex items-center justify-center rounded bg-blue-500/10 p-1 text-blue-500 transition-colors hover:bg-blue-500/20">
+			<ImageIcon class="text-blue-500" />
+		</div>
+	{/if}
+	{#if capabilities.file}
+		<div
+			class="flex items-center justify-center rounded bg-cyan-500/10 p-1 text-cyan-500 transition-colors hover:bg-cyan-500/20">
+			<FileTextIcon class="text-cyan-500" />
+		</div>
 	{/if}
 {/snippet}

@@ -28,7 +28,19 @@
 			"select_a_provider": "选择提供商",
 			"model_added": "新增模型",
 			"model_deleted": "模型已删除",
-			"model_deletion_failed": "模型删除失败"
+			"model_deletion_failed": "模型删除失败",
+			"capabilities": {
+				"image": "图像",
+				"file": "文件",
+				"fast": "快速地",
+				"reasoning": "推理",
+				"searchGrounding": "搜索接地",
+				"capabilities": "功能"
+			},
+			"edit_a_model_description": "选择提供商并输入模型 ID",
+			"edit_a_model": "编辑模型",
+			"model_updated": "模型已更新",
+			"update_model": "更新模型"
 		}
 	},
 	"locale": "区域设置",

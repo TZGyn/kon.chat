@@ -35,6 +35,14 @@ export const model = pgTable('model', (t) => ({
 	userId: t.text('user_id').notNull(),
 	provider: t.varchar('provider', { length: 255 }).notNull(),
 	model: t.varchar('model', { length: 255 }).notNull(),
+	image: t.boolean('image').notNull().default(false),
+	file: t.boolean('file').notNull().default(false),
+	fast: t.boolean('fast').notNull().default(false),
+	reasoning: t.boolean('reasoning').notNull().default(false),
+	searchGrounding: t
+		.boolean('search_grounding')
+		.notNull()
+		.default(false),
 }))
 
 export const session = pgTable('session', {

@@ -28,7 +28,19 @@
 			"select_a_provider": "Seleccione un proveedor",
 			"model_added": "Modelo añadido",
 			"model_deleted": "Modelo eliminado",
-			"model_deletion_failed": "Error en la eliminación del modelo"
+			"model_deletion_failed": "Error en la eliminación del modelo",
+			"capabilities": {
+				"image": "Imagen",
+				"file": "Archivo",
+				"fast": "Rápido",
+				"reasoning": "Razonamiento",
+				"searchGrounding": "Búsqueda de puesta a tierra",
+				"capabilities": "Capacidades"
+			},
+			"edit_a_model_description": "Seleccione un proveedor e ingrese el ID del modelo",
+			"edit_a_model": "Editar un modelo",
+			"model_updated": "Modelo actualizado",
+			"update_model": "Actualizar modelo"
 		}
 	},
 	"locale": "Lugar",

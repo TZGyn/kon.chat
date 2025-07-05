@@ -20,15 +20,27 @@
 			"model": "Model",
 			"provider": "Provider",
 			"add_model": "Add Model",
+			"update_model": "Update Model",
 			"delete": "Delete",
 			"remove_this_model": "Remove this model",
 			"delete_this_model": "Delete this model?",
 			"add_a_new_model": "Add a new model",
 			"add_a_new_model_description": "Select a provider and enter the model id",
+			"edit_a_model": "Edit a model",
+			"edit_a_model_description": "Select a provider and enter the model id",
 			"select_a_provider": "Select a provider",
 			"model_added": "Model Added",
+			"model_updated": "Model Updated",
 			"model_deleted": "Model Deleted",
-			"model_deletion_failed": "Model deletion failed"
+			"model_deletion_failed": "Model deletion failed",
+			"capabilities": {
+				"capabilities": "Capabilities",
+				"image": "Image",
+				"file": "File",
+				"fast": "Fast",
+				"reasoning": "Reasoning",
+				"searchGrounding": "Search Grounding"
+			}
 		},
 		"settings": "Settings"
 	},
