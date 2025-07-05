@@ -19,70 +19,78 @@ export const modelSchema = z
 	.union([
 		z.object({
 			name: z.literal('openai'),
-			model: z.enum([
-				'gpt-4o',
-				'gpt-4o-mini',
-				'gpt-4.1',
-				'gpt-4.1-mini',
-				'gpt-4.1-nano',
-			]),
-		}),
-		z.object({
-			name: z.literal('openai'),
-			model: z.enum(['o3-mini', 'o4-mini']),
+			model: z
+				.enum([
+					'gpt-4o',
+					'gpt-4o-mini',
+					'gpt-4.1',
+					'gpt-4.1-mini',
+					'gpt-4.1-nano',
+					'o3-mini',
+					'o4-mini',
+				])
+				.or(z.string()),
 			reasoning_effort: z
 				.enum(['low', 'medium', 'high'])
-				.default('low'),
+				.default('low')
+				.optional(),
 		}),
 		z.object({
 			name: z.literal('google'),
-			model: z.enum([
-				'gemini-2.0-flash-001',
-				'gemini-2.5-pro-exp-03-25',
-			]),
-		}),
-		z.object({
-			name: z.literal('google'),
-			model: z.enum(['gemini-2.5-flash-preview-04-17']),
-			thinking_budget: z.number().min(0).default(0),
+			model: z
+				.enum([
+					'gemini-2.0-flash-001',
+					'gemini-2.5-pro-exp-03-25',
+					'gemini-2.5-flash-preview-04-17',
+				])
+				.or(z.string()),
+			thinking_budget: z.number().min(0).default(0).optional(),
 		}),
 		z.object({
 			name: z.literal('groq'),
-			model: z.enum([
-				'deepseek-r1-distill-llama-70b',
-				'llama-3.3-70b-versatile',
-				'qwen-qwq-32b',
-				// 'meta-llama/llama-4-scout-17b-16e-instruct',
-				// 'meta-llama/llama-4-maverick-17b-128e-instruct',
-			]),
+			model: z
+				.enum([
+					'deepseek-r1-distill-llama-70b',
+					'llama-3.3-70b-versatile',
+					'qwen-qwq-32b',
+					// 'meta-llama/llama-4-scout-17b-16e-instruct',
+					// 'meta-llama/llama-4-maverick-17b-128e-instruct',
+				])
+				.or(z.string()),
 		}),
 		z.object({
 			name: z.literal('anthropic'),
-			model: z.enum([
-				'claude-3-5-sonnet-latest',
-				'claude-3-7-sonnet-20250219',
-				'claude-4-sonnet-20250514',
-			]),
+			model: z
+				.enum([
+					'claude-3-5-sonnet-latest',
+					'claude-3-7-sonnet-20250219',
+					'claude-4-sonnet-20250514',
+				])
+				.or(z.string()),
 		}),
 		z.object({
 			name: z.literal('xai'),
-			model: z.enum([
-				'grok-2-1212',
-				'grok-2-vision-1212',
-				'grok-3-beta',
-				'grok-3-mini-beta',
-			]),
+			model: z
+				.enum([
+					'grok-2-1212',
+					'grok-2-vision-1212',
+					'grok-3-beta',
+					'grok-3-mini-beta',
+				])
+				.or(z.string()),
 		}),
 		z.object({
 			name: z.literal('mistral'),
-			model: z.enum(['mistral-small-latest']),
+			model: z.enum(['mistral-small-latest']).or(z.string()),
 		}),
 		z.object({
 			name: z.literal('open_router'),
-			model: z.enum([
-				'meta-llama/llama-4-scout:free',
-				'meta-llama/llama-4-maverick:free',
-			]),
+			model: z
+				.enum([
+					'meta-llama/llama-4-scout:free',
+					'meta-llama/llama-4-maverick:free',
+				])
+				.or(z.string()),
 		}),
 	])
 	.default({ name: 'google', model: 'gemini-2.0-flash-001' })

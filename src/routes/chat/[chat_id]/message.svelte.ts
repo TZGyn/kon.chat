@@ -163,15 +163,15 @@ export const getChatState = (options: ChatOptions = {}) => {
 			abortController = null
 			status = 'ready'
 		} catch (error) {
-			// if (isAbortError(error)) {
-			// 	return
-			// }
-			// const coalescedError =
-			// 	error instanceof Error ? error : new Error(String(error))
-			// if (this.#options.onError) {
-			// 	this.#options.onError(coalescedError)
-			// }
-			// this.#store.status = 'error'
+			if (isAbortError(error)) {
+				return
+			}
+			const coalescedError =
+				error instanceof Error ? error : new Error(String(error))
+			if (options.onError) {
+				options.onError(coalescedError)
+			}
+			messages[messages.length - 1].status = 'ready'
 			// this.#store.error = coalescedError
 		}
 	}
@@ -199,4 +199,11 @@ export const getChatState = (options: ChatOptions = {}) => {
 			return id
 		},
 	}
+}
+
+function isAbortError(error: unknown): error is Error {
+	return (
+		error instanceof Error &&
+		(error.name === 'AbortError' || error.name === 'TimeoutError')
+	)
 }

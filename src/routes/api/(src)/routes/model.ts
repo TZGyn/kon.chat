@@ -36,8 +36,8 @@ const app = new Hono<{ Variables: AuthType }>()
 			z.object({
 				provider: z.enum([
 					'openai',
-					'gemini',
-					'claude',
+					'google',
+					'anthropic',
 					'open_router',
 					'xai',
 				]),
@@ -84,8 +84,8 @@ const app = new Hono<{ Variables: AuthType }>()
 			z.object({
 				provider: z.enum([
 					'openai',
-					'gemini',
-					'claude',
+					'google',
+					'anthropic',
 					'open_router',
 					'xai',
 				]),

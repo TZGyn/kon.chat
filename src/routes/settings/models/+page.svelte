@@ -29,8 +29,11 @@
 	import GroqIcon from '$lib/icons/groq-icon.svelte'
 	import { m } from '$lib/paraglide/messages'
 	import EditModelDialog from './(components)/edit-model-dialog.svelte'
+	import { useModels } from '$lib/models.svelte'
 
 	const client = makeClient(fetch)
+
+	let modelState = useModels()
 
 	let modelSearch = $state('')
 
@@ -97,6 +100,7 @@
 		toast.success(m['settings.model.model_added']())
 		addModelDialogOpen = false
 		getModels()
+		modelState.getModels()
 	}
 
 	const deleteModel = async (modelId: string) => {

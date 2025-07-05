@@ -18,6 +18,7 @@
 	import { toast } from 'svelte-sonner'
 	import { makeClient } from '$api/api-client'
 	import type { Model } from '$api/db/type'
+	import { useModels } from '$lib/models.svelte'
 
 	let {
 		model,
@@ -29,10 +30,12 @@
 
 	const client = makeClient(fetch)
 
+	let modelState = useModels()
+
 	const providers = [
 		{ value: 'openai', label: 'Open AI', icon: OpenaiIcon },
-		{ value: 'gemini', label: 'Gemini', icon: GoogleIcon },
-		{ value: 'claude', label: 'Claude', icon: AnthropicIcon },
+		{ value: 'google', label: 'Google', icon: GoogleIcon },
+		{ value: 'anthropic', label: 'Anthropic', icon: AnthropicIcon },
 		{ value: 'xai', label: 'xAI', icon: XaiIcon },
 		{
 			value: 'open_router',
@@ -80,6 +83,8 @@
 		toast.success(m['settings.model.model_updated']())
 		editModelDialogOpen = false
 		getModels()
+
+		modelState.getModels()
 	}
 </script>
 

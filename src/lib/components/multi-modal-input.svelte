@@ -3,7 +3,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import * as Tooltip from '$lib/components/ui/tooltip'
 	import { Toggle } from '$lib/components/ui/toggle/index.js'
-	import { useModels } from '$lib/models.svelte.js'
+	import { useModels, type Model } from '$lib/models.svelte.js'
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import * as Popover from '$lib/components/ui/popover/index.js'
@@ -143,7 +143,7 @@
 		attachments = attachments
 	})
 
-	let selectedModel = $state<(typeof modelState.models)[number]>({
+	let selectedModel = $state<Model>({
 		name: 'Gemini 2.0 Flash',
 		info: '',
 		provider: 'google',
@@ -327,6 +327,19 @@
 					modelState.available_models.includes(model.provider),
 			),
 		},
+		{
+			name: 'Custom Models',
+			models: modelState.customModels.filter(
+				(model) =>
+					(model.name
+						.toLowerCase()
+						.includes(modelSearch.toLowerCase()) ||
+						model.provider
+							.toLowerCase()
+							.includes(modelSearch.toLowerCase())) &&
+					modelState.available_models.includes(model.provider as any),
+			),
+		},
 	])
 
 	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
@@ -463,7 +476,7 @@
 					</div>
 				</Popover.Content>
 			</Popover.Root>
-			{#if 'thinkingBudget' in selectedModel.capabilities && selectedModel.capabilities.thinkingBudget.enable}
+			{#if 'thinkingBudget' in selectedModel.capabilities && selectedModel.capabilities.thinkingBudget?.enable}
 				<Popover.Root>
 					<Popover.Trigger
 						class={cn(

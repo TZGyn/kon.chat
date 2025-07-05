@@ -1,6 +1,26 @@
 import { makeClient } from '$api/api-client'
 import { onMount } from 'svelte'
 
+export type Model = {
+	name: string
+	info: string
+	provider: string
+	id: string
+	capabilities: {
+		image: boolean
+		file: boolean
+		fast: boolean
+		reasoning: boolean
+		searchGrounding: boolean
+
+		thinkingBudget?: {
+			enable: boolean
+			min: number
+			max: number
+		}
+	}
+}
+
 let available_models = $state<
 	(
 		| 'openai'
@@ -12,6 +32,8 @@ let available_models = $state<
 		| 'open_router'
 	)[]
 >([])
+
+let customModels = $state<Model[]>([])
 
 export const useModels = () => {
 	const getAvailableModels = async () => {
@@ -29,8 +51,42 @@ export const useModels = () => {
 		)
 	}
 
+	const getModels = async () => {
+		customModels = JSON.parse(
+			localStorage.getItem('custom_models') || '[]',
+		)
+		const response =
+			await makeClient(fetch).model.available_models.$get()
+
+		if (response.status === 200) {
+			customModels = (await response.json()).custom_models.map(
+				(model) => {
+					return {
+						info: '',
+						id: model.model,
+						name: model.model,
+						provider: model.provider,
+						capabilities: {
+							fast: model.fast,
+							file: model.file,
+							image: model.image,
+							reasoning: model.reasoning,
+							searchGrounding: model.searchGrounding,
+						},
+					}
+				},
+			)
+		}
+
+		localStorage.setItem(
+			'available_models',
+			JSON.stringify(available_models || []),
+		)
+	}
+
 	onMount(() => {
 		getAvailableModels()
+		getModels()
 	})
 
 	let models = $derived([
@@ -291,8 +347,12 @@ export const useModels = () => {
 		get models() {
 			return models
 		},
+		get customModels() {
+			return customModels
+		},
 		get available_models() {
 			return available_models
 		},
+		getModels,
 	}
 }
