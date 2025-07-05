@@ -1,8 +1,12 @@
+import {
+	fillMessageParts,
+	type ChatMessage,
+	type ChatUIMessage,
+} from '$lib/message'
 import { nanoid } from '$lib/nanoid'
 import type { ChatOptions } from '@ai-sdk/svelte'
 import {
 	callChatApi,
-	fillMessageParts,
 	prepareAttachmentsForRequest,
 	type ChatRequest,
 	type ChatRequestOptions,
@@ -16,7 +20,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 
 	let id = $derived(options.id ?? nanoid())
 
-	let messages = $state<UIMessage[]>([])
+	let messages = $state<ChatUIMessage[]>([])
 	let abortController: AbortController | null = null
 	let status = $state<'submitted' | 'streaming' | 'ready' | 'error'>(
 		'ready',
@@ -59,9 +63,12 @@ export const getChatState = (options: ChatOptions = {}) => {
 					? attachmentsForRequest
 					: undefined,
 			parts: [{ type: 'text', text: input }],
+			status: 'ready',
 		})
 
-		const chatRequest: ChatRequest = {
+		const chatRequest: Omit<ChatRequest, 'messages'> & {
+			messages: ChatMessage[]
+		} = {
 			messages: newMessages,
 			headers: options.headers,
 			body: options.body,
@@ -74,7 +81,9 @@ export const getChatState = (options: ChatOptions = {}) => {
 	}
 
 	const triggerRequest = async (chatRequest: ChatRequest) => {
-		const new_messages = fillMessageParts(chatRequest.messages)
+		const new_messages = fillMessageParts(
+			chatRequest.messages as ChatMessage[],
+		)
 		try {
 			abortController = new AbortController()
 
@@ -110,6 +119,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 				role: 'assistant',
 				content: '',
 				parts: [],
+				status: 'submitted',
 			})
 
 			await callChatApi({
@@ -133,7 +143,10 @@ export const getChatState = (options: ChatOptions = {}) => {
 
 					messages = messages
 
-					messages[messages.length - 1] = message
+					messages[messages.length - 1] = {
+						...message,
+						status: 'streaming',
+					}
 
 					if (data?.length) {
 						data = existingData
@@ -141,7 +154,10 @@ export const getChatState = (options: ChatOptions = {}) => {
 					}
 				},
 				onToolCall: () => {},
-				onFinish: options.onFinish,
+				onFinish: (message, option) => {
+					options.onFinish?.(message, option)
+					messages[messages.length - 1].status = 'ready'
+				},
 				generateId: nanoid,
 				fetch: options.fetch,
 				// callChatApi calls structuredClone on the message
@@ -165,15 +181,17 @@ export const getChatState = (options: ChatOptions = {}) => {
 	}
 
 	return {
-		get messages(): UIMessage[] {
+		get messages(): ChatUIMessage[] {
 			return messages
 		},
-		set messages(value: Message[]) {
+		set messages(value: ChatMessage[]) {
 			messages = fillMessageParts(value)
 		},
 		stop,
 		handleSubmit,
-		status,
+		get status() {
+			return status
+		},
 		get input() {
 			return input
 		},
@@ -181,6 +199,8 @@ export const getChatState = (options: ChatOptions = {}) => {
 			input = value
 		},
 		data,
-		id,
+		get id() {
+			return id
+		},
 	}
 }

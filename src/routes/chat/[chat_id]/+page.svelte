@@ -50,6 +50,7 @@
 	import { browser } from '$app/environment'
 	import { type UIMessage as ChatMessage } from '@ai-sdk/svelte'
 	import { getChatState } from './message.svelte.js'
+	import type { ChatUIMessage } from '$lib/message.js'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -90,14 +91,20 @@
 			customUseChat.status === 'ready' ||
 			customUseChat.status === 'error'
 		) {
-			customUseChat.messages = mergedMessages
+			customUseChat.messages = mergedMessages.map((message) => ({
+				...message,
+				status: 'ready',
+			}))
 		} else {
 			const latestUserMessageIndex = getMostRecentUserMessageIndex(
 				customUseChat.messages,
 			)
 
 			customUseChat.messages = [
-				...mergedMessages,
+				...(mergedMessages.map((message) => ({
+					...message,
+					status: 'ready',
+				})) as ChatUIMessage[]),
 				...customUseChat.messages.slice(latestUserMessageIndex),
 			]
 		}
@@ -115,7 +122,10 @@
 			if (chatJSON) {
 				customUseChat.messages = mergeMessages(
 					convertToUIMessages(chatJSON?.messages || []),
-				)
+				).map((message) => ({
+					...message,
+					status: 'streaming',
+				})) as ChatUIMessage[]
 			}
 		}
 		getChat(chat_id)
@@ -209,9 +219,12 @@
 				customUseChat.messages = messages
 				if (replaceLastMessage) {
 					customUseChat.messages[customUseChat.messages.length - 1] =
-						message
+						{ ...message, status: 'streaming' }
 				} else {
-					customUseChat.messages.push(message)
+					customUseChat.messages.push({
+						...message,
+						status: 'streaming',
+					})
 				}
 
 				if (data?.length) {
@@ -392,7 +405,9 @@
 					event.event === 'new-message' &&
 					event.data.clientId != clientId
 				) {
-					customUseChat.messages.push(event.data.data as UIMessage)
+					customUseChat.messages.push(
+						event.data.data as ChatUIMessage,
+					)
 					const messages = $state.snapshot(customUseChat.messages)
 
 					const abortController = new AbortController()
@@ -411,9 +426,12 @@
 							if (replaceLastMessage) {
 								customUseChat.messages[
 									customUseChat.messages.length - 1
-								] = message
+								] = { ...message, status: 'streaming' }
 							} else {
-								customUseChat.messages.push(message)
+								customUseChat.messages.push({
+									...message,
+									status: 'streaming',
+								})
 							}
 
 							if (data?.length) {
@@ -424,6 +442,9 @@
 						onResponse: () => {},
 						onFinish: () => {
 							abortController.abort()
+							customUseChat.messages[
+								customUseChat.messages.length - 1
+							].status = 'ready'
 						},
 						onToolCall: () => {},
 						restoreMessagesOnFailure: () => {},
@@ -459,39 +480,9 @@
 							data={customUseChat.data}
 							{message}
 							role={message.role}
-							status={customUseChat.status}
 							isLast={index === customUseChat.messages.length - 1}
 							branch={() => branch(message.id, chat_id)} />
 					{/each}
-					{#if customUseChat.status === 'submitted'}
-						<div
-							class={cn(
-								'flex min-h-[calc(100vh-18rem)] gap-2 place-self-start',
-							)}>
-							<div class="group flex flex-col gap-2">
-								<div class="flex items-center gap-4">
-									<div
-										class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
-										<div class="translate-y-px">
-											<Avatar.Root class="size-4 overflow-visible">
-												<Avatar.Image
-													src={'/logo.png'}
-													alt="favicon"
-													class="size-4" />
-												<Avatar.Fallback class="bg-opacity-0 size-4">
-													<img src="/logo.png" alt="favicon" />
-												</Avatar.Fallback>
-											</Avatar.Root>
-										</div>
-									</div>
-									<div class="flex animate-pulse items-center gap-2">
-										<Loader2Icon class="size-4 animate-spin" />
-										Submitting Prompt
-									</div>
-								</div>
-							</div>
-						</div>
-					{/if}
 				</div>
 			</div>
 		</div>
