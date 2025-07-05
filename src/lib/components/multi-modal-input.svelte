@@ -390,7 +390,7 @@
 					<ChevronDownIcon />
 				</Popover.Trigger>
 				<Popover.Content
-					class="@container w-[100vw] max-w-[600px] p-0"
+					class="bg-background @container w-[100vw] max-w-[600px] p-0"
 					align="start">
 					<div
 						class="h-full max-h-[70vh] space-y-4 overflow-y-scroll p-4">
@@ -407,7 +407,7 @@
 										<!-- svelte-ignore a11y_no_static_element_interactions -->
 										<div
 											class={cn(
-												'bg-background hover:bg-accent flex flex-col flex-wrap gap-2 rounded p-3 text-sm [&_svg:not([class*="size-"])]:size-4',
+												'bg-popover hover:bg-accent flex flex-col flex-wrap gap-2 rounded p-3 text-sm [&_svg:not([class*="size-"])]:size-4',
 												model.id === selectedModel.id && 'bg-accent',
 											)}
 											onclick={() => {
