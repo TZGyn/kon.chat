@@ -48,6 +48,8 @@
 	import { processStream } from '$lib/stream.js'
 	import { parseSSE } from '$lib/sse.js'
 	import { browser } from '$app/environment'
+	import { type UIMessage as ChatMessage } from '@ai-sdk/svelte'
+	import { getChatState } from './message.svelte.js'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -84,15 +86,19 @@
 			chat.value?.messages ?? [],
 		)
 		const mergedMessages = mergeMessages(serverMessages)
-		if (useChat.status === 'ready' || useChat.status === 'error') {
-			useChat.messages = mergedMessages
+		if (
+			customUseChat.status === 'ready' ||
+			customUseChat.status === 'error'
+		) {
+			customUseChat.messages = mergedMessages
 		} else {
 			const latestUserMessageIndex = getMostRecentUserMessageIndex(
-				useChat.messages,
+				customUseChat.messages,
 			)
-			useChat.messages = [
+
+			customUseChat.messages = [
 				...mergedMessages,
-				...useChat.messages.slice(latestUserMessageIndex),
+				...customUseChat.messages.slice(latestUserMessageIndex),
 			]
 		}
 	}
@@ -107,7 +113,7 @@
 			const chatJSON = JSON.parse(chat) as Chat
 
 			if (chatJSON) {
-				useChat.messages = mergeMessages(
+				customUseChat.messages = mergeMessages(
 					convertToUIMessages(chatJSON?.messages || []),
 				)
 			}
@@ -121,7 +127,7 @@
 
 	const chats = useChats()
 
-	let useChat = new Chat({
+	let customUseChat = getChatState({
 		initialMessages: [],
 		get api() {
 			return `/api/chat/${chat_id}`
@@ -141,7 +147,7 @@
 			}, 3000)
 
 			const message: Message = {
-				chatId: useChat.id,
+				chatId: customUseChat.id,
 				...response,
 				content: response.parts,
 				model:
@@ -167,19 +173,100 @@
 			}
 		},
 		onError: (error) => {
-			useChat.messages[useChat.messages.length - 1].annotations?.push(
-				{
-					type: 'kon_chat',
-					status: 'error',
-					error: {
-						type: error.name,
-						message: error.message,
-					},
+			customUseChat.messages[
+				customUseChat.messages.length - 1
+			].annotations?.push({
+				type: 'kon_chat',
+				status: 'error',
+				error: {
+					type: error.name,
+					message: error.message,
 				},
-			)
+			})
 		},
 		credentials: 'include',
 	})
+
+	const resumeMessage = async ({
+		messageId,
+	}: {
+		messageId: string
+	}) => {
+		const abortController = new AbortController()
+
+		const messages = $state.snapshot(customUseChat.messages)
+
+		await callChatApi({
+			api: `/api/chat/${chat_id}/resume`,
+			body: {
+				id: messageId,
+			},
+			headers: {},
+			streamProtocol: 'data',
+			credentials: 'include',
+			abortController: () => abortController,
+			onUpdate: ({ message, data, replaceLastMessage }) => {
+				customUseChat.messages = messages
+				if (replaceLastMessage) {
+					customUseChat.messages[customUseChat.messages.length - 1] =
+						message
+				} else {
+					customUseChat.messages.push(message)
+				}
+
+				if (data?.length) {
+					// useChat.data = existingData;
+					customUseChat.data?.push(...data)
+				}
+			},
+			onResponse: () => {},
+			onFinish: (response) => {
+				if (page.url.searchParams.has('type')) {
+					page.url.searchParams.delete('type')
+					replaceState(page.url, page.state)
+					isNew = false
+				}
+				setTimeout(() => {
+					chats.getChats()
+					user.getUser()
+				}, 3000)
+
+				const message: Message = {
+					chatId: chat_id,
+					...response,
+					content: response.parts,
+					model:
+						// @ts-ignore
+						response.annotations?.find(
+							(annotation) =>
+								// @ts-ignore
+								annotation['type'] === 'model' &&
+								// @ts-ignore
+								annotation['model'] !== null,
+							// @ts-ignore
+						).model || '',
+					provider: '',
+					providerMetadata: {},
+					responseId: '',
+					createdAt: Date.now(),
+				}
+				if (chat.value !== null) {
+					chat.value = {
+						...chat.value,
+						messages: [...chat.value.messages, message],
+					}
+				}
+				abortController.abort()
+			},
+			onToolCall: () => {},
+			restoreMessagesOnFailure: () => {},
+			fetch: undefined,
+			lastMessage: $state.snapshot(
+				customUseChat.messages[customUseChat.messages.length - 1],
+			),
+			generateId: () => nanoid(),
+		})
+	}
 
 	let shareChatDialogOpen = $state(false)
 	let sharingChat = $state(false)
@@ -305,10 +392,11 @@
 					event.event === 'new-message' &&
 					event.data.clientId != clientId
 				) {
-					useChat.messages.push(event.data.data as UIMessage)
-					const messages = $state.snapshot(useChat.messages)
+					customUseChat.messages.push(event.data.data as UIMessage)
+					const messages = $state.snapshot(customUseChat.messages)
 
 					const abortController = new AbortController()
+					await resumeMessage({ messageId: event.data.id })
 					await callChatApi({
 						api: `/api/chat/${chat_id}/resume`,
 						body: {
@@ -319,17 +407,18 @@
 						credentials: 'include',
 						abortController: () => abortController,
 						onUpdate: ({ message, data, replaceLastMessage }) => {
-							useChat.messages = messages
+							customUseChat.messages = messages
 							if (replaceLastMessage) {
-								useChat.messages[useChat.messages.length - 1] =
-									message
+								customUseChat.messages[
+									customUseChat.messages.length - 1
+								] = message
 							} else {
-								useChat.messages.push(message)
+								customUseChat.messages.push(message)
 							}
 
 							if (data?.length) {
 								// useChat.data = existingData;
-								useChat.data?.push(...data)
+								customUseChat.data?.push(...data)
 							}
 						},
 						onResponse: () => {},
@@ -340,7 +429,9 @@
 						restoreMessagesOnFailure: () => {},
 						fetch: undefined,
 						lastMessage: $state.snapshot(
-							useChat.messages[useChat.messages.length - 1],
+							customUseChat.messages[
+								customUseChat.messages.length - 1
+							],
 						),
 						generateId: () => nanoid(),
 					})
@@ -363,16 +454,16 @@
 			<div class="flex w-full flex-col items-center pt-20 pb-40">
 				<div
 					class="@container/chat flex w-full max-w-[600px] flex-col gap-4">
-					{#each useChat.messages as message, index (index)}
+					{#each customUseChat.messages as message, index (index)}
 						<MessageBlock
-							data={useChat.data}
+							data={customUseChat.data}
 							{message}
 							role={message.role}
-							status={useChat.status}
-							isLast={index === useChat.messages.length - 1}
+							status={customUseChat.status}
+							isLast={index === customUseChat.messages.length - 1}
 							branch={() => branch(message.id, chat_id)} />
 					{/each}
-					{#if useChat.status === 'submitted'}
+					{#if customUseChat.status === 'submitted'}
 						<div
 							class={cn(
 								'flex min-h-[calc(100vh-18rem)] gap-2 place-self-start',
@@ -610,7 +701,7 @@
 
 {#if (chat.value && chat.value.isOwner) || isNew}
 	<MultiModalInput
-		bind:input={useChat.input}
+		bind:input={customUseChat.input}
 		{upload_url}
 		selectedModelLocator={`model:chat:${chat_id}`}
 		handleSubmit={async (
@@ -618,11 +709,11 @@
 			chatRequestOptions?: ChatRequestOptions,
 		) => {
 			const message: Message = {
-				chatId: useChat.id,
+				chatId: customUseChat.id,
 				content: [
 					{
 						type: 'text',
-						text: useChat.input,
+						text: customUseChat.input,
 					},
 				],
 				id: nanoid(),
@@ -649,43 +740,31 @@
 				}
 			}
 
-			try {
-				// @ts-ignore
-				window.stonks.event('Submit Message', `/chat/${chat_id}`, {
-					...chatRequestOptions,
-					body: {
-						...chatRequestOptions?.body,
-						messages: useChat.messages,
-					},
-				})
-			} catch (error) {
-				console.log(error)
-			}
 			chats.updateChatStatus({ id: chat_id, status: 'streaming' })
-			await useChat.handleSubmit(e, {
+			await customUseChat.handleSubmit(e, {
 				...chatRequestOptions,
 				body: { ...chatRequestOptions?.body, clientId },
 			})
 			chats.updateChatStatus({ id: chat_id, status: 'ready' })
 		}}
-		bind:messages={useChat.messages}
-		bind:data={useChat.data}
-		status={useChat.status}
+		bind:messages={customUseChat.messages}
+		bind:data={customUseChat.data}
+		status={customUseChat.status}
 		imageUpload={true}
 		fileUpload={true}
 		enableSearch={true}
 		{autoScroll}
 		stop={() => {
-			useChat.messages[useChat.messages.length - 1].annotations?.push(
-				{
-					type: 'kon_chat',
-					status: 'error',
-					error: {
-						type: 'stopped_by_user',
-						message: 'Stopped By User',
-					},
+			customUseChat.messages[
+				customUseChat.messages.length - 1
+			].annotations?.push({
+				type: 'kon_chat',
+				status: 'error',
+				error: {
+					type: 'stopped_by_user',
+					message: 'Stopped By User',
 				},
-			)
+			})
 			if (page.url.searchParams) {
 				page.url.searchParams.delete('type')
 				replaceState(page.url, page.state)
@@ -698,7 +777,7 @@
 			if (chat.value !== null) {
 				chat.value = {
 					...chat.value,
-					messages: useChat.messages as any,
+					messages: customUseChat.messages as any,
 				}
 			} else {
 				chat.value = {
@@ -707,9 +786,9 @@
 					visibility: 'private',
 					isOwner: true,
 					createdAt: Date.now(),
-					messages: useChat.messages as any,
+					messages: customUseChat.messages as any,
 				}
 			}
-			useChat.stop()
+			customUseChat.stop()
 		}} />
 {/if}
