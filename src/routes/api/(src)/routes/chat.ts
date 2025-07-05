@@ -794,6 +794,20 @@ const app = new Hono()
 						sendReasoning: true,
 					})
 
+					await redis.xadd(
+						streamKey,
+						'*',
+						...[
+							'type',
+							'"message_annotations"',
+							'annotation',
+							JSON.stringify({
+								type: 'model',
+								model: provider.model,
+							}),
+						],
+					)
+
 					let start = true
 					for await (const stream of result.fullStream) {
 						let values: string[] = []
@@ -939,7 +953,16 @@ const app = new Hono()
 									) as TextStreamPart<ToolSet>
 
 									const chunkType = chunk.type
-									if (chunkType == 'text-delta') {
+									// @ts-ignore
+									if (chunkType == 'message_annotations') {
+										controller.enqueue(
+											formatDataStreamPart(
+												'message_annotations',
+												// @ts-ignore
+												[chunk.annotation],
+											),
+										)
+									} else if (chunkType == 'text-delta') {
 										controller.enqueue(
 											formatDataStreamPart('text', chunk.textDelta),
 										)

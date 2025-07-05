@@ -197,90 +197,6 @@
 		credentials: 'include',
 	})
 
-	const resumeMessage = async ({
-		messageId,
-	}: {
-		messageId: string
-	}) => {
-		const abortController = new AbortController()
-
-		const messages = $state.snapshot(customUseChat.messages)
-
-		await callChatApi({
-			api: `/api/chat/${chat_id}/resume`,
-			body: {
-				id: messageId,
-			},
-			headers: {},
-			streamProtocol: 'data',
-			credentials: 'include',
-			abortController: () => abortController,
-			onUpdate: ({ message, data, replaceLastMessage }) => {
-				customUseChat.messages = messages
-				if (replaceLastMessage) {
-					customUseChat.messages[customUseChat.messages.length - 1] =
-						{ ...message, status: 'streaming' }
-				} else {
-					customUseChat.messages.push({
-						...message,
-						status: 'streaming',
-					})
-				}
-
-				if (data?.length) {
-					// useChat.data = existingData;
-					customUseChat.data?.push(...data)
-				}
-			},
-			onResponse: () => {},
-			onFinish: (response) => {
-				if (page.url.searchParams.has('type')) {
-					page.url.searchParams.delete('type')
-					replaceState(page.url, page.state)
-					isNew = false
-				}
-				setTimeout(() => {
-					chats.getChats()
-					user.getUser()
-				}, 3000)
-
-				const message: Message = {
-					chatId: chat_id,
-					...response,
-					content: response.parts,
-					model:
-						// @ts-ignore
-						response.annotations?.find(
-							(annotation) =>
-								// @ts-ignore
-								annotation['type'] === 'model' &&
-								// @ts-ignore
-								annotation['model'] !== null,
-							// @ts-ignore
-						).model || '',
-					provider: '',
-					providerMetadata: {},
-					responseId: '',
-					createdAt: Date.now(),
-				}
-				if (chat.value !== null) {
-					chat.value = {
-						...chat.value,
-						messages: [...chat.value.messages, message],
-					}
-				}
-				abortController.abort()
-			},
-			onToolCall: () => {},
-			restoreMessagesOnFailure: () => {},
-			fetch: undefined,
-			lastMessage: $state.snapshot(
-				customUseChat.messages[customUseChat.messages.length - 1],
-			),
-			generateId: () => nanoid(),
-		})
-	}
-
 	let shareChatDialogOpen = $state(false)
 	let sharingChat = $state(false)
 
@@ -411,7 +327,7 @@
 					const messages = $state.snapshot(customUseChat.messages)
 
 					const abortController = new AbortController()
-					await resumeMessage({ messageId: event.data.id })
+					// await resumeMessage({ messageId: event.data.id })
 					await callChatApi({
 						api: `/api/chat/${chat_id}/resume`,
 						body: {

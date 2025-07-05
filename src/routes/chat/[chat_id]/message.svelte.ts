@@ -28,10 +28,6 @@ export const getChatState = (options: ChatOptions = {}) => {
 	let input = $state('')
 	let data = $state<JSONValue[]>([])
 
-	$effect(() => {
-		console.log(input)
-	})
-
 	const stop = () => {
 		try {
 			abortController?.abort()
