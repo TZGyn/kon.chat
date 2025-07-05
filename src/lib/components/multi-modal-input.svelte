@@ -338,7 +338,7 @@
 
 <form
 	onsubmit={customSubmit}
-	class="bg-secondary absolute right-1/2 bottom-0 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
+	class="bg-popover absolute right-1/2 bottom-0 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
 	<div
 		class="absolute right-1/2 bottom-[calc(100%+0.5rem)] flex translate-x-1/2 flex-col gap-2">
 		{#if !autoScroll?.isAtBottom}
@@ -354,7 +354,7 @@
 	<Textarea
 		bind:value={input}
 		bind:ref={inputElement}
-		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+		class="bg-popover dark:bg-popover max-h-96 min-h-4 resize-none border-none px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
 		placeholder={m.send_a_message() + ' ' + m.ctrl_enter_to_send()}
 		onkeydown={(event) => {
 			if (event.key === 'Enter' && event.ctrlKey) {
