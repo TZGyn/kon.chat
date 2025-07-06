@@ -7,7 +7,31 @@
 
 All in one chat app with search tools and file uploads
 
-> The project in undergoing a backend merge, it is recommended not to self host before the merge is complete, it will be significantly easier to self host after the merge. No migration tools will be given for deployments before the merge
+# Preview + Features
+
+## Homepage
+
+![homepage](./docs/homepage.png)
+
+## Code block
+
+![codeblock](./docs/codeblock.png)
+
+## Image Generation
+
+![image_generation](./docs/image_generation.png)
+
+## Multi Models
+
+![multi_models](./docs/multi_model.png)
+
+## Search Tool
+
+![search_tool](./docs/search_tool.png)
+
+## Search Tool
+
+![custom_models](./docs/custom_models.png)
 
 ## Developing
 
