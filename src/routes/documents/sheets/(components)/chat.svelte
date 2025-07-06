@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { PUBLIC_API_URL } from '$env/static/public'
 	import { Chat } from '@ai-sdk/svelte'
 	import { useUser } from '../../../state.svelte'
 	import { onMount } from 'svelte'
@@ -37,7 +36,7 @@
 		maxSteps: 1,
 		initialMessages: [],
 		get api() {
-			return PUBLIC_API_URL + `/documents/sheets`
+			return `/api/documents/sheets`
 		},
 		onFinish: () => {
 			autoScroll.scrollToBottom()
@@ -240,7 +239,7 @@
 			{#if useChat.status === 'submitted'}
 				<div
 					class={cn(
-						'@6xl:min-h-[calc(100svh-25rem)] flex min-h-[calc(50svh-25rem)] gap-2 place-self-start',
+						'flex min-h-[calc(50svh-25rem)] gap-2 place-self-start @6xl:min-h-[calc(100svh-25rem)]',
 					)}>
 					<div class="group flex flex-col gap-2">
 						<div class="flex items-center gap-4">
@@ -252,7 +251,7 @@
 											src={'/logo.png'}
 											alt="favicon"
 											class="size-4" />
-										<Avatar.Fallback class="size-4 bg-opacity-0">
+										<Avatar.Fallback class="bg-opacity-0 size-4">
 											<img src="/logo.png" alt="favicon" />
 										</Avatar.Fallback>
 									</Avatar.Root>

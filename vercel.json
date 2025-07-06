@@ -22,7 +22,7 @@
 	],
 	"git": {
 		"deploymentEnabled": {
-			"master": true
+			"merge_backend": false
 		}
 	}
 }

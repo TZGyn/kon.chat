@@ -113,7 +113,11 @@
 							}
 							return 0
 						}) as chat}
-							<Sidebar.MenuItem class="group/menu-button">
+							<Sidebar.MenuItem
+								class={cn(
+									'group/menu-button',
+									chat.status === 'streaming' && 'animate-pulse',
+								)}>
 								<Sidebar.MenuButton
 									isActive={page.url.pathname === `/chat/${chat.id}`}>
 									{#snippet child({ props })}
@@ -180,7 +184,7 @@
 						{/snippet}
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content
-						class="w-[--bits-dropdown-menu-anchor-width] min-w-56 rounded-lg"
+						class="max-h-screen w-[--bits-dropdown-menu-anchor-width] min-w-56 overflow-y-scroll rounded-lg"
 						side={sidebar.isMobile ? 'bottom' : 'right'}
 						align="end"
 						sideOffset={4}>

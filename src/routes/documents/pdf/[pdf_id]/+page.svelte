@@ -7,16 +7,17 @@
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import { cn } from '$lib/utils'
 	import Chat from './(components)/chat.svelte'
-	import { customFetchRaw } from '$lib/fetch'
 	import { toast } from 'svelte-sonner'
 	import { processDataStream } from '@ai-sdk/ui-utils'
 	import { onMount } from 'svelte'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
-	import { env } from '$env/dynamic/public'
+	import { makeClient } from '$api/api-client'
 
 	const autoScroll = new UseAutoScroll()
 	const autoScrollMarkdown = new UseAutoScroll()
+
+	const client = makeClient(fetch)
 
 	let selectedTab = $state(page.url.searchParams.get('tab') || 'chat')
 
@@ -40,26 +41,19 @@
 
 	const getPDFData = async () => {
 		status = 'loading'
-		const response = await customFetchRaw(
-			`/documents/pdf/${page.params.pdf_id}`,
-		)
+
+		const response = await client.documents.pdf[':pdf_id'].$get({
+			param: {
+				pdf_id: page.params.pdf_id,
+			},
+		})
+
 		if (!response.ok) {
 			toast.error(await response.text())
 			return
 		}
 
-		const { pdf: data } = (await response.json()) as {
-			pdf: {
-				type: 'pdf'
-				uploadId: string
-				name: string
-				id: string
-				createdAt: number
-				userId: string
-				summary: string | null
-				markdown: string | null
-			}
-		}
+		const { pdf: data } = await response.json()
 		pdf.value = data
 
 		status = 'ready'
@@ -67,9 +61,15 @@
 
 	const getPDFMarkdown = async () => {
 		markdownStatus = 'loading'
-		const response = await customFetchRaw(
-			`/documents/pdf/${page.params.pdf_id}/markdown`,
-		)
+
+		const response = await client.documents.pdf[
+			':pdf_id'
+		].markdown.$get({
+			param: {
+				pdf_id: page.params.pdf_id,
+			},
+		})
+
 		if (!response.ok) {
 			toast.error(await response.text())
 			return
@@ -110,9 +110,14 @@
 
 	const getPDFSummary = async () => {
 		status = 'loading'
-		const response = await customFetchRaw(
-			`/documents/pdf/${page.params.pdf_id}/summary`,
-		)
+		const response = await client.documents.pdf[
+			':pdf_id'
+		].summary.$get({
+			param: {
+				pdf_id: page.params.pdf_id,
+			},
+		})
+
 		if (!response.ok) {
 			toast.error(await response.text())
 			return
@@ -165,9 +170,7 @@
 			<iframe
 				title="pdf"
 				class="flex-1"
-				src={env.PUBLIC_API_URL +
-					'/file-upload/' +
-					pdf.value?.uploadId}>
+				src={'/api/file-upload/' + pdf.value?.uploadId}>
 			</iframe>
 		</div>
 		<div class="flex flex-1 overflow-hidden">

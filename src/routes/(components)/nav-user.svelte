@@ -4,7 +4,6 @@
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js'
 	import * as Dialog from '$lib/components/ui/dialog'
 	import { useSidebar } from '$lib/components/ui/sidebar/index.js'
-	import { customFetch } from '$lib/fetch'
 	import {
 		Loader2Icon,
 		LogInIcon,
@@ -17,7 +16,6 @@
 	import Sparkles from 'lucide-svelte/icons/sparkles'
 	import { onMount } from 'svelte'
 	import { Button } from '$lib/components/ui/button'
-	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { useUser } from '../state.svelte'
 	import { useChats } from '../state.svelte'
 	import { cn } from '$lib/utils'
@@ -31,11 +29,14 @@
 	import * as m from '$lib/paraglide/messages'
 	import { useLocale } from '$lib/lang.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
+	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
+	import { makeClient } from '$api/api-client'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
 	const chats = useChats()
 	let user = $derived(userState.user)
+	const client = makeClient(fetch)
 
 	onMount(() => {
 		userState.getUser()
@@ -48,9 +49,8 @@
 
 	const logout = async () => {
 		isLoggingOut = true
-		await customFetch<{}>('/auth/logout', {
-			method: 'POST',
-		})
+		const response = await client.auth.logout.$post()
+
 		chats.getChats()
 		await userState.getUser()
 		logoutDialogOpen = false
@@ -76,7 +76,7 @@
 						size="lg"
 						{...props}
 						class={cn(
-							'data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:cursor-pointer',
+							'data-[state=open]:bg-sidebar-accent bg-popover data-[state=open]:text-sidebar-accent-foreground hover:cursor-pointer',
 						)}
 						variant="outline">
 						<Avatar.Root
@@ -125,46 +125,6 @@
 						</div>
 					</div>
 				</DropdownMenu.Label>
-				<DropdownMenu.Separator />
-				<DropdownMenu.Label class="p-0 font-normal">
-					<div
-						class="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
-						<div class="grid flex-1 text-left text-sm leading-tight">
-							<span
-								class="text-muted-foreground truncate text-xs font-semibold">
-								{m.credits()}: {(user
-									? user.credits + user.purchased_credits || 0
-									: 0) / 100}
-							</span>
-						</div>
-					</div>
-				</DropdownMenu.Label>
-				{#if user === null || user.plan === 'free' || user.plan === 'trial'}
-					<DropdownMenu.Separator />
-					<DropdownMenu.Group>
-						<a href="/billing/plan">
-							<DropdownMenu.Item>
-								<Sparkles class="text-primary" />
-								Upgrade to Pro
-							</DropdownMenu.Item>
-						</a>
-					</DropdownMenu.Group>
-				{/if}
-				{#if user !== null && user.plan !== 'free'}
-					<DropdownMenu.Separator />
-					<DropdownMenu.Group>
-						<!-- <DropdownMenu.Item>
-						<BadgeCheck />
-						Account
-					</DropdownMenu.Item> -->
-						<a href={PUBLIC_API_URL + '/billing/portal'}>
-							<DropdownMenu.Item>
-								<CreditCard />
-								{m.billing()}
-							</DropdownMenu.Item>
-						</a>
-					</DropdownMenu.Group>
-				{/if}
 				<DropdownMenu.Separator />
 
 				<DropdownMenu.Group>
@@ -263,7 +223,7 @@
 		</Dialog.Header>
 		<div class="grid gap-4">
 			<Button
-				href={`${PUBLIC_API_URL}/auth/login/github?redirect=${PUBLIC_APP_URL + '/'}`}
+				href={`/api/auth/login/github?redirect=${PUBLIC_APP_URL + '/'}`}
 				variant="outline"
 				class="w-full">
 				<svg
@@ -279,7 +239,7 @@
 				Login with Github
 			</Button>
 			<Button
-				href={`${PUBLIC_API_URL}/auth/login/google?redirect=${PUBLIC_APP_URL + '/'}`}
+				href={`/api/auth/login/google?redirect=${PUBLIC_APP_URL + '/'}`}
 				variant="outline"
 				class="w-full">
 				<svg

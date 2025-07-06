@@ -59,6 +59,7 @@
 	let updateHTMLID: number
 	$effect(() => {
 		code
+		mode.current
 		if (updateHTMLID) {
 			cancelIdleCallback(updateHTMLID)
 		}
@@ -132,7 +133,7 @@
 	const runPython = async (code: string) => {
 		runningCode = true
 		const currentPyodideInstance = await loadPyodide({
-			indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.3/full/',
+			indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/',
 		})
 
 		const outputArray: ConsoleOutputContent[] = []
@@ -295,8 +296,8 @@
 		<div
 			bind:this={autoScroll.ref}
 			class="max-h-[60vh] overflow-y-scroll">
-			<pre
-				class="shiki one-dark-pro !bg-[#f6f6f7] text-wrap dark:!bg-[#1e1e1e]"><code>{#if codeTokens.length > 0}{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color ? token.color : mode.current === 'dark' ? '#fff' : '#000'}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}{:else}{code}{/if}</code></pre>
+			<!-- prettier-ignore -->
+			<pre class="shiki one-dark-pro dark:!bg-popover !bg-[#f6f6f7] text-wrap"><code>{#if codeTokens.length > 0}{#each codeTokens as tokens, index (index)}{@const html = `<span class="line">${tokens.map((token) => `<span style="color: ${token.color ? token.color : mode.current === 'dark' ? '#fff' : '#000'}; font-style:${fontStyle[(token.fontStyle as 0 | 1 | 2 | 3) ?? 0]}">${token.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`).join('')}</span>\n`}{@html html}{/each}{:else}{#each code.split('\n') as codeLine}<span class="line">{codeLine + '\n'}</span>{/each}{/if}</code></pre>
 		</div>
 
 		<!-- class={cn('w-12 shrink-0', {
@@ -411,3 +412,17 @@
 		</iframe>
 	</Tabs.Content>
 </Tabs.Root>
+
+<style>
+	code {
+		counter-reset: line;
+	}
+	:global(.line:before) {
+		counter-increment: line;
+		content: counter(line);
+		width: calc(var(--spacing) * 16);
+		padding-right: calc(var(--spacing) * 4);
+		text-align: right;
+		color: var(--color-code-number);
+	}
+</style>

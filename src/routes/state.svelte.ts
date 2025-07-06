@@ -1,10 +1,11 @@
-import { customFetch } from '$lib/fetch'
+import { makeClient } from '$api/api-client'
 
 let chats = $state<
 	{
 		id: string
 		title: string
 		visibility: 'private' | 'public'
+		status: 'streaming' | 'ready'
 		createdAt: number
 		updatedAt: number
 	}[]
@@ -13,41 +14,15 @@ let chats = $state<
 export function useChats() {
 	async function getChats() {
 		chats = JSON.parse(localStorage.getItem('chats') || '[]')
-		chats = (
-			await customFetch<{
-				chats: {
-					id: string
-					title: string
-					visibility: 'private' | 'public'
-					createdAt: number
-					updatedAt: number
-				}[]
-			}>('/chat')
-		).chats
+		const response = await makeClient(fetch).chat.$get()
+		const data = await response.json()
+		chats = data.chats.map((chat) => ({ ...chat, status: 'ready' }))
 		localStorage.setItem('chats', JSON.stringify(chats || []))
 	}
 
 	async function syncChats() {
-		const data = await customFetch<{
-			chats: {
-				id: string
-				title: string
-				createdAt: number
-				updatedAt: number
-				isOwner: boolean
-				messages: {
-					id: string
-					createdAt: number
-					chatId: string
-					responseId: string
-					role: string
-					content: unknown
-					model: string | null
-					providerMetadata: any
-					provider: string | null
-				}[]
-			}[]
-		}>('/chat/sync')
+		const response = await makeClient(fetch).chat.sync.$get()
+		const data = await response.json()
 		for (const chat of data.chats) {
 			localStorage.setItem(`chat:${chat.id}`, JSON.stringify(chat))
 		}
@@ -58,17 +33,34 @@ export function useChats() {
 
 		try {
 			chats = chats.filter((chat) => chat.id !== id)
-			const success = (
-				await customFetch<{ success: boolean }>(`/chat/${id}`, {
-					method: 'DELETE',
-				})
-			).success
+
+			const response = await makeClient(fetch).chat[
+				':chat_id'
+			].$delete({ param: { chat_id: id } })
+
+			const success = (await response.json()).success
+
 			if (!success) {
 				localStorage.setItem('chats', JSON.stringify(prev || []))
 			}
 		} catch (error) {
 			chats = prev
 		}
+	}
+
+	function updateChatStatus({
+		id,
+		status,
+	}: {
+		id: string
+		status: 'ready' | 'streaming'
+	}) {
+		chats = chats.map((chat) => {
+			if (chat.id === id) {
+				chat.status = status
+			}
+			return chat
+		})
 	}
 
 	return {
@@ -81,16 +73,14 @@ export function useChats() {
 		getChats,
 		deleteChats,
 		syncChats,
+		updateChatStatus,
 	}
 }
 
 let user = $state<{
 	email: string
 	name: string
-	plan: 'pro' | 'basic' | 'free' | 'owner' | 'trial'
-	avatar: string
-	credits: number
-	purchased_credits: number
+	avatar: string | null
 	name_for_llm: string
 	additional_system_prompt: string
 } | null>(null)
@@ -98,20 +88,9 @@ let user = $state<{
 export const useUser = () => {
 	const getUser = async () => {
 		user = JSON.parse(localStorage.getItem('user') || 'null')
-		user = (
-			await customFetch<{
-				user: {
-					email: string
-					name: string
-					plan: 'free' | 'basic' | 'pro' | 'trial'
-					avatar: string
-					credits: number
-					purchased_credits: number
-					name_for_llm: string
-					additional_system_prompt: string
-				} | null
-			}>('/auth/me')
-		).user
+		const response = await makeClient(fetch).auth.me.$get()
+		const data = await response.json()
+		user = data.user
 		localStorage.setItem('user', JSON.stringify(user || null))
 	}
 

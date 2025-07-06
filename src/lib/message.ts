@@ -1,12 +1,20 @@
-import type { Message } from 'ai'
+import type { UIMessage, Message } from '@ai-sdk/ui-utils'
 
-export function fillMessageParts(messages: Message[]) {
+export type ChatUIMessage = UIMessage & {
+	status: 'submitted' | 'streaming' | 'ready' | 'error'
+}
+
+export type ChatMessage = Message & {
+	status: 'submitted' | 'streaming' | 'ready' | 'error'
+}
+
+export function fillMessageParts(messages: ChatMessage[]) {
 	return messages.map((message) => ({
 		...message,
 		parts: getMessageParts(message),
-	}))
+	})) as ChatUIMessage[]
 }
-function getMessageParts(message: Message) {
+function getMessageParts(message: ChatMessage) {
 	var _a
 	return (_a = message.parts) != null
 		? _a

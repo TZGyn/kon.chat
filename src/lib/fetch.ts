@@ -1,11 +1,9 @@
-import { PUBLIC_API_URL } from '$env/static/public'
-
 export const customFetch = async <T>(
 	url: string,
 	props?: RequestInit,
 ) => {
 	return (
-		await fetch(PUBLIC_API_URL + url, {
+		await fetch('/api' + url, {
 			credentials: 'include',
 			...props,
 		})
@@ -16,7 +14,7 @@ export const customFetchRaw = async (
 	url: string,
 	props?: RequestInit,
 ) => {
-	return await fetch(PUBLIC_API_URL + url, {
+	return await fetch('/api' + url, {
 		credentials: 'include',
 		...props,
 	})

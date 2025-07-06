@@ -19,11 +19,9 @@
 	let {
 		addDrawing,
 		disabled,
-		plan,
 	}: {
 		addDrawing: (drawing: File) => void
 		disabled: boolean
-		plan: 'pro' | 'basic' | 'free' | 'owner' | 'trial' | undefined
 	} = $props()
 
 	let stageElement = $state<Stage>()
@@ -82,75 +80,60 @@
 		<BrushIcon />
 	</Popover.Trigger>
 	<Popover.Content class="relative w-fit space-y-4">
-		{#if plan === 'free' || plan === 'trial' || plan === undefined}
-			<div class="flex flex-col gap-4 p-2">
-				<div class="flex flex-col gap-1">
-					<span class="text-lg">Upgrade to basic or higher plan</span>
-					<p class="text-muted-foreground text-sm text-wrap">
-						Get access to drawing upload and more by upgrading your
-						plan
-					</p>
-				</div>
-				<Button href={'/billing/plan'} class="w-full">
-					Checkout plans
-				</Button>
-			</div>
-		{:else}
-			<Stage
-				width={400}
-				height={400}
-				onmousedown={handleMouseDown}
-				onmousemove={handleMouseMove}
-				onmouseup={handleMouseUp}
-				ontouchstart={handleMouseDown}
-				ontouchmove={handleMouseMove}
-				ontouchend={handleMouseUp}
-				bind:this={stageElement}>
-				<Layer>
-					<Rect
-						x={0}
-						y={0}
-						width={400}
-						height={400}
-						stroke={'#000'}
-						fill={backgroundHex}></Rect>
-					{#each lines as line, i}
-						<Line
-							key={i}
-							points={line.points}
-							stroke={line.stroke}
-							strokeWidth={5}
-							tension={0.5}
-							lineCap="round"
-							lineJoin="round"
-							globalCompositeOperation={line.tool === 'eraser'
-								? 'destination-out'
-								: 'source-over'} />
-					{/each}
-				</Layer>
-			</Stage>
-			<div
-				class="flex w-full items-center justify-center gap-2 rounded p-2">
-				<ColorPicker
-					bind:hex
-					label={m.foreground()}
-					position="responsive"
-					isDark={mode.current === 'dark'} />
-				<ColorPicker
-					bind:hex={backgroundHex}
-					label={m.background()}
-					position="responsive"
-					isDark={mode.current === 'dark'} />
-				<Button
-					variant="outline"
-					onclick={() => {
-						lines = []
-					}}>
-					{m.clear()}
-				</Button>
-				<Button onclick={handldeSubmit}>{m.submit()}</Button>
-			</div>
-		{/if}
+		<Stage
+			width={400}
+			height={400}
+			onmousedown={handleMouseDown}
+			onmousemove={handleMouseMove}
+			onmouseup={handleMouseUp}
+			ontouchstart={handleMouseDown}
+			ontouchmove={handleMouseMove}
+			ontouchend={handleMouseUp}
+			bind:this={stageElement}>
+			<Layer>
+				<Rect
+					x={0}
+					y={0}
+					width={400}
+					height={400}
+					stroke={'#000'}
+					fill={backgroundHex}></Rect>
+				{#each lines as line, i}
+					<Line
+						key={i}
+						points={line.points}
+						stroke={line.stroke}
+						strokeWidth={5}
+						tension={0.5}
+						lineCap="round"
+						lineJoin="round"
+						globalCompositeOperation={line.tool === 'eraser'
+							? 'destination-out'
+							: 'source-over'} />
+				{/each}
+			</Layer>
+		</Stage>
+		<div
+			class="flex w-full items-center justify-center gap-2 rounded p-2">
+			<ColorPicker
+				bind:hex
+				label={m.foreground()}
+				position="responsive"
+				isDark={mode.current === 'dark'} />
+			<ColorPicker
+				bind:hex={backgroundHex}
+				label={m.background()}
+				position="responsive"
+				isDark={mode.current === 'dark'} />
+			<Button
+				variant="outline"
+				onclick={() => {
+					lines = []
+				}}>
+				{m.clear()}
+			</Button>
+			<Button onclick={handldeSubmit}>{m.submit()}</Button>
+		</div>
 	</Popover.Content>
 </Popover.Root>
 

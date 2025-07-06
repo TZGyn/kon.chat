@@ -5,7 +5,7 @@
 	import { Input } from '$lib/components/ui/input'
 	import { Textarea } from '$lib/components/ui/textarea'
 	import { cn } from '$lib/utils'
-	import { useUser } from '../state.svelte'
+	import { useChats, useUser } from '../state.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import { useLocale } from '$lib/lang.svelte'
@@ -14,11 +14,14 @@
 	import { MoonIcon, SunIcon } from '@lucide/svelte'
 	import { resetMode, setMode, mode } from 'mode-watcher'
 	import { onMount } from 'svelte'
-	import { customFetch } from '$lib/fetch'
+	import { makeClient } from '$api/api-client'
 
 	const user = useUser()
+	const chats = useChats()
 
 	const locale = useLocale()
+
+	const client = makeClient(fetch)
 
 	let name = $state('')
 	let additional_system_prompt = $state('')
@@ -45,43 +48,40 @@
 					additional_system_prompt: additional_system_prompt,
 				}
 			: null
-		await customFetch<{ success: boolean }>(`/user/settings`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
+
+		await client.user.settings.$post({
+			json: {
 				name,
 				additional_system_prompt,
-			}),
+			},
 		})
+
 		isLoading = false
+	}
+
+	let deleteAccountDialogOpen = $state(false)
+	let isDeletingAccount = $state(false)
+
+	const deleteAccount = async () => {
+		isDeletingAccount = true
+
+		await client.auth.account.$delete()
+
+		chats.getChats()
+		await user.getUser()
+		deleteAccountDialogOpen = false
+		isDeletingAccount = false
+		localStorage.clear()
 	}
 </script>
 
-<div class="flex flex-col gap-2 p-4">
+<div class="flex flex-col gap-2">
 	<div class="flex flex-col items-center gap-4 py-6">
 		<Avatar.Root class="size-32">
 			<Avatar.Image src={user.user?.avatar} alt="kon.chat" />
 			<Avatar.Fallback class="text-6xl">K</Avatar.Fallback>
 		</Avatar.Root>
 		<span class="pb-6">{user.user?.email}</span>
-		<span
-			class="bg-secondary flex items-center gap-4 rounded-lg py-2 pr-2 pl-4">
-			<span class="flex items-center gap-2">
-				{((user.user?.credits ?? 0) +
-					(user.user?.purchased_credits ?? 0)) /
-					100}
-				<span class="text-muted-foreground">
-					{m.credits().toLocaleLowerCase()}
-				</span>
-			</span>
-			<Button
-				href="/billing/one-time"
-				data-sveltekit-preload-code="eager">
-				{m.add_credits()}
-			</Button>
-		</span>
 	</div>
 	<div class="grid grid-cols-[auto_1fr] items-center gap-2 py-4">
 		<div>{m.language()}</div>
@@ -189,7 +189,7 @@
 		<div class="text-destructive">
 			{m['settings.account.danger_zone']()}
 		</div>
-		<Dialog.Root>
+		<Dialog.Root bind:open={deleteAccountDialogOpen}>
 			<Dialog.Trigger
 				class={cn(
 					buttonVariants({ variant: 'destructive' }),
@@ -199,16 +199,24 @@
 			</Dialog.Trigger>
 			<Dialog.Content>
 				<Dialog.Header>
-					<!-- <Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+					<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
 					<Dialog.Description>
 						This action cannot be undone. This will permanently delete
 						your account and remove your data from our servers.
-					</Dialog.Description> -->
-					<Dialog.Title>Coming Soon</Dialog.Title>
-					<Dialog.Description>
-						Account deletion is not implemented yet
 					</Dialog.Description>
 				</Dialog.Header>
+				<Dialog.Footer>
+					<Button
+						variant="destructive"
+						onclick={deleteAccount}
+						class="flex flex-1 gap-2"
+						disabled={isDeletingAccount}>
+						{#if isDeletingAccount}
+							<Loader2Icon class="animate-spin" />
+						{/if}
+						{m.delete()}
+					</Button>
+				</Dialog.Footer>
 			</Dialog.Content>
 		</Dialog.Root>
 	</div>

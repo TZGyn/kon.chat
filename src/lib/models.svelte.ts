@@ -1,10 +1,95 @@
-import { useUser } from '../routes/state.svelte'
+import { makeClient } from '$api/api-client'
+import { onMount } from 'svelte'
 
-const userState = useUser()
-let plan = $derived(userState.user?.plan)
+export type Model = {
+	name: string
+	info: string
+	provider: string
+	id: string
+	capabilities: {
+		image: boolean
+		file: boolean
+		fast: boolean
+		reasoning: boolean
+		searchGrounding: boolean
+
+		thinkingBudget?: {
+			enable: boolean
+			min: number
+			max: number
+		}
+	}
+}
+
+let available_models = $state<
+	(
+		| 'openai'
+		| 'anthropic'
+		| 'google'
+		| 'groq'
+		| 'xai'
+		| 'mistral'
+		| 'open_router'
+	)[]
+>([])
+
+let customModels = $state<Model[]>([])
 
 export const useModels = () => {
-	let freeModels = $derived([
+	const getAvailableModels = async () => {
+		available_models = JSON.parse(
+			localStorage.getItem('available_models') || '[]',
+		)
+		const response =
+			await makeClient(fetch).user.available_models.$get()
+
+		available_models = (await response.json()).available_models
+
+		localStorage.setItem(
+			'available_models',
+			JSON.stringify(available_models || []),
+		)
+	}
+
+	const getModels = async () => {
+		customModels = JSON.parse(
+			localStorage.getItem('custom_models') || '[]',
+		)
+		const response =
+			await makeClient(fetch).model.available_models.$get()
+
+		if (response.status === 200) {
+			customModels = (await response.json()).custom_models.map(
+				(model) => {
+					return {
+						info: '',
+						id: model.model,
+						name: model.model,
+						provider: model.provider,
+						capabilities: {
+							fast: model.fast,
+							file: model.file,
+							image: model.image,
+							reasoning: model.reasoning,
+							searchGrounding: model.searchGrounding,
+						},
+					}
+				},
+			)
+		}
+
+		localStorage.setItem(
+			'available_models',
+			JSON.stringify(available_models || []),
+		)
+	}
+
+	onMount(() => {
+		getAvailableModels()
+		getModels()
+	})
+
+	let models = $derived([
 		{
 			name: 'Gemini 2.0 Flash',
 			info: '',
@@ -17,11 +102,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: true,
 			},
-			disabled: false,
-			credits: 0,
 		},
-	] as const)
-	let standardModels = $derived([
 		{
 			name: 'GPT 4.1',
 			info: '',
@@ -34,8 +115,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 80,
 		},
 		{
 			name: 'GPT 4.1 mini',
@@ -49,8 +128,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 40,
 		},
 		{
 			name: 'GPT 4.1 nano',
@@ -64,8 +141,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 20,
 		},
 		{
 			name: 'GPT 4o mini',
@@ -79,8 +154,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 30,
 		},
 		{
 			name: 'GPT 4o',
@@ -94,8 +167,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 100,
 		},
 		{
 			name: 'o3 mini',
@@ -109,8 +180,6 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 50,
 		},
 		{
 			name: 'o4 mini',
@@ -124,8 +193,6 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 50,
 		},
 		{
 			name: 'Gemini 2.5 Flash Preview',
@@ -144,8 +211,6 @@ export const useModels = () => {
 					max: 24576,
 				},
 			},
-			disabled: plan === undefined,
-			credits: 20,
 		},
 		{
 			name: 'Grok 2',
@@ -159,8 +224,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 40,
 		},
 		{
 			name: 'Grok 2 Vision',
@@ -174,8 +237,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 40,
 		},
 		{
 			name: 'Grok 3 Beta',
@@ -189,8 +250,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 200,
 		},
 		{
 			name: 'Grok 3 Mini Beta',
@@ -204,8 +263,6 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 30,
 		},
 		{
 			name: 'DeepSeek R1 (Groq)',
@@ -219,8 +276,6 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 50,
 		},
 		{
 			name: 'Llama 3.3 (Groq)',
@@ -234,10 +289,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 30,
 		},
-
 		{
 			name: 'Mistral Small',
 			info: '',
@@ -250,12 +302,7 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 30,
 		},
-	] as const)
-
-	let premiumModels = $derived([
 		{
 			name: 'Clause 3.5 Sonnet',
 			info: '',
@@ -268,8 +315,6 @@ export const useModels = () => {
 				reasoning: false,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 500,
 		},
 		{
 			name: 'Clause 3.7 Sonnet',
@@ -283,8 +328,6 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 500,
 		},
 		{
 			name: 'Clause 4 Sonnet',
@@ -298,19 +341,18 @@ export const useModels = () => {
 				reasoning: true,
 				searchGrounding: false,
 			},
-			disabled: plan === undefined,
-			credits: 500,
 		},
 	] as const)
 	return {
-		get freeModels() {
-			return freeModels
+		get models() {
+			return models
 		},
-		get standardModels() {
-			return standardModels
+		get customModels() {
+			return customModels
 		},
-		get premiumModels() {
-			return premiumModels
+		get available_models() {
+			return available_models
 		},
+		getModels,
 	}
 }

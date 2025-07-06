@@ -11,20 +11,19 @@
 	import ToolInvocation from './message/tool-invocation.svelte'
 	import Reasoning from './markdown/reasoning.svelte'
 	import * as m from '$lib/paraglide/messages'
+	import type { ChatUIMessage } from '$lib/message'
 
 	let {
 		isLast,
 		message,
-		status,
 		role,
 		data = [],
 		halfSize = false,
 		branch,
 	}: {
 		role: 'system' | 'user' | 'assistant' | 'data'
-		message: UIMessage
+		message: ChatUIMessage
 		isLast: boolean
-		status: 'submitted' | 'streaming' | 'ready' | 'error'
 		data?: JSONValue[]
 		halfSize?: boolean
 		branch?: () => void
@@ -37,7 +36,6 @@
 			'flex gap-2',
 			role === 'user' ? 'place-self-end' : 'place-self-start',
 			isLast &&
-				status !== 'submitted' &&
 				(halfSize
 					? 'min-h-[calc(50svh-18rem)] @6xl:min-h-[calc(100svh-18rem)]'
 					: 'min-h-[calc(100svh-18rem)]'),
@@ -60,18 +58,18 @@
 						</div>
 					</div>
 
-					{#if status === 'streaming' && isLast}
-						{#if data}
-							{/* @ts-ignore */ null}
-							{#if data.filter((data) => data.type === 'message').length > 0}
-								<div class="flex animate-pulse items-center gap-2">
-									<Loader2Icon class="size-4 animate-spin" />
+					{#if message.status === 'streaming'}
+						<div class="flex animate-pulse items-center gap-2">
+							<Loader2Icon class="size-4 animate-spin" />
+							{#if data}
+								{/* @ts-ignore */ null}
+								{#if data.filter((data) => data.type === 'message').length > 0}
 									{/* @ts-ignore */ null}
 									<!-- prettier-ignore -->
 									{data.filter((data) => data.type === 'message')[data.filter((data) => data.type === 'message').length-1].message}
-								</div>
+								{/if}
 							{/if}
-						{/if}
+						</div>
 					{/if}
 
 					{#each message.annotations ?? [] as annotation}

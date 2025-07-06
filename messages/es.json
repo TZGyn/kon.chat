@@ -4,7 +4,8 @@
 	"delete_account": "Estás a punto de eliminar tu cuenta",
 	"settings": {
 		"navigation": {
-			"account": "Cuenta"
+			"account": "Cuenta",
+			"models": "Modelos"
 		},
 		"account": {
 			"what_should_we_call_you": "¿Cómo deberíamos llamarte?",
@@ -14,7 +15,33 @@
 			"danger_zone": "Zona de peligro",
 			"delete_account": "Eliminar cuenta"
 		},
-		"settings": "Ajustes"
+		"settings": "Ajustes",
+		"model": {
+			"provider": "Proveedor",
+			"model": "Modelo",
+			"add_model": "Agregar modelo",
+			"delete": "Borrar",
+			"remove_this_model": "¿Eliminar este modelo?",
+			"delete_this_model": "¿Borrar este modelo?",
+			"add_a_new_model": "Agregar un nuevo modelo",
+			"add_a_new_model_description": "Seleccione un proveedor e ingrese el ID del modelo",
+			"select_a_provider": "Seleccione un proveedor",
+			"model_added": "Modelo añadido",
+			"model_deleted": "Modelo eliminado",
+			"model_deletion_failed": "Error en la eliminación del modelo",
+			"capabilities": {
+				"image": "Imagen",
+				"file": "Archivo",
+				"fast": "Rápido",
+				"reasoning": "Razonamiento",
+				"searchGrounding": "Búsqueda de puesta a tierra",
+				"capabilities": "Capacidades"
+			},
+			"edit_a_model_description": "Seleccione un proveedor e ingrese el ID del modelo",
+			"edit_a_model": "Editar un modelo",
+			"model_updated": "Modelo actualizado",
+			"update_model": "Actualizar modelo"
+		}
 	},
 	"locale": "Lugar",
 	"language": "Idioma",

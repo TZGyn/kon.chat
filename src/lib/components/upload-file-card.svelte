@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { env } from '$env/dynamic/public'
 	import { customFetch, customFetchRaw } from '$lib/fetch'
 	import {
 		FileTextIcon,
@@ -10,6 +9,7 @@
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 	import * as m from '$lib/paraglide/messages'
+	import { makeClient } from '$api/api-client'
 
 	let {
 		file,
@@ -61,7 +61,7 @@
 			}
 
 			const body = (await response.json()) as { id: string }
-			url = env.PUBLIC_API_URL + '/file-upload/' + body.id
+			url = '/api/file-upload/' + body.id
 			toast.success(`${m.file_uploaded()}: ${file.name}`)
 			status = 'ready'
 		} catch (error) {

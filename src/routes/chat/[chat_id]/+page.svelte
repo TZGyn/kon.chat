@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { Chat } from '@ai-sdk/svelte'
-	import { customFetch, customFetchRaw } from '$lib/fetch'
+	import type {
+		Chat as ChatType,
+		Message as MessageType,
+	} from '$api/db/type.js'
 	import { page } from '$app/state'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
 
 	import { cn } from '$lib/utils'
 	import { toast } from 'svelte-sonner'
-	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 
 	import { useChats, useUser } from '../../state.svelte.js'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
@@ -35,37 +37,48 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
 	import { Snippet } from '$lib/components/ui/snippet'
 	import { nanoid } from '$lib/nanoid.js'
-	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
+	import {
+		callChatApi,
+		type ChatRequestOptions,
+		type UIMessage,
+	} from '@ai-sdk/ui-utils'
+	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
+	import { makeClient } from '$api/api-client.js'
+	import { customFetchRaw } from '$lib/fetch.js'
+	import { processStream } from '$lib/stream.js'
+	import { parseSSE } from '$lib/sse.js'
+	import { browser } from '$app/environment'
+	import { type UIMessage as ChatMessage } from '@ai-sdk/svelte'
+	import { getChatState } from './message.svelte.js'
+	import type { ChatUIMessage } from '$lib/message.js'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
 	let upload_url = $derived(`/chat/${chat_id}/upload`)
 
-	type Message = {
-		id: string
-		createdAt: number
-		chatId: string
-		responseId: string
-		role: string
-		content: unknown
-		model: string | null
-		providerMetadata: any
-		provider: string | null
-	}
+	const client = makeClient(fetch)
 
-	type Chat = {
-		id: string
-		createdAt: number
-		isOwner: boolean
-		title: string
-		visibility: 'private' | 'public'
-		messages: Message[]
-	} | null
+	const clientId = nanoid()
+
+	type Message = Omit<
+		MessageType,
+		'promptTokens' | 'completionTokens' | 'totalTokens'
+	>
+
+	type Chat =
+		| (Omit<ChatType, 'userId' | 'updatedAt'> & {
+				isOwner: boolean
+				messages: Message[]
+		  })
+		| null
 
 	const getChat = async (id: string) => {
 		if (page.url.searchParams.get('type') === 'new_branch') return
-		const data = (await customFetch<{ chat: Chat }>(`/chat/${id}`))
-			.chat
+
+		const response = await client.chat[':chat_id'].$get({
+			param: { chat_id: id },
+		})
+		const data = (await response.json()).chat
 
 		localStorage.setItem(`chat:${id}`, JSON.stringify(data))
 		if (chat_id !== id) return
@@ -74,15 +87,25 @@
 			chat.value?.messages ?? [],
 		)
 		const mergedMessages = mergeMessages(serverMessages)
-		if (useChat.status === 'ready' || useChat.status === 'error') {
-			useChat.messages = mergedMessages
+		if (
+			customUseChat.status === 'ready' ||
+			customUseChat.status === 'error'
+		) {
+			customUseChat.messages = mergedMessages.map((message) => ({
+				...message,
+				status: 'ready',
+			}))
 		} else {
 			const latestUserMessageIndex = getMostRecentUserMessageIndex(
-				useChat.messages,
+				customUseChat.messages,
 			)
-			useChat.messages = [
-				...mergedMessages,
-				...useChat.messages.slice(latestUserMessageIndex),
+
+			customUseChat.messages = [
+				...(mergedMessages.map((message) => ({
+					...message,
+					status: 'ready',
+				})) as ChatUIMessage[]),
+				...customUseChat.messages.slice(latestUserMessageIndex),
 			]
 		}
 	}
@@ -97,9 +120,12 @@
 			const chatJSON = JSON.parse(chat) as Chat
 
 			if (chatJSON) {
-				useChat.messages = mergeMessages(
+				customUseChat.messages = mergeMessages(
 					convertToUIMessages(chatJSON?.messages || []),
-				)
+				).map((message) => ({
+					...message,
+					status: 'streaming',
+				})) as ChatUIMessage[]
 			}
 		}
 		getChat(chat_id)
@@ -111,10 +137,10 @@
 
 	const chats = useChats()
 
-	let useChat = new Chat({
+	let customUseChat = getChatState({
 		initialMessages: [],
 		get api() {
-			return PUBLIC_API_URL + `/chat/${chat_id}`
+			return `/api/chat/${chat_id}`
 		},
 		get id() {
 			return chat_id
@@ -131,7 +157,7 @@
 			}, 3000)
 
 			const message: Message = {
-				chatId: useChat.id,
+				chatId: customUseChat.id,
 				...response,
 				content: response.parts,
 				model:
@@ -157,16 +183,16 @@
 			}
 		},
 		onError: (error) => {
-			useChat.messages[useChat.messages.length - 1].annotations?.push(
-				{
-					type: 'kon_chat',
-					status: 'error',
-					error: {
-						type: error.name,
-						message: error.message,
-					},
+			customUseChat.messages[
+				customUseChat.messages.length - 1
+			].annotations?.push({
+				type: 'kon_chat',
+				status: 'error',
+				error: {
+					type: error.name,
+					message: error.message,
 				},
-			)
+			})
 		},
 		credentials: 'include',
 	})
@@ -178,19 +204,16 @@
 		sharingChat = true
 		const data = chat.value
 		if (!data) return
-		const response = await customFetchRaw(
-			`/chat/${chat_id}/change_visibility`,
-			{
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					visibility:
-						data.visibility === 'private' ? 'public' : 'private',
-				}),
+
+		const response = await client.chat[
+			':chat_id'
+		].change_visibility.$put({
+			param: { chat_id: chat_id },
+			json: {
+				visibility:
+					data.visibility === 'private' ? 'public' : 'private',
 			},
-		)
+		})
 
 		if (response.status === 200) {
 			chat.value = {
@@ -209,8 +232,9 @@
 
 	const copyChat = async (chat_id: string) => {
 		copyingChat = true
-		const response = await customFetchRaw(`/chat/${chat_id}/copy`, {
-			method: 'POST',
+
+		const response = await client.chat[':chat_id'].copy.$post({
+			param: { chat_id: chat_id },
 		})
 
 		if (response.status !== 200) {
@@ -261,6 +285,7 @@
 				id: newChatId,
 				title: chatJSON.title + ' (branch)',
 				visibility: 'private',
+				status: 'ready',
 				createdAt: Date.now(),
 				updatedAt: Date.now(),
 			},
@@ -269,18 +294,93 @@
 
 		goto(`/chat/${newChatId}?type=new_branch`)
 
-		const response = await customFetchRaw('/chat/branch', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
+		await client.chat.branch.$post({
+			json: {
 				chat_id: chat_id,
 				new_chat_id: newChatId,
 				at_message_id: at_message_id,
-			}),
+			},
 		})
 	}
+
+	const resumeChat = async (chat_id: string) => {
+		const response = await client.chat[':chat_id'].sse.$post({
+			param: { chat_id },
+		})
+
+		if (!response.body) return
+
+		await processStream({
+			stream: response.body,
+			onValue: async ({ value }) => {
+				const event = parseSSE(value)
+				console.log(event)
+				if (!event) return
+
+				if (
+					event.event === 'new-message' &&
+					event.data.clientId != clientId
+				) {
+					customUseChat.messages.push(
+						event.data.data as ChatUIMessage,
+					)
+					const messages = $state.snapshot(customUseChat.messages)
+
+					const abortController = new AbortController()
+					// await resumeMessage({ messageId: event.data.id })
+					await callChatApi({
+						api: `/api/chat/${chat_id}/resume`,
+						body: {
+							id: event.data.id,
+						},
+						headers: {},
+						streamProtocol: 'data',
+						credentials: 'include',
+						abortController: () => abortController,
+						onUpdate: ({ message, data, replaceLastMessage }) => {
+							customUseChat.messages = messages
+							if (replaceLastMessage) {
+								customUseChat.messages[
+									customUseChat.messages.length - 1
+								] = { ...message, status: 'streaming' }
+							} else {
+								customUseChat.messages.push({
+									...message,
+									status: 'streaming',
+								})
+							}
+
+							if (data?.length) {
+								// useChat.data = existingData;
+								customUseChat.data?.push(...data)
+							}
+						},
+						onResponse: () => {},
+						onFinish: () => {
+							abortController.abort()
+							customUseChat.messages[
+								customUseChat.messages.length - 1
+							].status = 'ready'
+						},
+						onToolCall: () => {},
+						restoreMessagesOnFailure: () => {},
+						fetch: undefined,
+						lastMessage: $state.snapshot(
+							customUseChat.messages[
+								customUseChat.messages.length - 1
+							],
+						),
+						generateId: () => nanoid(),
+					})
+				}
+			},
+		})
+	}
+
+	$effect(() => {
+		chat_id
+		browser && resumeChat(chat_id)
+	})
 </script>
 
 <div class="relative flex flex-1 overflow-hidden">
@@ -291,44 +391,14 @@
 			<div class="flex w-full flex-col items-center pt-20 pb-40">
 				<div
 					class="@container/chat flex w-full max-w-[600px] flex-col gap-4">
-					{#each useChat.messages as message, index (index)}
+					{#each customUseChat.messages as message, index (index)}
 						<MessageBlock
-							data={useChat.data}
+							data={customUseChat.data}
 							{message}
 							role={message.role}
-							status={useChat.status}
-							isLast={index === useChat.messages.length - 1}
+							isLast={index === customUseChat.messages.length - 1}
 							branch={() => branch(message.id, chat_id)} />
 					{/each}
-					{#if useChat.status === 'submitted'}
-						<div
-							class={cn(
-								'flex min-h-[calc(100vh-18rem)] gap-2 place-self-start',
-							)}>
-							<div class="group flex flex-col gap-2">
-								<div class="flex items-center gap-4">
-									<div
-										class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
-										<div class="translate-y-px">
-											<Avatar.Root class="size-4 overflow-visible">
-												<Avatar.Image
-													src={'/logo.png'}
-													alt="favicon"
-													class="size-4" />
-												<Avatar.Fallback class="bg-opacity-0 size-4">
-													<img src="/logo.png" alt="favicon" />
-												</Avatar.Fallback>
-											</Avatar.Root>
-										</div>
-									</div>
-									<div class="flex animate-pulse items-center gap-2">
-										<Loader2Icon class="size-4 animate-spin" />
-										Submitting Prompt
-									</div>
-								</div>
-							</div>
-						</div>
-					{/if}
 				</div>
 			</div>
 		</div>
@@ -468,7 +538,7 @@
 			{#if !user.user}
 				<div class="grid gap-4">
 					<Button
-						href={`${PUBLIC_API_URL}/auth/login/github?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
+						href={`/api/auth/login/github?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
 						variant="outline"
 						class="w-full">
 						<svg
@@ -484,7 +554,7 @@
 						Login with Github
 					</Button>
 					<Button
-						href={`${PUBLIC_API_URL}/auth/login/google?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
+						href={`/api/auth/login/google?redirect=${PUBLIC_APP_URL + '/' + 'chat/' + chat_id}`}
 						variant="outline"
 						class="w-full">
 						<svg
@@ -538,16 +608,19 @@
 
 {#if (chat.value && chat.value.isOwner) || isNew}
 	<MultiModalInput
-		bind:input={useChat.input}
+		bind:input={customUseChat.input}
 		{upload_url}
 		selectedModelLocator={`model:chat:${chat_id}`}
-		handleSubmit={(e, chatRequestOptions?: ChatRequestOptions) => {
+		handleSubmit={async (
+			e,
+			chatRequestOptions?: ChatRequestOptions,
+		) => {
 			const message: Message = {
-				chatId: useChat.id,
+				chatId: customUseChat.id,
 				content: [
 					{
 						type: 'text',
-						text: useChat.input,
+						text: customUseChat.input,
 					},
 				],
 				id: nanoid(),
@@ -574,38 +647,31 @@
 				}
 			}
 
-			try {
-				// @ts-ignore
-				window.stonks.event('Submit Message', `/chat/${chat_id}`, {
-					...chatRequestOptions,
-					body: {
-						...chatRequestOptions?.body,
-						messages: useChat.messages,
-					},
-				})
-			} catch (error) {
-				console.log(error)
-			}
-			useChat.handleSubmit(e, chatRequestOptions)
+			chats.updateChatStatus({ id: chat_id, status: 'streaming' })
+			await customUseChat.handleSubmit(e, {
+				...chatRequestOptions,
+				body: { ...chatRequestOptions?.body, clientId },
+			})
+			chats.updateChatStatus({ id: chat_id, status: 'ready' })
 		}}
-		bind:messages={useChat.messages}
-		bind:data={useChat.data}
-		status={useChat.status}
+		bind:messages={customUseChat.messages}
+		bind:data={customUseChat.data}
+		status={customUseChat.status}
 		imageUpload={true}
 		fileUpload={true}
 		enableSearch={true}
 		{autoScroll}
 		stop={() => {
-			useChat.messages[useChat.messages.length - 1].annotations?.push(
-				{
-					type: 'kon_chat',
-					status: 'error',
-					error: {
-						type: 'stopped_by_user',
-						message: 'Stopped By User',
-					},
+			customUseChat.messages[
+				customUseChat.messages.length - 1
+			].annotations?.push({
+				type: 'kon_chat',
+				status: 'error',
+				error: {
+					type: 'stopped_by_user',
+					message: 'Stopped By User',
 				},
-			)
+			})
 			if (page.url.searchParams) {
 				page.url.searchParams.delete('type')
 				replaceState(page.url, page.state)
@@ -618,7 +684,7 @@
 			if (chat.value !== null) {
 				chat.value = {
 					...chat.value,
-					messages: useChat.messages as any,
+					messages: customUseChat.messages as any,
 				}
 			} else {
 				chat.value = {
@@ -627,9 +693,9 @@
 					visibility: 'private',
 					isOwner: true,
 					createdAt: Date.now(),
-					messages: useChat.messages as any,
+					messages: customUseChat.messages as any,
 				}
 			}
-			useChat.stop()
+			customUseChat.stop()
 		}} />
 {/if}

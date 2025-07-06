@@ -3,7 +3,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import * as Tooltip from '$lib/components/ui/tooltip'
 	import { Toggle } from '$lib/components/ui/toggle/index.js'
-	import { useModels } from '$lib/models.svelte.js'
+	import { useModels, type Model } from '$lib/models.svelte.js'
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import * as Popover from '$lib/components/ui/popover/index.js'
@@ -93,7 +93,6 @@
 	let modelState = useModels()
 
 	let userState = useUser()
-	let plan = $derived(userState.user?.plan)
 
 	let inputElement: HTMLTextAreaElement | null = $state(null)
 
@@ -144,11 +143,7 @@
 		attachments = attachments
 	})
 
-	let selectedModel = $state<
-		| (typeof modelState.freeModels)[number]
-		| (typeof modelState.premiumModels)[number]
-		| (typeof modelState.standardModels)[number]
-	>({
+	let selectedModel = $state<Model>({
 		name: 'Gemini 2.0 Flash',
 		info: '',
 		provider: 'google',
@@ -160,8 +155,6 @@
 			reasoning: false,
 			searchGrounding: true,
 		},
-		disabled: false,
-		credits: 0,
 	})
 
 	$effect(() => {
@@ -268,24 +261,18 @@
 			description: m['mode.chat.description'](),
 			credits: 0,
 			icon: MessageCircleIcon,
-			disable: false,
 		},
 		{
 			id: 'gpt-image-1',
 			name: m['mode.gpt-image-1.name'](),
 			description: m['mode.gpt-image-1.description'](),
 			icon: ImagesIcon,
-			credits: 1200,
-			disable:
-				!user || (user.plan !== 'basic' && user.plan !== 'pro'),
 		},
 		{
 			id: 'web_search',
 			name: m['mode.web_search.name'](),
 			description: m['mode.web_search.description'](),
 			icon: GlobeIcon,
-			credits: 200,
-			disable: !user,
 		},
 		// {
 		// 	id: 'x_search',
@@ -307,16 +294,12 @@
 			name: m['mode.academic_search.name'](),
 			description: m['mode.academic_search.description'](),
 			icon: BookIcon,
-			credits: 200,
-			disable: !user,
 		},
 		{
 			id: 'web_reader',
 			name: m['mode.web_reader.name'](),
 			description: m['mode.web_reader.description'](),
 			icon: LibraryBigIcon,
-			credits: 200,
-			disable: !user,
 		},
 	] as const)
 
@@ -332,27 +315,29 @@
 
 	let modelsList = $derived([
 		{
-			name: 'Free Models',
-			models: modelState.freeModels.filter(
+			name: 'Models',
+			models: modelState.models.filter(
 				(model) =>
-					model.name.includes(modelSearch) ||
-					model.provider.includes(modelSearch),
+					(model.name
+						.toLowerCase()
+						.includes(modelSearch.toLowerCase()) ||
+						model.provider
+							.toLowerCase()
+							.includes(modelSearch.toLowerCase())) &&
+					modelState.available_models.includes(model.provider),
 			),
 		},
 		{
-			name: 'Standard Models',
-			models: modelState.standardModels.filter(
+			name: 'Custom Models',
+			models: modelState.customModels.filter(
 				(model) =>
-					model.name.includes(modelSearch) ||
-					model.provider.includes(modelSearch),
-			),
-		},
-		{
-			name: 'Premium Models',
-			models: modelState.premiumModels.filter(
-				(model) =>
-					model.name.includes(modelSearch) ||
-					model.provider.includes(modelSearch),
+					(model.name
+						.toLowerCase()
+						.includes(modelSearch.toLowerCase()) ||
+						model.provider
+							.toLowerCase()
+							.includes(modelSearch.toLowerCase())) &&
+					modelState.available_models.includes(model.provider as any),
 			),
 		},
 	])
@@ -360,11 +345,13 @@
 	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
 
 	let thinkingBudget = $state(0)
+
+	let modelSelectPopoverOpen = $state(false)
 </script>
 
 <form
 	onsubmit={customSubmit}
-	class="bg-secondary absolute right-1/2 bottom-0 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
+	class="bg-popover absolute right-1/2 bottom-0 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
 	<div
 		class="absolute right-1/2 bottom-[calc(100%+0.5rem)] flex translate-x-1/2 flex-col gap-2">
 		{#if !autoScroll?.isAtBottom}
@@ -380,7 +367,7 @@
 	<Textarea
 		bind:value={input}
 		bind:ref={inputElement}
-		class="max-h-96 min-h-4 resize-none border-none bg-transparent px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+		class="bg-popover dark:bg-popover max-h-96 min-h-4 resize-none border-none px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
 		placeholder={m.send_a_message() + ' ' + m.ctrl_enter_to_send()}
 		onkeydown={(event) => {
 			if (event.key === 'Enter' && event.ctrlKey) {
@@ -408,34 +395,38 @@
 	{/if}
 	<div class="flex justify-between">
 		<div class="flex items-center gap-1">
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger
+			<Popover.Root bind:open={modelSelectPopoverOpen}>
+				<Popover.Trigger
 					class={buttonVariants({ variant: 'outline' })}>
 					{@render modelIcon(selectedModel.provider)}
 					{selectedModel.name}
 					<ChevronDownIcon />
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content
-					class="@container w-[100vw] max-w-[600px]"
+				</Popover.Trigger>
+				<Popover.Content
+					class="bg-background @container w-[100vw] max-w-[600px] p-0"
 					align="start">
 					<div
 						class="h-full max-h-[70vh] space-y-4 overflow-y-scroll p-4">
-						{#each modelsList as modelGroup}
-							<DropdownMenu.Group>
-								<DropdownMenu.GroupHeading
-									class="text-muted-foreground px-0">
+						{#each modelsList.filter((list) => list.models.length > 0) as modelGroup}
+							<div>
+								<div
+									class="text-muted-foreground px-0 py-1.5 text-sm font-semibold">
 									{modelGroup.name}
-								</DropdownMenu.GroupHeading>
+								</div>
 								<div
 									class="grid grid-cols-1 gap-2 @md:grid-cols-2 @lg:grid-cols-3">
 									{#each modelGroup.models as model}
-										<DropdownMenu.Item
-											disabled={model.disabled}
+										<!-- svelte-ignore a11y_click_events_have_key_events -->
+										<!-- svelte-ignore a11y_no_static_element_interactions -->
+										<div
 											class={cn(
-												'bg-background flex flex-col p-3',
+												'bg-popover hover:bg-accent flex flex-col flex-wrap gap-2 rounded p-3 text-sm [&_svg:not([class*="size-"])]:size-4',
 												model.id === selectedModel.id && 'bg-accent',
 											)}
-											onclick={() => (selectedModel = model)}>
+											onclick={() => {
+												selectedModel = model
+												modelSelectPopoverOpen = false
+											}}>
 											<div class="flex w-full items-center gap-2">
 												{@render modelIcon(model.provider)}
 												<span>
@@ -445,13 +436,6 @@
 											<div
 												class="flex w-full items-center justify-between">
 												<div class="flex items-center gap-2">
-													<div
-														class="flex flex-col items-start gap-1">
-														<span
-															class="text-muted-foreground text-xs">
-															Credits: {model.credits / 100}
-														</span>
-													</div>
 													{#if model.info}
 														<Tooltip.Provider>
 															<Tooltip.Root>
@@ -478,21 +462,21 @@
 													<SearchIcon class="w-0 max-w-0" />
 												</div>
 											</div>
-										</DropdownMenu.Item>
+										</div>
 									{/each}
 								</div>
-							</DropdownMenu.Group>
+							</div>
 						{/each}
 					</div>
 					<div class="flex w-full border-t p-4">
 						<Input
 							bind:value={modelSearch}
 							placeholder="search..."
-							class="bg-background" />
+							class="bg-background rounded" />
 					</div>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
-			{#if 'thinkingBudget' in selectedModel.capabilities && selectedModel.capabilities.thinkingBudget.enable}
+				</Popover.Content>
+			</Popover.Root>
+			{#if 'thinkingBudget' in selectedModel.capabilities && selectedModel.capabilities.thinkingBudget?.enable}
 				<Popover.Root>
 					<Popover.Trigger
 						class={cn(
@@ -585,33 +569,12 @@
 								variant="ghost"
 								size="icon"
 								class=""
-								disabled={!selectedModel.capabilities.image ||
-									plan === 'free' ||
-									plan === 'trial' ||
-									plan === undefined}>
+								disabled={!selectedModel.capabilities.image}>
 								<ImageIcon />
 							</Button>
 						</Tooltip.Trigger>
 						<Tooltip.Content class="max-w-[300px]">
-							{#if plan === 'free' || plan === undefined}
-								<div class="flex flex-col gap-4 p-2">
-									<div class="flex flex-col gap-1">
-										<span class="text-lg">
-											Upgrade to basic or higher plan
-										</span>
-										<p
-											class="text-muted-foreground text-sm text-wrap">
-											Get access to image upload and more by upgrading
-											your plan
-										</p>
-									</div>
-									<Button href={'/billing/plan'} class="w-full">
-										Checkout plans
-									</Button>
-								</div>
-							{:else}
-								<p>Image Upload</p>
-							{/if}
+							<p>Image Upload</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
 				</Tooltip.Provider>
@@ -635,33 +598,12 @@
 								variant="ghost"
 								size="icon"
 								class=""
-								disabled={!selectedModel.capabilities.file ||
-									plan === 'free' ||
-									plan === 'trial' ||
-									plan === undefined}>
+								disabled={!selectedModel.capabilities.file}>
 								<PaperclipIcon />
 							</Button>
 						</Tooltip.Trigger>
 						<Tooltip.Content class="max-w-[300px]">
-							{#if plan === 'free' || plan === undefined}
-								<div class="flex flex-col gap-4 p-2">
-									<div class="flex flex-col gap-1">
-										<span class="text-lg">
-											Upgrade to basic or higher plan
-										</span>
-										<p
-											class="text-muted-foreground text-sm text-wrap">
-											Get access to file upload and more by upgrading
-											your plan
-										</p>
-									</div>
-									<Button href={'/billing/plan'} class="w-full">
-										Checkout plans
-									</Button>
-								</div>
-							{:else}
-								<p>File Upload</p>
-							{/if}
+							<p>File Upload</p>
 						</Tooltip.Content>
 					</Tooltip.Root>
 				</Tooltip.Provider>
@@ -678,11 +620,7 @@
 						})
 						attachments = attachments
 					}}
-					disabled={!selectedModel.capabilities.image ||
-						plan === 'free' ||
-						plan === 'trial' ||
-						plan === undefined}
-					{plan} />
+					disabled={!selectedModel.capabilities.image} />
 			{/if}
 		</div>
 		<div class="flex items-center gap-2">
@@ -704,8 +642,7 @@
 							{#each modes as mode}
 								<DropdownMenu.Item
 									class="p-3"
-									onclick={() => (selectedMode = mode)}
-									disabled={mode.disable}>
+									onclick={() => (selectedMode = mode)}>
 									<div
 										class="flex w-full items-center justify-between">
 										<div class="flex flex-col gap-2">
@@ -717,11 +654,6 @@
 												class="text-muted-foreground max-w-[200px] text-sm">
 												{mode.description}
 											</div>
-											{#if mode.credits !== 0}
-												<div class="text-muted-foreground text-xs">
-													{m.credits()}: +{mode.credits / 100}
-												</div>
-											{/if}
 										</div>
 									</div>
 								</DropdownMenu.Item>

@@ -284,8 +284,7 @@
 										<a href={data.url} target="_blank">
 											<div
 												class="bg-secondary hover:bg-accent flex flex-col gap-1 rounded border p-3">
-												<span
-													class="text-primary-foreground line-clamp-1">
+												<span class="line-clamp-1">
 													{data.title}
 												</span>
 												<div class="flex items-center gap-2">

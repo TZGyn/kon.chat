@@ -1,0 +1,45 @@
+FROM oven/bun:debian
+
+WORKDIR /app
+
+# Install packages needed to build node modules
+RUN apt-get update -qq && \
+    apt-get install -y git 
+
+ARG PUBLIC_APP_URL
+ARG APP_ENV
+ARG DATABASE_URL
+ARG OPENAI_API_KEY
+ARG CLAUDE_API_KEY
+ARG GEMINI_API_KEY
+ARG OPENROUTER_API_KEY
+ARG GROQ_API_KEY
+ARG XAI_API_KEY
+ARG MISTRAL_API_KEY
+ARG GOOGLE_OAUTH_CLIENT_ID
+ARG GOOGLE_OAUTH_CLIENT_SECRET
+ARG GITHUB_OAUTH_CLIENT_ID
+ARG GITHUB_OAUTH_CLIENT_SECRET
+ARG JINA_API_KEY
+ARG EXA_API_KEY
+ARG TAVILY_API_KEY
+ARG S3_ACCESS_KEY_ID
+ARG S3_SECRET_ACCESS_KEY
+ARG S3_BUCKET
+ARG S3_API_URL
+ARG REDIS_URL
+
+
+COPY ./package.json ./
+COPY ./bun.lock ./
+
+RUN bun install
+
+COPY . .
+# COPY ./.env.example ./.env
+
+RUN bun --bun run build
+
+EXPOSE 3000
+
+CMD ["bun", "build/index.js"]
