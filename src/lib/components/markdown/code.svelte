@@ -133,7 +133,7 @@
 	const runPython = async (code: string) => {
 		runningCode = true
 		const currentPyodideInstance = await loadPyodide({
-			indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.3/full/',
+			indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/',
 		})
 
 		const outputArray: ConsoleOutputContent[] = []
