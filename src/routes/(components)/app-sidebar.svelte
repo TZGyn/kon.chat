@@ -11,6 +11,9 @@
 		NotepadTextIcon,
 		YoutubeIcon,
 	} from 'lucide-svelte'
+	import { PlusIcon } from '@lucide/svelte'
+	import { m } from '$lib/paraglide/messages'
+	import { cn } from '$lib/utils'
 
 	let {
 		ref = $bindable(null),
@@ -81,6 +84,24 @@
 								data-sveltekit-preload-code="eager">
 								<AppWindowIcon />
 								<span>Website Builder</span>
+							</a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+			</Sidebar.Menu>
+		</Sidebar.Group>
+		<Sidebar.Separator />
+		<Sidebar.Group class="py-0">
+			<Sidebar.Menu>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton class="text-sidebar-foreground/70 py-6">
+						{#snippet child({ props })}
+							<a
+								href="/chat"
+								{...props}
+								data-sveltekit-preload-code="eager">
+								<PlusIcon />
+								<span>{m.new_chat()}</span>
 							</a>
 						{/snippet}
 					</Sidebar.MenuButton>

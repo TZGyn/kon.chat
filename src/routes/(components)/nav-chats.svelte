@@ -155,21 +155,6 @@
 				{/if}
 			{/each}
 		</ScrollArea>
-		<Sidebar.Menu>
-			<Sidebar.MenuItem>
-				<Sidebar.MenuButton class="text-sidebar-foreground/70">
-					{#snippet child({ props })}
-						<a
-							href="/chat"
-							{...props}
-							data-sveltekit-preload-code="eager">
-							<PlusIcon />
-							<span>{m.new_chat()}</span>
-						</a>
-					{/snippet}
-				</Sidebar.MenuButton>
-			</Sidebar.MenuItem>
-		</Sidebar.Menu>
 	{:else}
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
@@ -206,22 +191,6 @@
 									{/snippet}
 								</DropdownMenu.Item>
 							{/each}
-							<DropdownMenu.Separator />
-							<DropdownMenu.Item>
-								{#snippet child({ props })}
-									<a
-										href={`/chat`}
-										title={'new chat'}
-										{...props}
-										class={cn(
-											'text-muted-foreground',
-											props.class as string,
-										)}>
-										<PlusIcon />
-										<span>New Chat</span>
-									</a>
-								{/snippet}
-							</DropdownMenu.Item>
 						</DropdownMenu.Group>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
