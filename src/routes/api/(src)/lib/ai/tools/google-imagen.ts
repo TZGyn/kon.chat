@@ -1,4 +1,3 @@
-import { validateSessionToken } from '$api/auth/session'
 import { generateText, tool } from 'ai'
 import { z } from 'zod'
 import { google } from '$api/ai/model'
@@ -7,12 +6,13 @@ import { db } from '$api/db'
 import { s3Client } from '$api/s3'
 import { upload } from '$api/db/schema'
 import { PUBLIC_APP_URL } from '$env/static/public'
+import type { User } from '$api/db/type'
 
 export const image_generation = ({
 	chatId,
-	token,
+	user,
 }: {
-	token: string
+	user: User
 	chatId: string
 }) =>
 	tool({
@@ -27,19 +27,6 @@ export const image_generation = ({
 		}),
 		execute: async ({ prompt, image_url }) => {
 			try {
-				const { session, user: loggedInUser } =
-					await validateSessionToken(token)
-
-				if (!loggedInUser)
-					return {
-						error: {
-							type: 'unauthenticated',
-							message: 'Must Be Logged In To Use This Feature',
-							message_to_llm:
-								'Please let your request user know they must be logged in to use this feature',
-						},
-					}
-
 				const result = await generateText({
 					model: google('gemini-2.0-flash-exp'),
 					providerOptions: {
@@ -64,14 +51,14 @@ export const image_generation = ({
 						// show the image
 						const extension = file.mimeType.split('/')[1]
 						const id = `${
-							loggedInUser.id
+							user.id
 						}/chat/${chatId}/upload/${nanoid()}-generated_image.${extension}`
 
 						const existingChat = await db.query.chat.findFirst({
 							where: (chat, t) =>
 								t.and(
 									t.eq(chat.id, chatId),
-									t.eq(chat.userId, loggedInUser.id),
+									t.eq(chat.userId, user.id),
 								),
 						})
 
@@ -91,7 +78,7 @@ export const image_generation = ({
 
 						await db.insert(upload).values({
 							id: uploadId,
-							userId: loggedInUser.id,
+							userId: user.id,
 							key: id,
 							mimeType: file.mimeType,
 							name: 'generated_image.' + extension,

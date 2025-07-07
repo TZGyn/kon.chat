@@ -14,11 +14,6 @@ import { APP_ENV } from '$env/static/private'
 // For extending the Zod schema with OpenAPI properties
 import 'zod-openapi/extend'
 import { validator as zValidator } from 'hono-openapi/zod'
-import {
-	deleteSessionTokenCookie,
-	setSessionTokenCookie,
-	validateSessionToken,
-} from '$api/auth/session'
 
 import { db } from '$api/db'
 import { chat, message, upload } from '$api/db/schema'
@@ -42,6 +37,7 @@ import {
 import { describeRoute } from 'hono-openapi'
 import { createRedis, redis } from '$api/redis'
 import { streamSSE } from 'hono/streaming'
+import type { auth } from '$api/auth'
 
 const arrToObj = (arr: string[]) => {
 	const obj: Record<string, string> = {}
@@ -53,24 +49,17 @@ const arrToObj = (arr: string[]) => {
 	return obj
 }
 
-const app = new Hono()
+const app = new Hono<{
+	Variables: {
+		user: typeof auth.$Infer.Session.user | null
+		session: typeof auth.$Infer.Session.session | null
+	}
+}>()
 	.get('/', describeRoute({ tags: ['chat'] }), async (c) => {
-		const token = getCookie(c, 'session') ?? null
-
-		if (token === null) {
-			return c.json({ chats: [] })
-		}
-
-		const { session, user } = await validateSessionToken(token)
+		const user = c.get('user')
 
 		if (!user) {
 			return c.json({ chats: [] })
-		}
-
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
-			deleteSessionTokenCookie(c)
 		}
 
 		const chats = await db.query.chat.findMany({
@@ -89,22 +78,10 @@ const app = new Hono()
 	})
 
 	.get('/sync', describeRoute({ tags: ['chat'] }), async (c) => {
-		const token = getCookie(c, 'session') ?? null
-
-		if (token === null) {
-			return c.json({ chats: [] })
-		}
-
-		const { session, user } = await validateSessionToken(token)
+		const user = c.get('user')
 
 		if (!user) {
 			return c.json({ chats: [] })
-		}
-
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
-			deleteSessionTokenCookie(c)
 		}
 
 		const chats = await db.query.chat.findMany({
@@ -155,24 +132,13 @@ const app = new Hono()
 			}),
 		),
 		async (c) => {
-			const token = getCookie(c, 'session') ?? null
 			const { at_message_id, chat_id, new_chat_id } =
 				c.req.valid('json')
 
-			if (token === null) {
-				return c.text('You must be logged in', 401)
-			}
-
-			const { session, user } = await validateSessionToken(token)
+			const user = c.get('user')
 
 			if (!user) {
 				return c.text('You must be logged in', 401)
-			}
-
-			if (session !== null) {
-				setSessionTokenCookie(c, token, session.expiresAt)
-			} else {
-				deleteSessionTokenCookie(c)
 			}
 
 			const existingChat = await db.query.chat.findFirst({
@@ -320,7 +286,7 @@ const app = new Hono()
 			return c.json({ chat: null })
 		}
 
-		const { session, user } = await validateSessionToken(token)
+		const user = c.get('user')
 
 		if (!user) {
 			const chat = await db.query.chat.findFirst({
@@ -352,12 +318,6 @@ const app = new Hono()
 				})
 			}
 			return c.json({ chat: null })
-		}
-
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
-			deleteSessionTokenCookie(c)
 		}
 
 		const chat = await db.query.chat.findFirst({
@@ -496,14 +456,16 @@ const app = new Hono()
 
 			const chatId = c.req.param('chat_id')
 
-			const token = getCookie(c, 'session') ?? null
+			let cookie: 'none' | 'set' | 'delete' = 'none'
 
-			if (token === null) {
+			const session = c.get('session')
+
+			if (!session) {
 				return c.json({ error: { message: 'Unauthenticated' } }, 400)
 			}
 
-			let cookie: 'none' | 'set' | 'delete' = 'none'
-			const { session, user } = await validateSessionToken(token)
+			const user = c.get('user')
+
 			if (!user)
 				return c.json({ error: { message: 'Unauthenticated' } }, 400)
 
@@ -527,7 +489,7 @@ const app = new Hono()
 			checkNewChat({
 				chat_id: chatId,
 				user_message: userMessage,
-				token: token,
+				user,
 			})
 
 			const { model, error, providerOptions } = getModel({
@@ -552,7 +514,7 @@ const app = new Hono()
 				}
 			} else if (cookie === 'set') {
 				headers = {
-					'Set-Cookie': serialize('session', token, {
+					'Set-Cookie': serialize('session', session.token, {
 						httpOnly: true,
 						path: '/',
 						secure: APP_ENV === 'production',
@@ -728,7 +690,7 @@ const app = new Hono()
 						maxSteps: 5,
 						// experimental_activeTools: [...activeTools(mode)],
 						tools: {
-							...tools(token, chatId, dataStream, mode),
+							...tools(user, chatId, dataStream, mode),
 						},
 						onStepFinish: (data) => {
 							const metadata = data.providerMetadata?.google as
@@ -780,7 +742,7 @@ const app = new Hono()
 								provider,
 								providerMetadata,
 								reasoning,
-								token,
+								user,
 								usage,
 								userMessage,
 								userMessageDate,
@@ -887,7 +849,7 @@ const app = new Hono()
 										},
 						},
 						reasoning: undefined,
-						token,
+						user,
 						usage: {
 							completionTokens: 0,
 							promptTokens: 0,
@@ -1131,12 +1093,9 @@ const app = new Hono()
 		'/:chat_id',
 		describeRoute({ tags: ['chat'] }),
 		async (c) => {
-			const token = getCookie(c, 'session') ?? null
 			const chatId = c.req.param('chat_id')
 
-			if (token === null) return c.json({ success: false })
-
-			const { session, user } = await validateSessionToken(token)
+			const user = c.get('user')
 
 			if (!user) return c.json({ success: false })
 
@@ -1210,23 +1169,12 @@ const app = new Hono()
 			}),
 		),
 		async (c) => {
-			const token = getCookie(c, 'session') ?? null
 			const chatId = c.req.param('chat_id')
 
-			if (token === null) {
-				return c.text('Unauthenticated', 401)
-			}
-
-			const { session, user } = await validateSessionToken(token)
+			const user = c.get('user')
 
 			if (!user) {
 				return c.json({ link: '' }, 401)
-			}
-
-			if (session !== null) {
-				setSessionTokenCookie(c, token, session.expiresAt)
-			} else {
-				deleteSessionTokenCookie(c)
 			}
 
 			const existingChat = await db.query.chat.findFirst({
@@ -1285,22 +1233,10 @@ const app = new Hono()
 			}),
 		),
 		async (c) => {
-			const token = getCookie(c, 'session') ?? null
-
-			if (token === null) {
-				return c.json({ link: '' }, 401)
-			}
-
-			const { session, user } = await validateSessionToken(token)
+			const user = c.get('user')
 
 			if (!user) {
 				return c.json({ link: '' }, 401)
-			}
-
-			if (session !== null) {
-				setSessionTokenCookie(c, token, session.expiresAt)
-			} else {
-				deleteSessionTokenCookie(c)
 			}
 
 			const chat_id = c.req.param('chat_id')
@@ -1348,22 +1284,10 @@ const app = new Hono()
 		'/:chat_id/copy',
 		describeRoute({ tags: ['chat'] }),
 		async (c) => {
-			const token = getCookie(c, 'session') ?? null
-
-			if (token === null) {
-				return c.json({ id: '' }, 401)
-			}
-
-			const { session, user } = await validateSessionToken(token)
+			const user = c.get('user')
 
 			if (!user) {
 				return c.json({ id: '' }, 401)
-			}
-
-			if (session !== null) {
-				setSessionTokenCookie(c, token, session.expiresAt)
-			} else {
-				deleteSessionTokenCookie(c)
 			}
 
 			const chat_id = c.req.param('chat_id')

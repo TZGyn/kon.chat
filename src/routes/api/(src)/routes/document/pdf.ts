@@ -4,15 +4,10 @@ import {
 	generateEmbeddings,
 } from '$api/ai/embeddings'
 import { google } from '$api/ai/model'
-import {
-	deleteSessionTokenCookie,
-	setSessionTokenCookie,
-	validateSessionToken,
-} from '$api/auth/session'
+import type { auth } from '$api/auth'
 import { db } from '$api/db'
 import { document, embeddings, upload } from '$api/db/schema'
 import { processMessages } from '$api/message'
-import { authMiddleware } from '$api/middleware/auth'
 import { getModel, modelSchema } from '$api/model'
 import { s3Client } from '$api/s3'
 import { nanoid } from '$api/utils'
@@ -31,25 +26,19 @@ import { serialize } from 'hono/utils/cookie'
 import { PDFDocument } from 'pdf-lib'
 import { z } from 'zod'
 
-const app = new Hono()
+const app = new Hono<{
+	Variables: {
+		user: typeof auth.$Infer.Session.user | null
+		session: typeof auth.$Infer.Session.session | null
+	}
+}>()
 	.get('/', async (c) => {
-		const token = getCookie(c, 'session') ?? null
-
-		if (token === null) {
-			return c.json({ id: '' }, 401)
-		}
-
-		const { session, user } = await validateSessionToken(token)
+		const user = c.get('user')
 
 		if (!user) {
 			return c.json({ id: '' }, 401)
 		}
 
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
-			deleteSessionTokenCookie(c)
-		}
 		const documents = await db.query.document.findMany({
 			where: (document, t) =>
 				t.and(
@@ -93,22 +82,10 @@ const app = new Hono()
 			]),
 		),
 		async (c) => {
-			const token = getCookie(c, 'session') ?? null
-
-			if (token === null) {
-				return c.json({ id: '' }, 401)
-			}
-
-			const { session, user } = await validateSessionToken(token)
+			const user = c.get('user')
 
 			if (!user) {
 				return c.json({ id: '' }, 401)
-			}
-
-			if (session !== null) {
-				setSessionTokenCookie(c, token, session.expiresAt)
-			} else {
-				deleteSessionTokenCookie(c)
 			}
 
 			const formData = c.req.valid('form')
@@ -466,22 +443,10 @@ const app = new Hono()
 	})
 
 	.get('/:pdf_id', async (c) => {
-		const token = getCookie(c, 'session') ?? null
-
-		if (token === null) {
-			return c.json({ pdf: null })
-		}
-
-		const { session, user } = await validateSessionToken(token)
+		const user = c.get('user')
 
 		if (!user) {
 			return c.json({ pdf: null })
-		}
-
-		if (session !== null) {
-			setSessionTokenCookie(c, token, session.expiresAt)
-		} else {
-			deleteSessionTokenCookie(c)
 		}
 
 		const pdf_id = c.req.param('pdf_id')
@@ -505,7 +470,6 @@ const app = new Hono()
 
 	.post(
 		'/:pdf_id',
-		authMiddleware,
 		zValidator(
 			'json',
 			z.object({
@@ -637,8 +601,11 @@ const app = new Hono()
 		},
 	)
 
-	.delete('/:pdf_id', authMiddleware, async (c) => {
-		const user = c.var.user
+	.delete('/:pdf_id', async (c) => {
+		const user = c.get('user')
+		if (!user) {
+			return c.json({}, 401)
+		}
 
 		const pdf_id = c.req.param('pdf_id')
 

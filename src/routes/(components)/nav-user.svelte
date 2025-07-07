@@ -29,14 +29,13 @@
 	import * as m from '$lib/paraglide/messages'
 	import { useLocale } from '$lib/lang.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
-	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
-	import { makeClient } from '$api/api-client'
+	import { PUBLIC_APP_URL } from '$env/static/public'
+	import { authClient } from '$lib/auth-client'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
 	const chats = useChats()
 	let user = $derived(userState.user)
-	const client = makeClient(fetch)
 
 	onMount(() => {
 		userState.getUser()
@@ -49,7 +48,7 @@
 
 	const logout = async () => {
 		isLoggingOut = true
-		const response = await client.auth.logout.$post()
+		const response = await authClient.signOut()
 
 		chats.getChats()
 		await userState.getUser()
@@ -84,7 +83,7 @@
 								'rounded-lg',
 								sidebar.open ? 'h-8 w-8' : 'h-4 w-4',
 							)}>
-							<Avatar.Image src={user?.avatar} alt={user?.name} />
+							<Avatar.Image src={user?.image} alt={user?.name} />
 							<Avatar.Fallback class="rounded-lg">
 								{user?.name[0] || 'K'}
 							</Avatar.Fallback>
@@ -223,7 +222,11 @@
 		</Dialog.Header>
 		<div class="grid gap-4">
 			<Button
-				href={`/api/auth/login/github?redirect=${PUBLIC_APP_URL + '/'}`}
+				onclick={() => {
+					authClient.signIn.social({
+						provider: 'github',
+					})
+				}}
 				variant="outline"
 				class="w-full">
 				<svg
@@ -239,7 +242,11 @@
 				Login with Github
 			</Button>
 			<Button
-				href={`/api/auth/login/google?redirect=${PUBLIC_APP_URL + '/'}`}
+				onclick={() => {
+					authClient.signIn.social({
+						provider: 'google',
+					})
+				}}
 				variant="outline"
 				class="w-full">
 				<svg

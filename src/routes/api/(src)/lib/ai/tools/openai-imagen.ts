@@ -1,4 +1,3 @@
-import { validateSessionToken } from '$api/auth/session'
 import { tool } from 'ai'
 import { z } from 'zod'
 import { nanoid } from '$api/utils'
@@ -8,6 +7,7 @@ import { upload } from '$api/db/schema'
 import OpenAI, { toFile } from 'openai'
 import { OPENAI_API_KEY } from '$env/static/private'
 import { PUBLIC_APP_URL } from '$env/static/public'
+import type { User } from '$api/db/type'
 
 const client = new OpenAI({
 	apiKey: OPENAI_API_KEY,
@@ -15,9 +15,9 @@ const client = new OpenAI({
 
 export const openai_imagen = ({
 	chatId,
-	token,
+	user,
 }: {
-	token: string
+	user: User
 	chatId: string
 }) =>
 	tool({
@@ -32,20 +32,6 @@ export const openai_imagen = ({
 		}),
 		execute: async ({ prompt, image_url }) => {
 			try {
-				const { session, user: loggedInUser } =
-					await validateSessionToken(token)
-
-				if (!loggedInUser) {
-					return {
-						error: {
-							type: 'unauthenticated',
-							message: 'Must Be Logged In To Use This Feature',
-							message_to_llm:
-								'Please let your request user know they must be logged in to use this feature',
-						},
-					}
-				}
-
 				let result
 				if (image_url) {
 					const response = await fetch(image_url)
@@ -94,14 +80,14 @@ export const openai_imagen = ({
 					const imageBuffer = Buffer.from(image_base64, 'base64')
 
 					const id = `${
-						loggedInUser.id
+						user.id
 					}/chat/${chatId}/upload/${nanoid()}-generated_image.png`
 
 					const existingChat = await db.query.chat.findFirst({
 						where: (chat, t) =>
 							t.and(
 								t.eq(chat.id, chatId),
-								t.eq(chat.userId, loggedInUser.id),
+								t.eq(chat.userId, user.id),
 							),
 					})
 
@@ -121,7 +107,7 @@ export const openai_imagen = ({
 
 					await db.insert(upload).values({
 						id: uploadId,
-						userId: loggedInUser.id,
+						userId: user.id,
 						key: id,
 						mimeType: 'image/png',
 						name: 'generated_image.png',

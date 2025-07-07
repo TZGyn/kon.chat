@@ -8,13 +8,22 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import { nanoid } from '$lib/nanoid'
 import { and, eq } from 'drizzle-orm'
-import type { AuthType } from '$api/auth/type'
 
 import { env } from '$env/dynamic/private'
+import type { auth } from '$api/auth'
 
-const app = new Hono<{ Variables: AuthType }>()
+const app = new Hono<{
+	Variables: {
+		user: typeof auth.$Infer.Session.user | null
+		session: typeof auth.$Infer.Session.session | null
+	}
+}>()
 	.get('/', async (c) => {
 		const loggedInUser = c.get('user')
+
+		if (!loggedInUser) {
+			return c.json({}, 401)
+		}
 
 		const user = await db.query.user.findFirst({
 			where: (user, t) => t.eq(user.id, loggedInUser.id),
@@ -51,6 +60,10 @@ const app = new Hono<{ Variables: AuthType }>()
 		),
 		async (c) => {
 			const loggedInUser = c.get('user')
+
+			if (!loggedInUser) {
+				return c.json({}, 401)
+			}
 
 			const {
 				model: modelInput,
@@ -100,6 +113,10 @@ const app = new Hono<{ Variables: AuthType }>()
 		async (c) => {
 			const loggedInUser = c.get('user')
 
+			if (!loggedInUser) {
+				return c.json({}, 401)
+			}
+
 			const modelId = c.req.param('model_id')
 
 			const {
@@ -137,6 +154,10 @@ const app = new Hono<{ Variables: AuthType }>()
 	.delete('/:model_id', async (c) => {
 		const loggedInUser = c.get('user')
 
+		if (!loggedInUser) {
+			return c.json({}, 401)
+		}
+
 		const modelId = c.req.param('model_id')
 
 		await db
@@ -149,6 +170,10 @@ const app = new Hono<{ Variables: AuthType }>()
 	})
 	.get('/available_models', async (c) => {
 		const loggedInUser = c.get('user')
+
+		if (!loggedInUser) {
+			return c.json({}, 401)
+		}
 
 		const {
 			OPENAI_API_KEY,

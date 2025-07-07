@@ -13,8 +13,8 @@ import { z } from 'zod'
 import { db } from './db'
 import { generateTitleFromUserMessage } from './ai/utils'
 import { chat } from './db/schema'
-import { validateSessionToken } from './auth/session'
 import { PUBLIC_APP_URL } from '$env/static/public'
+import type { User } from './db/type'
 
 export const processMessages = ({
 	messages,
@@ -272,17 +272,12 @@ export const processMessages = ({
 export const checkNewChat = async ({
 	chat_id,
 	user_message,
-	token,
+	user,
 }: {
 	chat_id: string
-	token: string
 	user_message: CoreUserMessage
+	user: User
 }) => {
-	const { session, user: loggedInUser } =
-		await validateSessionToken(token)
-
-	if (!loggedInUser) return
-
 	const existingChat = await db.query.chat.findFirst({
 		where: (chat, { eq, and }) => and(eq(chat.id, chat_id)),
 	})
@@ -295,7 +290,7 @@ export const checkNewChat = async ({
 		await db.insert(chat).values({
 			id: chat_id,
 			title: title,
-			userId: loggedInUser.id,
+			userId: user.id,
 			createdAt: Date.now(),
 			updatedAt: Date.now(),
 		})

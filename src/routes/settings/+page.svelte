@@ -15,6 +15,7 @@
 	import { resetMode, setMode, mode } from 'mode-watcher'
 	import { onMount } from 'svelte'
 	import { makeClient } from '$api/api-client'
+	import { authClient } from '$lib/auth-client'
 
 	const user = useUser()
 	const chats = useChats()
@@ -33,9 +34,8 @@
 	} as const
 
 	onMount(() => {
-		name = user.user?.name_for_llm || ''
-		additional_system_prompt =
-			user.user?.additional_system_prompt || ''
+		name = user.user?.nameForLLM || ''
+		additional_system_prompt = user.user?.additionalSystemPrompt || ''
 	})
 
 	let isLoading = $state(false)
@@ -44,8 +44,8 @@
 		user.user = user.user
 			? {
 					...user.user,
-					name_for_llm: name,
-					additional_system_prompt: additional_system_prompt,
+					nameForLLM: name,
+					additionalSystemPrompt: additional_system_prompt,
 				}
 			: null
 
@@ -65,7 +65,7 @@
 	const deleteAccount = async () => {
 		isDeletingAccount = true
 
-		await client.auth.account.$delete()
+		await authClient.deleteUser({})
 
 		chats.getChats()
 		await user.getUser()
@@ -78,7 +78,7 @@
 <div class="flex flex-col gap-2">
 	<div class="flex flex-col items-center gap-4 py-6">
 		<Avatar.Root class="size-32">
-			<Avatar.Image src={user.user?.avatar} alt="kon.chat" />
+			<Avatar.Image src={user.user?.image} alt="kon.chat" />
 			<Avatar.Fallback class="text-6xl">K</Avatar.Fallback>
 		</Avatar.Root>
 		<span class="pb-6">{user.user?.email}</span>

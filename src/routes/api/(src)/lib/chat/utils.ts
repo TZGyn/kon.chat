@@ -3,7 +3,7 @@ import {
 	generateTitleFromUserMessage,
 	sanitizeResponseMessages,
 } from '$api/ai/utils'
-import { validateSessionToken } from '$api/auth/session'
+import type { auth } from '$api/auth'
 import { db } from '$api/db'
 import { chat, message } from '$api/db/schema'
 import { type Provider } from '$api/model'
@@ -22,7 +22,6 @@ import {
 import { and, eq } from 'drizzle-orm'
 
 export const updateUserChatAndLimit = async ({
-	token,
 	chatId,
 	userMessage,
 	userMessageDate,
@@ -33,8 +32,8 @@ export const updateUserChatAndLimit = async ({
 	usage,
 	mode,
 	response_id,
+	user,
 }: {
-	token: string
 	chatId: string
 	userMessage: CoreUserMessage
 	userMessageDate: number
@@ -45,12 +44,8 @@ export const updateUserChatAndLimit = async ({
 	usage: LanguageModelUsage
 	mode: Tool
 	response_id: string
+	user: typeof auth.$Infer.Session.user
 }) => {
-	const { session, user: loggedInUser } =
-		await validateSessionToken(token)
-
-	if (!loggedInUser) return
-
 	let existingChat = await db.query.chat.findFirst({
 		where: (chat, { eq, and }) => and(eq(chat.id, chatId)),
 	})
@@ -65,7 +60,7 @@ export const updateUserChatAndLimit = async ({
 			await db.insert(chat).values({
 				id: chatId,
 				title: title,
-				userId: loggedInUser.id,
+				userId: user.id,
 				createdAt: Date.now(),
 				updatedAt: Date.now(),
 			})
@@ -87,17 +82,11 @@ export const updateUserChatAndLimit = async ({
 				title: title,
 			})
 			.where(
-				and(
-					eq(chat.userId, loggedInUser.id),
-					eq(chat.id, existingChat.id),
-				),
+				and(eq(chat.userId, user.id), eq(chat.id, existingChat.id)),
 			)
 	}
 
-	if (
-		(existingChat && existingChat.userId === loggedInUser.id) ||
-		newChat
-	) {
+	if ((existingChat && existingChat.userId === user.id) || newChat) {
 		if (!newChat) {
 			await db
 				.update(chat)

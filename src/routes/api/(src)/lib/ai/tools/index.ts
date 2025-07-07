@@ -5,6 +5,7 @@ import { image_generation } from './google-imagen'
 import { x_search } from './x-search'
 import { web_search } from './web-search'
 import { openai_imagen } from './openai-imagen'
+import type { User } from '$api/db/type'
 
 export const toolList = [
 	'chat',
@@ -18,14 +19,14 @@ export const toolList = [
 export type Tool = (typeof toolList)[number]
 
 export const tools = (
-	token: string,
+	user: User,
 	chatId: string,
 	dataStream: DataStreamWriter,
 	mode: Tool,
 ) => {
 	const toolMap = {
 		chat: {
-			image_generation: image_generation({ chatId, token }),
+			image_generation: image_generation({ chatId, user }),
 			// image_captioning: toolList.image_captioning,
 		},
 		x_search: { x_search: x_search() },
@@ -33,7 +34,7 @@ export const tools = (
 		academic_search: { academic_search: academic_search() },
 		web_reader: { web_reader: web_reader() },
 		'gpt-image-1': {
-			'gpt-image-1': openai_imagen({ chatId, token }),
+			'gpt-image-1': openai_imagen({ chatId, user }),
 		},
 	} as const
 

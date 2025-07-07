@@ -1,8 +1,3 @@
-import {
-	deleteSessionTokenCookie,
-	setSessionTokenCookie,
-	validateSessionToken,
-} from '$api/auth/session'
 import { db } from '$api/db'
 import { user } from '$api/db/schema'
 // For extending the Zod schema with OpenAPI properties
@@ -13,8 +8,53 @@ import { Hono } from 'hono'
 import { getCookie } from 'hono/cookie'
 import { z } from 'zod'
 import { env } from '$env/dynamic/private'
+import type { AuthType } from '$api/auth'
 
-const app = new Hono()
+const app = new Hono<{
+	Variables: AuthType
+}>()
+	.get('/me', async (c) => {
+		const user = c.get('user')
+
+		if (!user) {
+			return c.json({ success: false, user: null }, 401)
+		}
+
+		const setting = await db.query.setting.findFirst({
+			where: (setting, { eq }) => eq(setting.userId, user.id),
+		})
+
+		return c.json({
+			user: {
+				...user,
+				...(setting
+					? setting
+					: {
+							nameForLLM: '',
+							additionalSystemPrompt: '',
+							openAIApiKey: null,
+							geminiApiKey: null,
+							claudeApiKey: null,
+							openRouterApiKey: null,
+							userId: '',
+						}),
+			},
+		})
+	})
+	.get('/settings', async (c) => {
+		const session = c.get('session')
+		const user = c.get('user')
+
+		if (!user) {
+			return c.json({ success: false }, 401)
+		}
+
+		const setting = await db.query.setting.findFirst({
+			where: (setting, { eq }) => eq(setting.userId, user.id),
+		})
+
+		return c.json({ setting })
+	})
 	.post(
 		'/settings',
 		zValidator(
@@ -25,23 +65,11 @@ const app = new Hono()
 			}),
 		),
 		async (c) => {
-			const token = getCookie(c, 'session') ?? null
-
-			if (token === null) {
-				return c.json({ success: false })
-			}
-
-			const { session, user: loggedInUser } =
-				await validateSessionToken(token)
+			const session = c.get('session')
+			const loggedInUser = c.get('user')
 
 			if (!loggedInUser) {
-				return c.json({ success: false })
-			}
-
-			if (session !== null) {
-				setSessionTokenCookie(c, token, session.expiresAt)
-			} else {
-				deleteSessionTokenCookie(c)
+				return c.json({ success: false }, 401)
 			}
 
 			const { additional_system_prompt, name } = c.req.valid('json')

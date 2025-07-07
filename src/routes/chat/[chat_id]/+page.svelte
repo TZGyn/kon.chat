@@ -42,7 +42,7 @@
 		type ChatRequestOptions,
 		type UIMessage,
 	} from '@ai-sdk/ui-utils'
-	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
+	import { PUBLIC_APP_URL } from '$env/static/public'
 	import { makeClient } from '$api/api-client.js'
 	import { customFetchRaw } from '$lib/fetch.js'
 	import { processStream } from '$lib/stream.js'
