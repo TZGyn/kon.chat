@@ -7,6 +7,7 @@ RUN apt-get update -qq && \
     apt-get install -y git 
 
 ARG PUBLIC_APP_URL
+ARG BETTER_AUTH_SECRET
 ARG APP_ENV
 ARG DATABASE_URL
 ARG OPENAI_API_KEY
