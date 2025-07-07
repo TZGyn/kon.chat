@@ -12,11 +12,11 @@ import {
 	message,
 	upload,
 	user,
-} from '$api/db/schema'
-import { db } from '$api/db/index.js'
+} from './db/schema'
+import { db } from './db/index.js'
 import { and, eq, inArray } from 'drizzle-orm'
-import { getUploadIDsFromMessages } from '$api/chat/attachments.js'
-import { s3Client } from '$api/s3'
+import { getUploadIDsFromMessages } from './chat/attachments.js'
+import { s3Client } from './s3'
 
 import {
 	GOOGLE_OAUTH_CLIENT_ID,

@@ -250,10 +250,11 @@ const app = new Hono<{
 	)
 
 	.get('/:chat_id', describeRoute({ tags: ['chat'] }), async (c) => {
-		const token = getCookie(c, 'session') ?? null
 		const chatId = c.req.param('chat_id')
 
-		if (token === null) {
+		const session = c.get('session')
+
+		if (!session) {
 			const chat = await db.query.chat.findFirst({
 				where: (chat, { eq, and, or }) =>
 					and(eq(chat.id, chatId), eq(chat.visibility, 'public')),
@@ -322,10 +323,7 @@ const app = new Hono<{
 
 		const chat = await db.query.chat.findFirst({
 			where: (chat, { eq, and, or }) =>
-				and(
-					eq(chat.id, chatId),
-					or(eq(chat.userId, user.id), eq(chat.visibility, 'public')),
-				),
+				and(eq(chat.id, chatId), or(eq(chat.userId, user.id))),
 			with: {
 				messages: {
 					columns: {
