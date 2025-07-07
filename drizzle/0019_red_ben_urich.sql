@@ -1,2 +1,0 @@
--- Custom SQL migration file, put your code below! --
-INSERT INTO "setting" SELECT id as user_id, name_for_llm, additional_system_prompt, openai_api_key, gemini_api_key, claude_api_key, openrouter_api_key FROM "user";

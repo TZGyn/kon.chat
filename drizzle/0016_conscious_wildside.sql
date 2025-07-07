@@ -23,9 +23,8 @@ CREATE TABLE "verification" (
 	"updated_at" timestamp
 );
 --> statement-breakpoint
+ALTER TABLE "user" RENAME COLUMN "created_at" TO "created_at_unix";--> statement-breakpoint
 ALTER TABLE "user" ALTER COLUMN "email" SET DATA TYPE text;--> statement-breakpoint
-ALTER TABLE "user" ALTER COLUMN "created_at" SET DATA TYPE timestamp;--> statement-breakpoint
-ALTER TABLE "user" ALTER COLUMN "created_at" SET DEFAULT now();--> statement-breakpoint
 ALTER TABLE "session" ADD COLUMN "expires_at" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
 ALTER TABLE "session" ADD COLUMN "token" text DEFAULT md5(random()::text) NOT NULL;--> statement-breakpoint
 ALTER TABLE "session" ADD COLUMN "created_at" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
@@ -36,12 +35,12 @@ ALTER TABLE "session" ADD COLUMN "impersonated_by" text;--> statement-breakpoint
 ALTER TABLE "user" ADD COLUMN "name" text DEFAULT '' NOT NULL;--> statement-breakpoint
 ALTER TABLE "user" ADD COLUMN "email_verified" boolean DEFAULT false NOT NULL;--> statement-breakpoint
 ALTER TABLE "user" ADD COLUMN "image" text;--> statement-breakpoint
+ALTER TABLE "user" ADD COLUMN "created_at_new" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
 ALTER TABLE "user" ADD COLUMN "updated_at" timestamp DEFAULT now() NOT NULL;--> statement-breakpoint
 ALTER TABLE "user" ADD COLUMN "role" text;--> statement-breakpoint
 ALTER TABLE "user" ADD COLUMN "banned" boolean;--> statement-breakpoint
 ALTER TABLE "user" ADD COLUMN "ban_reason" text;--> statement-breakpoint
 ALTER TABLE "user" ADD COLUMN "ban_expires" timestamp;--> statement-breakpoint
-ALTER TABLE "user" ADD COLUMN "created_at_unix" bigint NOT NULL;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" DROP COLUMN "expires_at_epoch";--> statement-breakpoint
