@@ -17,7 +17,6 @@
 		"db:migrate": "drizzle-kit migrate"
 	},
 	"devDependencies": {
-		"@better-auth/cli": "^1.2.12",
 		"@internationalized/date": "^3.8.1",
 		"@sveltejs/adapter-node": "^5.2.12",
 		"@sveltejs/adapter-static": "^3.0.8",
