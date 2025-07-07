@@ -181,8 +181,11 @@
 					messages: [...chat.value.messages, message],
 				}
 			}
+
+			customUseChat.status = 'ready'
 		},
 		onError: (error) => {
+			customUseChat.status = 'ready'
 			customUseChat.messages[
 				customUseChat.messages.length - 1
 			].annotations?.push({
@@ -328,50 +331,73 @@
 
 					const abortController = new AbortController()
 					// await resumeMessage({ messageId: event.data.id })
-					await callChatApi({
-						api: `/api/chat/${chat_id}/resume`,
-						body: {
-							id: event.data.id,
-						},
-						headers: {},
-						streamProtocol: 'data',
-						credentials: 'include',
-						abortController: () => abortController,
-						onUpdate: ({ message, data, replaceLastMessage }) => {
-							customUseChat.messages = messages
-							if (replaceLastMessage) {
+					try {
+						await callChatApi({
+							api: `/api/chat/${chat_id}/resume`,
+							body: {
+								id: event.data.id,
+							},
+							headers: {},
+							streamProtocol: 'data',
+							credentials: 'include',
+							abortController: () => abortController,
+							onUpdate: ({ message, data, replaceLastMessage }) => {
+								customUseChat.messages = messages
+								if (replaceLastMessage) {
+									customUseChat.messages[
+										customUseChat.messages.length - 1
+									] = { ...message, status: 'streaming' }
+								} else {
+									customUseChat.messages.push({
+										...message,
+										status: 'streaming',
+									})
+								}
+
+								if (data?.length) {
+									// useChat.data = existingData;
+									customUseChat.data?.push(...data)
+								}
+							},
+							onResponse: () => {},
+							onFinish: () => {
+								abortController.abort()
 								customUseChat.messages[
 									customUseChat.messages.length - 1
-								] = { ...message, status: 'streaming' }
-							} else {
-								customUseChat.messages.push({
-									...message,
-									status: 'streaming',
-								})
-							}
+								].status = 'ready'
+							},
+							onToolCall: () => {},
+							restoreMessagesOnFailure: () => {},
+							fetch: undefined,
+							lastMessage: $state.snapshot(
+								customUseChat.messages[
+									customUseChat.messages.length - 1
+								],
+							),
+							generateId: () => nanoid(),
+						})
+					} catch (error) {
+						if (!(error instanceof Error)) {
+							return
+						}
+						console.log(error)
+						abortController.abort()
+						customUseChat.messages[
+							customUseChat.messages.length - 1
+						].status = 'ready'
 
-							if (data?.length) {
-								// useChat.data = existingData;
-								customUseChat.data?.push(...data)
-							}
-						},
-						onResponse: () => {},
-						onFinish: () => {
-							abortController.abort()
-							customUseChat.messages[
-								customUseChat.messages.length - 1
-							].status = 'ready'
-						},
-						onToolCall: () => {},
-						restoreMessagesOnFailure: () => {},
-						fetch: undefined,
-						lastMessage: $state.snapshot(
-							customUseChat.messages[
-								customUseChat.messages.length - 1
-							],
-						),
-						generateId: () => nanoid(),
-					})
+						customUseChat.status = 'ready'
+						customUseChat.messages[
+							customUseChat.messages.length - 1
+						].annotations?.push({
+							type: 'kon_chat',
+							status: 'error',
+							error: {
+								type: error.name,
+								message: error.message,
+							},
+						})
+					}
 				}
 			},
 		})

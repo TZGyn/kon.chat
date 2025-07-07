@@ -188,6 +188,9 @@ export const getChatState = (options: ChatOptions = {}) => {
 		get status() {
 			return status
 		},
+		set status(value) {
+			status = value as any
+		},
 		get input() {
 			return input
 		},
