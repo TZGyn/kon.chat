@@ -1,7 +1,10 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { admin, apiKey } from 'better-auth/plugins'
-import { BETTER_AUTH_SECRET } from '$env/static/private'
+import {
+	BETTER_AUTH_SECRET,
+	BETTER_AUTH_ENABLE_SIGNUP,
+} from '$env/static/private'
 import { PUBLIC_APP_URL } from '$env/static/public'
 import * as schema from './db/schema.js'
 
@@ -30,13 +33,16 @@ export const auth = betterAuth({
 	secret: BETTER_AUTH_SECRET,
 	emailAndPassword: {
 		enabled: true,
+		disableSignUp: BETTER_AUTH_ENABLE_SIGNUP !== 'true',
 	},
 	socialProviders: {
 		google: {
+			disableSignUp: BETTER_AUTH_ENABLE_SIGNUP !== 'true',
 			clientId: GOOGLE_OAUTH_CLIENT_ID,
 			clientSecret: GOOGLE_OAUTH_CLIENT_SECRET,
 		},
 		github: {
+			disableSignUp: BETTER_AUTH_ENABLE_SIGNUP !== 'true',
 			clientId: GITHUB_OAUTH_CLIENT_ID,
 			clientSecret: GITHUB_OAUTH_CLIENT_SECRET,
 		},
