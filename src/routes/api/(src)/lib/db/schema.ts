@@ -27,26 +27,7 @@ export const user = pgTable('user', (t) => ({
 	banExpires: t.timestamp('ban_expires'),
 
 	googleId: t.varchar('google_id', { length: 255 }),
-	avatar: t.text('avatar'),
 	githubId: t.varchar('github_id', { length: 255 }),
-	username: t.varchar('username', { length: 255 }).notNull(),
-
-	createdAtUnix: t
-		.bigint('created_at_unix', { mode: 'number' })
-		.notNull(),
-
-	nameForLLM: t
-		.varchar('name_for_llm', { length: 255 })
-		.notNull()
-		.default(''),
-	additionalSystemPrompt: t
-		.text('additional_system_prompt')
-		.notNull()
-		.default(''),
-	openAIApiKey: t.text('openai_api_key'),
-	geminiApiKey: t.text('gemini_api_key'),
-	claudeApiKey: t.text('claude_api_key'),
-	openRouterApiKey: t.text('openrouter_api_key'),
 }))
 
 export const session = pgTable('session', (t) => ({

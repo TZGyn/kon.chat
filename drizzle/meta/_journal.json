@@ -148,6 +148,20 @@
       "when": 1751875868466,
       "tag": "0020_tense_maelstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1751937002174,
+      "tag": "0021_special_warbound",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1751937317096,
+      "tag": "0022_nervous_mad_thinker",
+      "breakpoints": true
     }
   ]
 }
