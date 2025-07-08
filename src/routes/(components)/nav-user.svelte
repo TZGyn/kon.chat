@@ -103,7 +103,7 @@
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-semibold">
-								{user?.name || 'Free User'}
+								{user?.name || ''}
 							</span>
 							<span class="truncate text-xs">
 								{user?.email || ''}
@@ -129,7 +129,7 @@
 						</Avatar.Root>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-semibold">
-								{user?.name || 'Free User'}
+								{user?.name || ''}
 							</span>
 							<span class="truncate text-xs">
 								{user?.email || ''}
