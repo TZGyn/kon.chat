@@ -162,6 +162,13 @@
       "when": 1751937317096,
       "tag": "0022_nervous_mad_thinker",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1751992868652,
+      "tag": "0023_magenta_captain_stacy",
+      "breakpoints": true
     }
   ]
 }
