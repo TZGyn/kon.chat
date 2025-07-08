@@ -1,5 +1,5 @@
 import { db } from '$api/db'
-import { user } from '$api/db/schema'
+import { setting, user } from '$api/db/schema'
 // For extending the Zod schema with OpenAPI properties
 import 'zod-openapi/extend'
 import { resolver, validator as zValidator } from 'hono-openapi/zod'
@@ -75,12 +75,12 @@ const app = new Hono<{
 			const { additional_system_prompt, name } = c.req.valid('json')
 
 			await db
-				.update(user)
+				.update(setting)
 				.set({
 					nameForLLM: name,
 					additionalSystemPrompt: additional_system_prompt,
 				})
-				.where(eq(user.id, loggedInUser.id))
+				.where(eq(setting.userId, loggedInUser.id))
 
 			return c.json({ success: true })
 		},

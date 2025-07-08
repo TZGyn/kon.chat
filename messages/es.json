@@ -5,7 +5,8 @@
 	"settings": {
 		"navigation": {
 			"account": "Cuenta",
-			"models": "Modelos"
+			"models": "Modelos",
+			"admin": "Administración"
 		},
 		"account": {
 			"what_should_we_call_you": "¿Cómo deberíamos llamarte?",
@@ -133,5 +134,6 @@
 	"are_you_absolutely_sure?": "¿Estás absolutamente seguro?",
 	"delete_chat_message": "Estás a punto de eliminar este chat, esta acción es irreversible.",
 	"cancel": "Cancelar",
-	"delete": "Borrar"
+	"delete": "Borrar",
+	"password_not_match": "¡La contraseña no coincide!"
 }

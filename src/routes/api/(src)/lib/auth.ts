@@ -47,6 +47,11 @@ export const auth = betterAuth({
 			clientSecret: GITHUB_OAUTH_CLIENT_SECRET,
 		},
 	},
+	account: {
+		accountLinking: {
+			enabled: true,
+		},
+	},
 	plugins: [admin()],
 	database: drizzleAdapter(db, {
 		provider: 'pg',

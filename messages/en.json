@@ -6,7 +6,8 @@
 	"settings": {
 		"navigation": {
 			"account": "Account",
-			"models": "Models"
+			"models": "Models",
+			"admin": "Admin"
 		},
 		"account": {
 			"what_should_we_call_you": "What should we call you?",
@@ -133,5 +134,6 @@
 	"are_you_absolutely_sure?": "Are you sure absolutely sure?",
 	"delete_chat_message": "You are about to delete this chat, this action is irreversible.",
 	"cancel": "Cancel",
-	"delete": "Delete"
+	"delete": "Delete",
+	"password_not_match": "Password Does Not Match!"
 }

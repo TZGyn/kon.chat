@@ -29,8 +29,10 @@
 	import * as m from '$lib/paraglide/messages'
 	import { useLocale } from '$lib/lang.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
-	import { PUBLIC_APP_URL } from '$env/static/public'
+	import { Label } from '$lib/components/ui/label/index.js'
+	import { Input } from '$lib/components/ui/input/index.js'
 	import { authClient } from '$lib/auth-client'
+	import { toast } from 'svelte-sonner'
 
 	const sidebar = useSidebar()
 	const userState = useUser()
@@ -41,7 +43,11 @@
 		userState.getUser()
 	})
 
-	let loginDialogOpen = $state(false)
+	let session = authClient.useSession()
+
+	let loginDialogOpen = $derived(
+		!$session.isPending && !$session.data?.user,
+	)
 
 	let logoutDialogOpen = $state(false)
 	let isLoggingOut = $state(false)
@@ -64,6 +70,13 @@
 		es: 'Español',
 		zh: '中文',
 	} as const
+
+	let isSignUp = $state(false)
+
+	let name = $state('')
+	let email = $state('')
+	let password = $state('')
+	let passwordConfirm = $state('')
 </script>
 
 <Sidebar.Menu>
@@ -212,12 +225,16 @@
 	</Sidebar.MenuItem>
 </Sidebar.Menu>
 
-<Dialog.Root bind:open={loginDialogOpen}>
+<Dialog.Root
+	bind:open={loginDialogOpen}
+	onOpenChange={(value) => {
+		if (!$session.data?.user) loginDialogOpen = true
+	}}>
 	<Dialog.Content>
 		<Dialog.Header>
 			<Dialog.Title class="text-2xl">Login/Signup</Dialog.Title>
 			<Dialog.Description>
-				Sign up and get 50 credits for free
+				Sign up/in using email or OAuth
 			</Dialog.Description>
 		</Dialog.Header>
 		<div class="grid gap-4">
@@ -270,6 +287,121 @@
 				</svg>
 				Login with Google
 			</Button>
+			<div
+				class="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+				<span
+					class="bg-background text-muted-foreground relative z-10 px-2">
+					Or continue with
+				</span>
+			</div>
+			<div class="flex flex-col gap-6">
+				{#if isSignUp}
+					<div class="grid gap-2">
+						<Label for="name">Name</Label>
+						<Input
+							id="name"
+							type="name"
+							placeholder="Kon"
+							bind:value={name} />
+					</div>
+				{/if}
+
+				<div class="grid gap-2">
+					<Label for="email">Email</Label>
+					<Input
+						id="email"
+						type="email"
+						placeholder="konchat@example.com"
+						bind:value={email} />
+				</div>
+				<div class="grid gap-2">
+					<div class="flex items-center">
+						<Label for="password">Password</Label>
+						<!-- <a
+								href="##"
+								class="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+								Forgot your password?
+							</a> -->
+					</div>
+					<Input
+						id="password"
+						type="password"
+						placeholder="********"
+						bind:value={password} />
+				</div>
+
+				{#if isSignUp}
+					<div class="grid gap-2">
+						<Label for="password_confirm">Password Confirm</Label>
+						<Input
+							id="password_confirm"
+							type="password"
+							placeholder="********"
+							bind:value={passwordConfirm} />
+					</div>
+				{/if}
+				{#if isSignUp}
+					<Button
+						onclick={() => {
+							if (password !== passwordConfirm) {
+								toast.error(m.password_not_match())
+								return
+							}
+							authClient.signUp.email({
+								email,
+								password,
+								name,
+								callbackURL: '/',
+							})
+						}}
+						class="w-full"
+						variant="secondary">
+						Sign Up
+					</Button>
+				{:else}
+					<Button
+						onclick={() => {
+							authClient.signIn.email({
+								email,
+								password,
+								callbackURL: '/',
+							})
+						}}
+						class="w-full"
+						variant="secondary">
+						Login
+					</Button>
+				{/if}
+			</div>
+			{#if isSignUp}
+				<div class="text-center text-sm">
+					Have an account?
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<span
+						onclick={(event) => {
+							event.preventDefault()
+							isSignUp = false
+						}}
+						class="underline underline-offset-4">
+						Login
+					</span>
+				</div>
+			{:else}
+				<div class="text-center text-sm">
+					Don&apos;t have an account?
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<span
+						onclick={(event) => {
+							event.preventDefault()
+							isSignUp = true
+						}}
+						class="underline underline-offset-4">
+						Sign Up
+					</span>
+				</div>
+			{/if}
 		</div>
 	</Dialog.Content>
 </Dialog.Root>
