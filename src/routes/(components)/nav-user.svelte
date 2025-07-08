@@ -35,15 +35,11 @@
 	import { toast } from 'svelte-sonner'
 
 	const sidebar = useSidebar()
-	const userState = useUser()
 	const chats = useChats()
-	let user = $derived(userState.user)
-
-	onMount(() => {
-		userState.getUser()
-	})
 
 	let session = authClient.useSession()
+
+	let user = $derived($session.data?.user)
 
 	let loginDialogOpen = $derived(
 		!$session.isPending && !$session.data?.user,
@@ -57,7 +53,6 @@
 		const response = await authClient.signOut()
 
 		chats.getChats()
-		await userState.getUser()
 		logoutDialogOpen = false
 		isLoggingOut = false
 		localStorage.clear()
@@ -351,7 +346,6 @@
 								email,
 								password,
 								name,
-								callbackURL: '/',
 							})
 						}}
 						class="w-full"
@@ -364,7 +358,6 @@
 							authClient.signIn.email({
 								email,
 								password,
-								callbackURL: '/',
 							})
 						}}
 						class="w-full"
