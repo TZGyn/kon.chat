@@ -6,7 +6,8 @@
 		"navigation": {
 			"account": "帐户",
 			"models": "模型",
-			"admin": "行政"
+			"admin": "行政",
+			"security": "安全"
 		},
 		"account": {
 			"what_should_we_call_you": "我们该怎么称呼您？",
@@ -42,6 +43,16 @@
 			"edit_a_model": "编辑模型",
 			"model_updated": "模型已更新",
 			"update_model": "更新模型"
+		},
+		"security": {
+			"email": "电子邮件",
+			"type_your_new_email_here": "在此处输入您的新电子邮件...",
+			"verified": "已验证",
+			"unverified": "未经验证",
+			"update_email": "更新电子邮件",
+			"update_password": "更新密码",
+			"old_password": "旧密码",
+			"new_password": "新密码"
 		}
 	},
 	"locale": "区域设置",

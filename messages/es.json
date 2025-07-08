@@ -6,7 +6,8 @@
 		"navigation": {
 			"account": "Cuenta",
 			"models": "Modelos",
-			"admin": "Administración"
+			"admin": "Administración",
+			"security": "Seguridad"
 		},
 		"account": {
 			"what_should_we_call_you": "¿Cómo deberíamos llamarte?",
@@ -42,6 +43,16 @@
 			"edit_a_model": "Editar un modelo",
 			"model_updated": "Modelo actualizado",
 			"update_model": "Actualizar modelo"
+		},
+		"security": {
+			"email": "Correo electrónico",
+			"type_your_new_email_here": "Escriba su nuevo correo electrónico aquí...",
+			"verified": "Verificado",
+			"unverified": "Inconfirmado",
+			"update_email": "Actualizar correo electrónico",
+			"update_password": "Actualizar contraseña",
+			"old_password": "Contraseña anterior",
+			"new_password": "Nueva contraseña"
 		}
 	},
 	"locale": "Lugar",

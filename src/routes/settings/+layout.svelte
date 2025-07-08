@@ -1,13 +1,28 @@
 <script lang="ts">
 	import { page } from '$app/state'
+	import { authClient } from '$lib/auth-client'
 	import * as m from '$lib/paraglide/messages.js'
 
 	let { children } = $props()
 
-	const routes = [
+	const session = authClient.useSession()
+
+	const routes = $derived([
 		{ label: 'settings.navigation.account', href: '/settings' },
 		{ label: 'settings.navigation.models', href: '/settings/models' },
-	] as const
+		{
+			label: 'settings.navigation.security',
+			href: '/settings/security',
+		},
+		...($session.data?.user.role === 'admin'
+			? [
+					{
+						label: 'settings.navigation.admin',
+						href: '/settings/admin',
+					} as const,
+				]
+			: []),
+	] as const)
 </script>
 
 <div class="relative flex flex-1 flex-col overflow-hidden">

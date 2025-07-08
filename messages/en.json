@@ -7,7 +7,8 @@
 		"navigation": {
 			"account": "Account",
 			"models": "Models",
-			"admin": "Admin"
+			"admin": "Admin",
+			"security": "Security"
 		},
 		"account": {
 			"what_should_we_call_you": "What should we call you?",
@@ -42,6 +43,16 @@
 				"reasoning": "Reasoning",
 				"searchGrounding": "Search Grounding"
 			}
+		},
+		"security": {
+			"email": "Email",
+			"type_your_new_email_here": "Type your new email here...",
+			"verified": "Verified",
+			"unverified": "Unverified",
+			"update_email": "Update Email",
+			"update_password": "Update Password",
+			"old_password": "Old Password",
+			"new_password": "New Password"
 		},
 		"settings": "Settings"
 	},

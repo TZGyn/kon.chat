@@ -178,7 +178,11 @@
 			class="bg-secondary" />
 	</div>
 	<div class="flex w-full flex-col items-end">
-		<Button onclick={update} disabled={isLoading} class="">
+		<Button
+			onclick={update}
+			disabled={isLoading}
+			class=""
+			variant="secondary">
 			{#if isLoading}
 				<Loader2Icon class="animate-spin" />
 			{/if}
