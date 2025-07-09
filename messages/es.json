@@ -7,7 +7,8 @@
 			"account": "Cuenta",
 			"models": "Modelos",
 			"admin": "Administración",
-			"security": "Seguridad"
+			"security": "Seguridad",
+			"keys": "Llaves"
 		},
 		"account": {
 			"what_should_we_call_you": "¿Cómo deberíamos llamarte?",
@@ -53,6 +54,12 @@
 			"update_password": "Actualizar contraseña",
 			"old_password": "Contraseña anterior",
 			"new_password": "Nueva contraseña"
+		},
+		"keys": {
+			"enter_api_key": "Ingresar la clave {provider}",
+			"provider_api_key": "{provider}",
+			"optional": "opcional",
+			"update_api_keys": "Actualizar claves API"
 		}
 	},
 	"locale": "Lugar",

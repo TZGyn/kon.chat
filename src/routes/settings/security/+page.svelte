@@ -4,6 +4,7 @@
 	import * as m from '$lib/paraglide/messages'
 	import { authClient } from '$lib/auth-client'
 	import { toast } from 'svelte-sonner'
+	import { Label } from '$lib/components/ui/label'
 
 	const session = authClient.useSession()
 
@@ -14,15 +15,16 @@
 
 <div class="flex flex-col gap-2">
 	<div class="flex flex-col gap-2">
-		<div>
+		<Label for="email">
 			{m['settings.security.email']()}
 			<span class="text-muted-foreground">
 				({$session.data?.user.emailVerified
 					? m['settings.security.verified']()
 					: m['settings.security.unverified']()})
 			</span>
-		</div>
+		</Label>
 		<Input
+			id="email"
 			placeholder={m['settings.security.type_your_new_email_here']()}
 			bind:value={email} />
 	</div>
@@ -45,19 +47,21 @@
 	</div>
 
 	<div class="flex flex-col gap-2">
-		<div>
+		<Label for="old_password">
 			{m['settings.security.old_password']()}
-		</div>
+		</Label>
 		<Input
+			id="old_password"
 			placeholder={'********'}
 			bind:value={oldPassword}
 			type="password" />
 	</div>
 	<div class="flex flex-col gap-2">
-		<div>
+		<Label for="new_password">
 			{m['settings.security.new_password']()}
-		</div>
+		</Label>
 		<Input
+			id="new_password"
 			placeholder={'********'}
 			bind:value={newPassword}
 			type="password" />

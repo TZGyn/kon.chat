@@ -14,6 +14,10 @@
 			label: 'settings.navigation.security',
 			href: '/settings/security',
 		},
+		{
+			label: 'settings.navigation.keys',
+			href: '/settings/keys',
+		},
 		...($session.data?.user.role === 'admin'
 			? [
 					{

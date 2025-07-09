@@ -8,7 +8,8 @@
 			"account": "Account",
 			"models": "Models",
 			"admin": "Admin",
-			"security": "Security"
+			"security": "Security",
+			"keys": "Keys"
 		},
 		"account": {
 			"what_should_we_call_you": "What should we call you?",
@@ -53,6 +54,12 @@
 			"update_password": "Update Password",
 			"old_password": "Old Password",
 			"new_password": "New Password"
+		},
+		"keys": {
+			"enter_api_key": "Enter {provider} api key",
+			"optional": "optional",
+			"provider_api_key": "{provider} api key",
+			"update_api_keys": "Update Api Keys"
 		},
 		"settings": "Settings"
 	},

@@ -2,10 +2,9 @@ import { db } from '$api/db'
 import { setting, user } from '$api/db/schema'
 // For extending the Zod schema with OpenAPI properties
 import 'zod-openapi/extend'
-import { resolver, validator as zValidator } from 'hono-openapi/zod'
+import { validator as zValidator } from 'hono-openapi/zod'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
-import { getCookie } from 'hono/cookie'
 import { z } from 'zod'
 import { env } from '$env/dynamic/private'
 import type { AuthType } from '$api/auth'
@@ -49,11 +48,24 @@ const app = new Hono<{
 			return c.json({ success: false }, 401)
 		}
 
-		const setting = await db.query.setting.findFirst({
+		const existingSettings = await db.query.setting.findFirst({
 			where: (setting, { eq }) => eq(setting.userId, user.id),
 		})
 
-		return c.json({ setting })
+		if (!existingSettings) {
+			return c.json({
+				settings: (
+					await db
+						.insert(setting)
+						.values({
+							userId: user.id,
+						})
+						.returning()
+				)[0],
+			})
+		}
+
+		return c.json({ settings: existingSettings })
 	})
 	.post(
 		'/settings',
@@ -79,6 +91,45 @@ const app = new Hono<{
 				.set({
 					nameForLLM: name,
 					additionalSystemPrompt: additional_system_prompt,
+				})
+				.where(eq(setting.userId, loggedInUser.id))
+
+			return c.json({ success: true })
+		},
+	)
+	.put(
+		'/settings/keys',
+		zValidator(
+			'json',
+			z.object({
+				openai_api_key: z.string().optional().nullable(),
+				anthropic_api_key: z.string().optional().nullable(),
+				google_api_key: z.string().optional().nullable(),
+				open_router_api_key: z.string().optional().nullable(),
+			}),
+		),
+		async (c) => {
+			const session = c.get('session')
+			const loggedInUser = c.get('user')
+
+			if (!loggedInUser) {
+				return c.json({ success: false }, 401)
+			}
+
+			const {
+				anthropic_api_key,
+				google_api_key,
+				open_router_api_key,
+				openai_api_key,
+			} = c.req.valid('json')
+
+			await db
+				.update(setting)
+				.set({
+					openAIApiKey: openai_api_key,
+					claudeApiKey: anthropic_api_key,
+					geminiApiKey: google_api_key,
+					openRouterApiKey: open_router_api_key,
 				})
 				.where(eq(setting.userId, loggedInUser.id))
 
