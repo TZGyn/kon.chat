@@ -21,12 +21,7 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { getUploadIDsFromMessages } from './chat/attachments.js'
 import { s3Client } from './s3'
 
-import {
-	GOOGLE_OAUTH_CLIENT_ID,
-	GOOGLE_OAUTH_CLIENT_SECRET,
-	GITHUB_OAUTH_CLIENT_ID,
-	GITHUB_OAUTH_CLIENT_SECRET,
-} from '$env/static/private'
+import { env } from '$env/dynamic/private'
 
 export const auth = betterAuth({
 	baseURL: PUBLIC_APP_URL,
@@ -37,14 +32,20 @@ export const auth = betterAuth({
 	},
 	socialProviders: {
 		google: {
+			enabled:
+				!!env.GOOGLE_OAUTH_CLIENT_ID &&
+				!!env.GOOGLE_OAUTH_CLIENT_SECRET,
 			disableSignUp: BETTER_AUTH_ENABLE_SIGNUP !== 'true',
-			clientId: GOOGLE_OAUTH_CLIENT_ID,
-			clientSecret: GOOGLE_OAUTH_CLIENT_SECRET,
+			clientId: env.GOOGLE_OAUTH_CLIENT_ID,
+			clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET,
 		},
 		github: {
+			enabled:
+				!!env.GITHUB_OAUTH_CLIENT_ID &&
+				!!env.GITHUB_OAUTH_CLIENT_SECRET,
 			disableSignUp: BETTER_AUTH_ENABLE_SIGNUP !== 'true',
-			clientId: GITHUB_OAUTH_CLIENT_ID,
-			clientSecret: GITHUB_OAUTH_CLIENT_SECRET,
+			clientId: env.GITHUB_OAUTH_CLIENT_ID,
+			clientSecret: env.GITHUB_OAUTH_CLIENT_SECRET,
 		},
 	},
 	account: {
