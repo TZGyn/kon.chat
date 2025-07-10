@@ -1,6 +1,4 @@
 import { makeClient } from '$api/api-client'
-import type { auth } from '$api/auth'
-import type { Setting, User } from '$api/db/type'
 
 let chats = $state<
 	{
@@ -76,40 +74,5 @@ export function useChats() {
 		deleteChats,
 		syncChats,
 		updateChatStatus,
-	}
-}
-
-let user = $state<(typeof auth.$Infer.Session.user & Setting) | null>(
-	null,
-)
-
-export const useUser = () => {
-	const getUser = async () => {
-		user = JSON.parse(localStorage.getItem('user') || 'null')
-		const response = await makeClient(fetch).user.me.$get()
-		const data = await response.json()
-		user = data.user
-			? {
-					...data.user,
-					createdAt: new Date(data.user.createdAt),
-					updatedAt: new Date(data.user.updatedAt),
-					banExpires:
-						typeof data.user.banExpires === 'string'
-							? new Date(data.user.banExpires)
-							: data.user.banExpires,
-				}
-			: null
-		localStorage.setItem('user', JSON.stringify(user || null))
-	}
-
-	return {
-		get user() {
-			return user
-		},
-		set user(new_user) {
-			user = new_user
-			localStorage.setItem('user', JSON.stringify(user || null))
-		},
-		getUser,
 	}
 }

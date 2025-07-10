@@ -72,36 +72,8 @@ const app = new Hono<{
 		zValidator(
 			'json',
 			z.object({
-				name: z.string().max(50),
-				additional_system_prompt: z.string().max(1000),
-			}),
-		),
-		async (c) => {
-			const session = c.get('session')
-			const loggedInUser = c.get('user')
-
-			if (!loggedInUser) {
-				return c.json({ success: false }, 401)
-			}
-
-			const { additional_system_prompt, name } = c.req.valid('json')
-
-			await db
-				.update(setting)
-				.set({
-					nameForLLM: name,
-					additionalSystemPrompt: additional_system_prompt,
-				})
-				.where(eq(setting.userId, loggedInUser.id))
-
-			return c.json({ success: true })
-		},
-	)
-	.put(
-		'/settings/keys',
-		zValidator(
-			'json',
-			z.object({
+				name: z.string().max(50).optional(),
+				additional_system_prompt: z.string().max(1000).optional(),
 				openai_api_key: z.string().optional().nullable(),
 				anthropic_api_key: z.string().optional().nullable(),
 				google_api_key: z.string().optional().nullable(),
@@ -117,6 +89,8 @@ const app = new Hono<{
 			}
 
 			const {
+				additional_system_prompt,
+				name,
 				anthropic_api_key,
 				google_api_key,
 				open_router_api_key,
@@ -126,9 +100,11 @@ const app = new Hono<{
 			await db
 				.update(setting)
 				.set({
-					openAIApiKey: openai_api_key,
+					nameForLLM: name,
+					additionalSystemPrompt: additional_system_prompt,
 					claudeApiKey: anthropic_api_key,
 					geminiApiKey: google_api_key,
+					openAIApiKey: openai_api_key,
 					openRouterApiKey: open_router_api_key,
 				})
 				.where(eq(setting.userId, loggedInUser.id))

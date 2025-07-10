@@ -3,7 +3,6 @@
 	import { cn } from '$lib/utils'
 	import { toast } from 'svelte-sonner'
 
-	import { useUser } from '../../../state.svelte'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
@@ -34,7 +33,6 @@
 		generateId: () => youtube_id,
 		onFinish: () => {
 			autoScroll.scrollToBottom()
-			useUser().getUser()
 			localStorage.setItem(
 				`youtube:chat:${youtube_id}`,
 				JSON.stringify(useChat.messages),

@@ -19,11 +19,10 @@
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import { cn } from '$lib/utils'
 	import { processDataStream } from '@ai-sdk/ui-utils'
-	import { useUser } from '../state.svelte'
-	import { mode } from 'mode-watcher'
 	import { makeClient } from '$api/api-client'
+	import { authClient } from '$lib/auth-client'
 
-	const user = useUser()
+	const session = authClient.useSession()
 
 	const client = makeClient(fetch)
 
@@ -113,7 +112,7 @@
 				form: {
 					currentHtml: editor.getValue(),
 					prompt: input,
-					userAvatar: user.user?.avatar ?? '',
+					userAvatar: $session.data?.user?.image ?? '',
 					file: fileInputs[0] ?? undefined,
 				},
 			},

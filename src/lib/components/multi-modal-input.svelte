@@ -30,7 +30,6 @@
 		SquareIcon,
 		ZapIcon,
 	} from 'lucide-svelte'
-	import { useUser } from '../../routes/state.svelte'
 	import GoogleIcon from '$lib/icons/google-icon.svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
 	import GroqIcon from '$lib/icons/groq-icon.svelte'
@@ -54,6 +53,8 @@
 	import { cn } from '$lib/utils'
 	import { Brain } from '@lucide/svelte'
 	import Drawing from './input/drawing.svelte'
+	import { authClient } from '$lib/auth-client'
+	import { useSettings } from '$lib/states/settings.svelte'
 
 	let {
 		input = $bindable(),
@@ -92,7 +93,7 @@
 
 	let modelState = useModels()
 
-	let userState = useUser()
+	const settings = useSettings()
 
 	let inputElement: HTMLTextAreaElement | null = $state(null)
 
@@ -216,9 +217,9 @@
 					search,
 					searchGrounding,
 					mode: selectedMode?.id || 'chat',
-					name_for_llm: user?.name_for_llm || '',
+					name_for_llm: settings.settings.nameForLLM || '',
 					additional_system_prompt:
-						user?.additional_system_prompt || '',
+						settings.settings.additionalSystemPrompt || '',
 				},
 				experimental_attachments: attachments
 					.filter(
@@ -251,8 +252,6 @@
 		input
 		adjustInputHeight()
 	})
-
-	let user = $derived(userState.user)
 
 	let modes = $derived([
 		{

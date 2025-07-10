@@ -5,7 +5,7 @@
 	import { Input } from '$lib/components/ui/input'
 	import { Textarea } from '$lib/components/ui/textarea'
 	import { cn } from '$lib/utils'
-	import { useChats, useUser } from '../state.svelte'
+	import { useChats } from '../state.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import { useLocale } from '$lib/lang.svelte'
@@ -13,19 +13,20 @@
 	import * as m from '$lib/paraglide/messages'
 	import { MoonIcon, SunIcon } from '@lucide/svelte'
 	import { resetMode, setMode, mode } from 'mode-watcher'
-	import { onMount } from 'svelte'
 	import { makeClient } from '$api/api-client'
 	import { authClient } from '$lib/auth-client'
+	import { useSettings } from '$lib/states/settings.svelte'
 
-	const user = useUser()
+	const settings = useSettings()
+	const session = authClient.useSession()
 	const chats = useChats()
 
 	const locale = useLocale()
 
-	const client = makeClient(fetch)
-
-	let name = $state('')
-	let additional_system_prompt = $state('')
+	let name = $derived(settings.settings.nameForLLM)
+	let additional_system_prompt = $derived(
+		settings.settings.additionalSystemPrompt,
+	)
 
 	const lang = {
 		en: 'English',
@@ -33,27 +34,13 @@
 		zh: '中文',
 	} as const
 
-	onMount(() => {
-		name = user.user?.nameForLLM || ''
-		additional_system_prompt = user.user?.additionalSystemPrompt || ''
-	})
-
 	let isLoading = $state(false)
 	const update = async () => {
 		isLoading = true
-		user.user = user.user
-			? {
-					...user.user,
-					nameForLLM: name,
-					additionalSystemPrompt: additional_system_prompt,
-				}
-			: null
 
-		await client.user.settings.$post({
-			json: {
-				name,
-				additional_system_prompt,
-			},
+		await settings.update({
+			nameForLLM: name,
+			additionalSystemPrompt: additional_system_prompt,
 		})
 
 		isLoading = false
@@ -68,7 +55,6 @@
 		await authClient.deleteUser({})
 
 		chats.getChats()
-		await user.getUser()
 		deleteAccountDialogOpen = false
 		isDeletingAccount = false
 		localStorage.clear()
@@ -78,10 +64,10 @@
 <div class="flex flex-col gap-2">
 	<div class="flex flex-col items-center gap-4 py-6">
 		<Avatar.Root class="size-32">
-			<Avatar.Image src={user.user?.image} alt="kon.chat" />
+			<Avatar.Image src={$session.data?.user?.image} alt="kon.chat" />
 			<Avatar.Fallback class="text-6xl">K</Avatar.Fallback>
 		</Avatar.Root>
-		<span class="pb-6">{user.user?.email}</span>
+		<span class="pb-6">{$session.data?.user?.email}</span>
 	</div>
 	<div class="grid grid-cols-[auto_1fr] items-center gap-2 py-4">
 		<div>{m.language()}</div>

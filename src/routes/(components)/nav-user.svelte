@@ -16,7 +16,6 @@
 	import Sparkles from 'lucide-svelte/icons/sparkles'
 	import { onMount } from 'svelte'
 	import { Button } from '$lib/components/ui/button'
-	import { useUser } from '../state.svelte'
 	import { useChats } from '../state.svelte'
 	import { cn } from '$lib/utils'
 	import {

@@ -4,7 +4,6 @@
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 
-	import { useUser } from '../../../../state.svelte'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import MessageBlock from '$lib/components/message-block.svelte'
@@ -35,7 +34,6 @@
 		},
 		onFinish: () => {
 			autoScroll.scrollToBottom()
-			useUser().getUser()
 			localStorage.setItem(
 				`pdf:chat:${pdf_id}`,
 				JSON.stringify(useChat.messages),

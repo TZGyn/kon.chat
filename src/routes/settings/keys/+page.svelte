@@ -9,30 +9,16 @@
 	import AnthropicIcon from '$lib/icons/anthropic-icon.svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
 	import GoogleIcon from '$lib/icons/google-icon.svelte'
+	import { useSettings } from '$lib/states/settings.svelte'
 
 	const client = makeClient(fetch)
 
-	const getSettings = async () => {
-		const response = await client.user.settings.$get()
+	const settings = useSettings()
 
-		if (response.status === 200) {
-			const data = await response.json()
-			const settings = data.settings
-			openAIKey = settings.openAIApiKey
-			anthropicKey = settings.claudeApiKey
-			googleKey = settings.geminiApiKey
-			openRouterKey = settings.openRouterApiKey
-		}
-	}
-
-	onMount(() => {
-		getSettings()
-	})
-
-	let openAIKey = $state<string | null>()
-	let anthropicKey = $state<string | null>()
-	let googleKey = $state<string | null>()
-	let openRouterKey = $state<string | null>()
+	let openAIKey = $derived(settings.settings.openAIApiKey)
+	let anthropicKey = $derived(settings.settings.claudeApiKey)
+	let googleKey = $derived(settings.settings.geminiApiKey)
+	let openRouterKey = $derived(settings.settings.openRouterApiKey)
 </script>
 
 <div class="flex flex-col gap-2">
@@ -107,15 +93,12 @@
 	<div class="flex w-full flex-col items-end">
 		<Button
 			onclick={async () => {
-				await client.user.settings.keys.$put({
-					json: {
-						anthropic_api_key: anthropicKey,
-						google_api_key: googleKey,
-						open_router_api_key: openRouterKey,
-						openai_api_key: openAIKey,
-					},
+				settings.update({
+					claudeApiKey: anthropicKey,
+					geminiApiKey: googleKey,
+					openRouterApiKey: openRouterKey,
+					openAIApiKey: openAIKey,
 				})
-				getSettings()
 			}}
 			class=""
 			variant="secondary">

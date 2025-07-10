@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Chat } from '@ai-sdk/svelte'
-	import { useUser } from '../../../state.svelte'
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 	import { ScrollArea } from '$lib/components/ui/scroll-area'
@@ -40,7 +39,6 @@
 		},
 		onFinish: () => {
 			autoScroll.scrollToBottom()
-			useUser().getUser()
 		},
 		onError: (error) => {
 			console.log(error)
