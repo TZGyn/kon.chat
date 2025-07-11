@@ -415,7 +415,7 @@ const app = new Hono<{
 						z.literal('chat'),
 						z.literal('web_search'),
 						z.literal('academic_search'),
-						z.literal('web_reader'),
+						z.literal('web_reader_exa'),
 						z.literal('gpt-image-1'),
 					])
 					.default('chat'),
@@ -601,7 +601,7 @@ const app = new Hono<{
 						'You MUST run the tool first exactly once'
 						DO NOT ASK THE USER FOR CONFIRMATION!
 					`,
-						web_reader: `
+						web_reader_exa: `
 						You have been given an ability to fetch url as markdown 
 						'You MUST run the tool first exactly once'
 						DO NOT ASK THE USER FOR CONFIRMATION!

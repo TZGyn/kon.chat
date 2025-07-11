@@ -7,11 +7,11 @@
 	import type { UIMessage } from 'ai'
 	import AcademicSearch from './tool/academic-search.svelte'
 	import { BookIcon, LibraryBigIcon } from 'lucide-svelte'
-	import WebReader from './tool/web-reader.svelte'
 	import ImageGeneration from './tool/image-generation.svelte'
 	import { ImageIcon } from '@lucide/svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
 	import * as m from '$lib/paraglide/messages'
+	import WebReaderExa from './tool/web-reader-exa.svelte'
 
 	let {
 		toolInvocation,
@@ -50,8 +50,8 @@
 		<Twitter {toolInvocation} />
 	{:else if toolInvocation.toolName === 'academic_search'}
 		<AcademicSearch result={toolInvocation.result} />
-	{:else if toolInvocation.toolName === 'web_reader'}
-		<WebReader result={toolInvocation.result} />
+	{:else if toolInvocation.toolName === 'web_reader_exa'}
+		<WebReaderExa result={toolInvocation.result} />
 	{:else if toolInvocation.toolName === 'image_generation' || toolInvocation.toolName === 'gpt-image-1'}
 		<ImageGeneration result={toolInvocation.result} />
 	{/if}
@@ -83,7 +83,7 @@
 			</div>
 		</div>
 	</div>
-{:else if toolInvocation.toolName === 'web_reader'}
+{:else if toolInvocation.toolName === 'web_reader_exa'}
 	<div class="flex items-center gap-4 rounded border p-4">
 		<div
 			class="flex size-12 animate-pulse items-center justify-center rounded-full border object-cover p-3">

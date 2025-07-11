@@ -23,7 +23,7 @@
         "arctic": "^3.3.0",
         "better-auth": "^1.2.12",
         "drizzle-orm": "^0.39.3",
-        "exa-js": "^1.5.11",
+        "exa-js": "^1.8.20",
         "finnhub": "^1.2.19",
         "google-auth-library": "^9.15.1",
         "hono": "^4.7.11",
@@ -926,7 +926,7 @@
 
     "event-target-shim": ["event-target-shim@5.0.1", "", {}, "sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ=="],
 
-    "exa-js": ["exa-js@1.8.13", "", { "dependencies": { "cross-fetch": "~4.1.0", "dotenv": "~16.4.7", "openai": "^5.0.1" } }, "sha512-fm+pNFsKmL0UmPttV3EAB06O/L386R8CMYi1EIaSuo1+tU03tzpH6wKbG0KQgIOnvSNCpc5yBmm2uoWF2BsEgg=="],
+    "exa-js": ["exa-js@1.8.20", "", { "dependencies": { "cross-fetch": "~4.1.0", "dotenv": "~16.4.7", "openai": "^5.0.1", "zod": "^3.22.0", "zod-to-json-schema": "^3.20.0" } }, "sha512-FNxoaBOmGyfb4NoWn3Bf5QQGOeKGW7SZ0z4p7qRyoFueH8671XQ6VkYLLriaWSZQ42h7+7O9bAjLXBdYuQ2XMw=="],
 
     "expand-template": ["expand-template@2.0.3", "", {}, "sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg=="],
 

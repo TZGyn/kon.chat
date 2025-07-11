@@ -1,8 +1,8 @@
 import { tool } from 'ai'
 import { z } from 'zod'
-import { jinaRead } from '$api/ai/jina'
+import Exa from 'exa-js'
 
-export const web_reader = () =>
+export const web_reader = ({ apiKey }: { apiKey: string }) =>
 	tool({
 		description: 'Get page content as markdown given an url.',
 		parameters: z.object({
@@ -10,10 +10,12 @@ export const web_reader = () =>
 		}),
 		execute: async ({ url }) => {
 			try {
-				const result = await jinaRead(url)
+				const exa = new Exa(apiKey)
+				const result = await exa.getContents([url])
+
 				return { result }
 			} catch (error) {
-				console.error('Jina reader error:', error)
+				console.error('Exa web reader error:', error)
 				throw error
 			}
 		},

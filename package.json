@@ -76,7 +76,7 @@
 		"arctic": "^3.3.0",
 		"better-auth": "^1.2.12",
 		"drizzle-orm": "^0.39.3",
-		"exa-js": "^1.5.11",
+		"exa-js": "^1.8.20",
 		"finnhub": "^1.2.19",
 		"google-auth-library": "^9.15.1",
 		"hono": "^4.7.11",

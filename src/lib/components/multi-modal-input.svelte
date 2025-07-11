@@ -52,7 +52,6 @@
 	import { cn } from '$lib/utils'
 	import { Brain } from '@lucide/svelte'
 	import Drawing from './input/drawing.svelte'
-	import { authClient } from '$lib/auth-client'
 	import { useSettings } from '$lib/states/settings.svelte'
 
 	let {
@@ -294,7 +293,7 @@
 			icon: BookIcon,
 		},
 		{
-			id: 'web_reader',
+			id: 'web_reader_exa',
 			name: m['mode.web_reader.name'](),
 			description: m['mode.web_reader.description'](),
 			icon: LibraryBigIcon,

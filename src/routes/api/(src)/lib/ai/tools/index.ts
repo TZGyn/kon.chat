@@ -13,7 +13,7 @@ export const toolList = [
 	'x_search',
 	'web_search',
 	'academic_search',
-	'web_reader',
+	'web_reader_exa',
 	'gpt-image-1',
 ] as const
 
@@ -44,7 +44,9 @@ export const tools = (
 		academic_search: searchEnable
 			? { academic_search: academic_search({ apiKey: exaAPIKey }) }
 			: {},
-		web_reader: { web_reader: web_reader() },
+		web_reader_exa: searchEnable
+			? { web_reader_exa: web_reader({ apiKey: exaAPIKey }) }
+			: {},
 		'gpt-image-1': {
 			'gpt-image-1': openai_imagen({ chatId, user }),
 		},
@@ -58,7 +60,7 @@ export const activeTools = (mode: Tool) => {
 		x_search: ['x_search'],
 		chat: ['image_generation'],
 		web_search: ['web_search'],
-		web_reader: ['web_reader'],
+		web_reader_exa: ['web_reader_exa'],
 		academic_search: ['academic_search'],
 		'gpt-image-1': ['gpt-image-1'],
 	}
