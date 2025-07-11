@@ -98,6 +98,9 @@ export const setting = pgTable('setting', (t) => ({
 	geminiApiKey: t.text('gemini_api_key'),
 	claudeApiKey: t.text('claude_api_key'),
 	openRouterApiKey: t.text('openrouter_api_key'),
+	mistralApiKey: t.text('mistral_api_key'),
+	xaiApiKey: t.text('xai_api_key'),
+	exaApiKey: t.text('exa_api_key'),
 }))
 
 export const model = pgTable('model', (t) => ({

@@ -32,7 +32,6 @@
 	} from 'lucide-svelte'
 	import GoogleIcon from '$lib/icons/google-icon.svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
-	import GroqIcon from '$lib/icons/groq-icon.svelte'
 	import AnthropicIcon from '$lib/icons/anthropic-icon.svelte'
 	import { toast } from 'svelte-sonner'
 	import type { ChatRequestOptions } from 'ai'
@@ -685,8 +684,6 @@
 		<GoogleIcon />
 	{:else if provider === 'openai'}
 		<OpenaiIcon />
-	{:else if provider === 'groq'}
-		<GroqIcon />
 	{:else if provider === 'anthropic'}
 		<AnthropicIcon />
 	{:else if provider === 'xai'}

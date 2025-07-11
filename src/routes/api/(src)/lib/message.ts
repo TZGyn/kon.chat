@@ -192,7 +192,6 @@ export const processMessages = ({
 	}
 
 	if (
-		provider.name === 'groq' ||
 		provider.name === 'xai' ||
 		(provider.name === 'open_router' &&
 			(provider.model === 'meta-llama/llama-4-maverick:free' ||

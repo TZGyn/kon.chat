@@ -169,6 +169,13 @@
       "when": 1751992868652,
       "tag": "0023_magenta_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1752215441870,
+      "tag": "0024_dapper_slayback",
+      "breakpoints": true
     }
   ]
 }

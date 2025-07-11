@@ -14,7 +14,6 @@
 	import XaiIcon from '$lib/icons/xai-icon.svelte'
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
-	import GroqIcon from '$lib/icons/groq-icon.svelte'
 	import { toast } from 'svelte-sonner'
 	import { makeClient } from '$api/api-client'
 	import type { Model } from '$api/db/type'

@@ -1,6 +1,6 @@
 import { type DataStreamWriter, tool } from 'ai'
 import { z } from 'zod'
-import { tavily } from '$api/ai/tavily'
+import { exa } from '$api/ai/exa'
 
 async function isValidImageUrl(url: string): Promise<boolean> {
 	try {
@@ -79,11 +79,12 @@ export const web_search = ({
 					.enum(['general', 'news'])
 					.describe('Array of topic types to search for.'),
 			),
-			searchDepth: z.array(
-				z
-					.enum(['basic', 'advanced'])
-					.describe('Array of search depths to use.'),
-			),
+			include_domains: z
+				.array(z.string())
+				.describe(
+					'A list of domains to include in all search results. Default is an empty list.',
+				)
+				.optional(),
 			exclude_domains: z
 				.array(z.string())
 				.describe(
@@ -95,29 +96,66 @@ export const web_search = ({
 			queries,
 			maxResults,
 			topics,
-			searchDepth,
+			include_domains,
 			exclude_domains,
 		}: {
 			queries: string[]
 			maxResults: number[]
-			topics: ('general' | 'news')[]
-			searchDepth: ('basic' | 'advanced')[]
+			topics: ('general' | 'news' | 'finance')[]
+			include_domains?: string[]
 			exclude_domains?: string[]
 		}) => {
-			const includeImageDescriptions = true
-
 			// Execute searches in parallel
 			const searchPromises = queries.map(async (query, index) => {
-				const data = await tavily.search(query, {
-					topic: topics[index] || topics[0] || 'general',
-					days: topics[index] === 'news' ? 7 : undefined,
-					maxResults: maxResults[index] || maxResults[0] || 10,
-					searchDepth:
-						searchDepth[index] || searchDepth[0] || 'basic',
-					includeAnswer: true,
-					includeImages: true,
-					includeImageDescriptions: includeImageDescriptions,
-					excludeDomains: exclude_domains,
+				const currentTopic = topics[index] || topics[0] || 'general'
+				const currentMaxResults =
+					maxResults[index] || maxResults[0] || 10
+
+				const searchOptions: any = {
+					text: true,
+					type: 'auto',
+					numResults: currentMaxResults < 10 ? 10 : currentMaxResults,
+					livecrawl: 'preferred',
+					useAutoprompt: true,
+					category:
+						currentTopic === 'finance'
+							? 'financial report'
+							: currentTopic === 'news'
+								? 'news'
+								: '',
+				}
+
+				// if (include_domains && include_domains.length > 0) {
+				//   searchOptions.includeDomains = include_domains;
+				// }
+				if (exclude_domains && exclude_domains.length > 0) {
+					searchOptions.excludeDomains = exclude_domains
+				}
+
+				const data = await exa.searchAndContents(query, searchOptions)
+
+				const images: { url: string; description: string }[] = []
+				const results = data.results.map((result: any) => {
+					if (result.image) {
+						images.push({
+							url: result.image,
+							description:
+								result.title ||
+								result.text?.substring(0, 100) + '...' ||
+								'',
+						})
+					}
+
+					return {
+						url: result.url,
+						title: result.title || '',
+						content: (result.text || '').substring(0, 1000),
+						published_date:
+							currentTopic === 'news' && result.publishedDate
+								? result.publishedDate
+								: undefined,
+						author: result.author || undefined,
+					}
 				})
 
 				// Add annotation for query completion
@@ -128,73 +166,15 @@ export const web_search = ({
 						index,
 						total: queries.length,
 						status: 'completed',
-						resultsCount: data.results.length,
-						imagesCount: data.images.length,
+						resultsCount: results.length,
+						imagesCount: images.length,
 					},
 				})
 
 				return {
 					query,
-					results: deduplicateByDomainAndUrl(data.results).map(
-						(obj: any) => ({
-							url: obj.url,
-							title: obj.title,
-							content: obj.content,
-							raw_content: obj.raw_content,
-							published_date:
-								topics[index] === 'news'
-									? obj.published_date
-									: undefined,
-						}),
-					),
-					images: includeImageDescriptions
-						? await Promise.all(
-								deduplicateByDomainAndUrl(data.images).map(
-									async ({
-										url,
-										description,
-									}: {
-										url: string
-										description?: string
-									}) => {
-										const sanitizedUrl = sanitizeUrl(url)
-										const isValid =
-											await isValidImageUrl(sanitizedUrl)
-										return isValid
-											? {
-													url: sanitizedUrl,
-													description: description ?? '',
-												}
-											: null
-									},
-								),
-							).then((results) =>
-								results.filter(
-									(
-										image,
-									): image is {
-										url: string
-										description: string
-									} =>
-										image !== null &&
-										typeof image === 'object' &&
-										typeof image.description === 'string' &&
-										image.description !== '',
-								),
-							)
-						: await Promise.all(
-								deduplicateByDomainAndUrl(data.images).map(
-									async ({ url }: { url: string }) => {
-										const sanitizedUrl = sanitizeUrl(url)
-										return (await isValidImageUrl(sanitizedUrl))
-											? sanitizedUrl
-											: null
-									},
-								),
-							).then(
-								(results) =>
-									results.filter((url) => url !== null) as string[],
-							),
+					results: deduplicateByDomainAndUrl(data.results),
+					images: images.filter((img) => img.url && img.description),
 				}
 			})
 

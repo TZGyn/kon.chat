@@ -3,15 +3,14 @@
 	import { Input } from '$lib/components/ui/input'
 	import * as m from '$lib/paraglide/messages'
 	import { Label } from '$lib/components/ui/label'
-	import { makeClient } from '$api/api-client'
-	import { onMount } from 'svelte'
 	import OpenRouterIcon from '$lib/icons/open-router-icon.svelte'
 	import AnthropicIcon from '$lib/icons/anthropic-icon.svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
 	import GoogleIcon from '$lib/icons/google-icon.svelte'
 	import { useSettings } from '$lib/states/settings.svelte'
-
-	const client = makeClient(fetch)
+	import XaiIcon from '$lib/icons/xai-icon.svelte'
+	import MistralIcon from '$lib/icons/mistral-icon.svelte'
+	import ExaIcon from '$lib/icons/exa-icon.svelte'
 
 	const settings = useSettings()
 
@@ -19,9 +18,13 @@
 	let anthropicKey = $derived(settings.settings.claudeApiKey)
 	let googleKey = $derived(settings.settings.geminiApiKey)
 	let openRouterKey = $derived(settings.settings.openRouterApiKey)
+	let xaiKey = $derived(settings.settings.xaiApiKey)
+	let mistralKey = $derived(settings.settings.mistralApiKey)
+
+	let exaKey = $derived(settings.settings.exaApiKey)
 </script>
 
-<div class="flex flex-col gap-2">
+<div class="flex flex-col gap-6">
 	<div class="flex flex-col gap-4">
 		<div class="flex flex-col gap-2">
 			<Label for="openai_key" class="[&_svg]:size-4">
@@ -89,6 +92,57 @@
 				})}
 				bind:value={openRouterKey} />
 		</div>
+		<div class="flex flex-col gap-2">
+			<Label for="xai_key" class="[&_svg]:size-4">
+				<XaiIcon />
+				{m['settings.keys.provider_api_key']({
+					provider: 'xAI',
+				})}
+				<span class="text-muted-foreground">
+					({m['settings.keys.optional']()})
+				</span>
+			</Label>
+			<Input
+				id="xai_key"
+				placeholder={m['settings.keys.enter_api_key']({
+					provider: 'xAI',
+				})}
+				bind:value={xaiKey} />
+		</div>
+		<div class="flex flex-col gap-2">
+			<Label for="mistral_key" class="[&_svg]:size-4">
+				<MistralIcon />
+				{m['settings.keys.provider_api_key']({
+					provider: 'Mistral',
+				})}
+				<span class="text-muted-foreground">
+					({m['settings.keys.optional']()})
+				</span>
+			</Label>
+			<Input
+				id="mistral_key"
+				placeholder={m['settings.keys.enter_api_key']({
+					provider: 'Mistral',
+				})}
+				bind:value={mistralKey} />
+		</div>
+		<div class="flex flex-col gap-2">
+			<Label for="exa_key" class="[&_svg]:size-4">
+				<ExaIcon />
+				{m['settings.keys.provider_api_key']({
+					provider: 'Exa',
+				})}
+				<span class="text-muted-foreground">
+					({m['settings.keys.optional']()})
+				</span>
+			</Label>
+			<Input
+				id="exa_key"
+				placeholder={m['settings.keys.enter_api_key']({
+					provider: 'Exa',
+				})}
+				bind:value={exaKey} />
+		</div>
 	</div>
 	<div class="flex w-full flex-col items-end">
 		<Button
@@ -98,6 +152,10 @@
 					geminiApiKey: googleKey,
 					openRouterApiKey: openRouterKey,
 					openAIApiKey: openAIKey,
+					mistralApiKey: mistralKey,
+					xAIApiKey: xaiKey,
+
+					exaApiKey: exaKey,
 				})
 			}}
 			class=""

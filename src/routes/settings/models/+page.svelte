@@ -26,7 +26,6 @@
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
-	import GroqIcon from '$lib/icons/groq-icon.svelte'
 	import { m } from '$lib/paraglide/messages'
 	import EditModelDialog from './(components)/edit-model-dialog.svelte'
 	import { useModels } from '$lib/models.svelte'
@@ -300,8 +299,6 @@
 		<GoogleIcon />
 	{:else if provider === 'openai'}
 		<OpenaiIcon />
-	{:else if provider === 'groq'}
-		<GroqIcon />
 	{:else if provider === 'anthropic'}
 		<AnthropicIcon />
 	{:else if provider === 'xai'}

@@ -1,7 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createGroq } from '@ai-sdk/groq'
 import { createXai } from '@ai-sdk/xai'
 import { createMistral } from '@ai-sdk/mistral'
 import { env } from '$env/dynamic/private'
@@ -10,7 +9,6 @@ const {
 	OPENAI_API_KEY,
 	CLAUDE_API_KEY,
 	GEMINI_API_KEY,
-	GROQ_API_KEY,
 	XAI_API_KEY,
 	MISTRAL_API_KEY,
 	OPENROUTER_API_KEY,
@@ -27,10 +25,6 @@ export const anthropic = createAnthropic({
 
 export const google = createGoogleGenerativeAI({
 	apiKey: GEMINI_API_KEY,
-})
-
-export const groq = createGroq({
-	apiKey: GROQ_API_KEY,
 })
 
 export const xai = createXai({

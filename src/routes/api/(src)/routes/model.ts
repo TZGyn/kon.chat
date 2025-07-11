@@ -179,7 +179,6 @@ const app = new Hono<{
 			OPENAI_API_KEY,
 			CLAUDE_API_KEY,
 			GEMINI_API_KEY,
-			GROQ_API_KEY,
 			XAI_API_KEY,
 			MISTRAL_API_KEY,
 			OPENROUTER_API_KEY,
@@ -189,7 +188,6 @@ const app = new Hono<{
 			| 'openai'
 			| 'anthropic'
 			| 'google'
-			| 'groq'
 			| 'xai'
 			| 'mistral'
 			| 'open_router'
@@ -203,9 +201,6 @@ const app = new Hono<{
 		}
 		if (GEMINI_API_KEY) {
 			available_models.push('google')
-		}
-		if (GROQ_API_KEY) {
-			available_models.push('groq')
 		}
 		if (XAI_API_KEY) {
 			available_models.push('xai')

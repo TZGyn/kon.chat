@@ -5,10 +5,15 @@ import { onMount } from 'svelte'
 let settings = $state<Omit<Setting, 'userId'>>({
 	additionalSystemPrompt: '',
 	nameForLLM: '',
+
 	claudeApiKey: null,
 	geminiApiKey: null,
 	openAIApiKey: null,
 	openRouterApiKey: null,
+	mistralApiKey: null,
+	xaiApiKey: null,
+
+	exaApiKey: null,
 })
 
 export const useSettings = () => {
@@ -34,6 +39,10 @@ export const useSettings = () => {
 		nameForLLM,
 		openAIApiKey,
 		openRouterApiKey,
+		mistralApiKey,
+		xAIApiKey,
+
+		exaApiKey,
 	}: {
 		additionalSystemPrompt?: string
 		nameForLLM?: string
@@ -41,6 +50,10 @@ export const useSettings = () => {
 		geminiApiKey?: string | null
 		openAIApiKey?: string | null
 		openRouterApiKey?: string | null
+		mistralApiKey?: string | null
+		xAIApiKey?: string | null
+
+		exaApiKey?: string | null
 	}) => {
 		await client.user.settings.$post({
 			json: {
@@ -50,6 +63,10 @@ export const useSettings = () => {
 				name: nameForLLM,
 				open_router_api_key: openRouterApiKey,
 				openai_api_key: openAIApiKey,
+				mistral_api_key: mistralApiKey,
+				xai_api_key: xAIApiKey,
+
+				exa_api_key: exaApiKey,
 			},
 		})
 		refetch()

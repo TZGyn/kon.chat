@@ -26,7 +26,6 @@ let available_models = $state<
 		| 'openai'
 		| 'anthropic'
 		| 'google'
-		| 'groq'
 		| 'xai'
 		| 'mistral'
 		| 'open_router'
@@ -261,32 +260,6 @@ export const useModels = () => {
 				file: false,
 				fast: false,
 				reasoning: true,
-				searchGrounding: false,
-			},
-		},
-		{
-			name: 'DeepSeek R1 (Groq)',
-			info: '',
-			provider: 'groq',
-			id: 'deepseek-r1-distill-llama-70b',
-			capabilities: {
-				image: false,
-				file: false,
-				fast: true,
-				reasoning: true,
-				searchGrounding: false,
-			},
-		},
-		{
-			name: 'Llama 3.3 (Groq)',
-			info: '',
-			provider: 'groq',
-			id: 'llama-3.3-70b-versatile',
-			capabilities: {
-				image: false,
-				file: false,
-				fast: true,
-				reasoning: false,
 				searchGrounding: false,
 			},
 		},

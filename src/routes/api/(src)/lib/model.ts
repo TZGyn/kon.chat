@@ -1,10 +1,5 @@
 import { z } from 'zod'
-import { groq, mistral } from '$api/ai/model'
-import {
-	extractReasoningMiddleware,
-	type LanguageModelV1,
-	wrapLanguageModel,
-} from 'ai'
+import { type LanguageModelV1 } from 'ai'
 import {
 	createGoogleGenerativeAI,
 	type GoogleGenerativeAIProvider,
@@ -17,6 +12,7 @@ import {
 	type AnthropicProvider,
 } from '@ai-sdk/anthropic'
 import { createXai, type XaiProvider } from '@ai-sdk/xai'
+import { createMistral, type MistralProvider } from '@ai-sdk/mistral'
 
 export const modelSchema = z
 	.union([
@@ -49,19 +45,6 @@ export const modelSchema = z
 				])
 				.or(z.string()),
 			thinking_budget: z.number().min(0).default(0).optional(),
-			api_key: z.string().optional().nullable(),
-		}),
-		z.object({
-			name: z.literal('groq'),
-			model: z
-				.enum([
-					'deepseek-r1-distill-llama-70b',
-					'llama-3.3-70b-versatile',
-					'qwen-qwq-32b',
-					// 'meta-llama/llama-4-scout-17b-16e-instruct',
-					// 'meta-llama/llama-4-maverick-17b-128e-instruct',
-				])
-				.or(z.string()),
 			api_key: z.string().optional().nullable(),
 		}),
 		z.object({
@@ -198,17 +181,6 @@ export const getModel = ({
 		} else {
 			model = openai(provider.model)
 		}
-	} else if (provider.name === 'groq') {
-		if (provider.model !== 'llama-3.3-70b-versatile') {
-			model = wrapLanguageModel({
-				model: groq(provider.model),
-				middleware: extractReasoningMiddleware({
-					tagName: 'think',
-				}),
-			})
-		} else {
-			model = groq(provider.model)
-		}
 	} else if (provider.name === 'anthropic') {
 		let anthropic: AnthropicProvider
 		if (env.CLAUDE_API_KEY) {
@@ -257,6 +229,22 @@ export const getModel = ({
 		}
 		model = xai(provider.model)
 	} else if (provider.name === 'mistral') {
+		let mistral: MistralProvider
+		if (env.MISTRAL_API_KEY) {
+			mistral = createMistral({
+				apiKey: env.MISTRAL_API_KEY,
+			})
+		} else if (provider.api_key) {
+			mistral = createMistral({
+				apiKey: provider.api_key,
+			})
+		} else {
+			return {
+				error: 'API Key not provided',
+				model: null,
+				providerOptions: null,
+			}
+		}
 		model = mistral(provider.model)
 	} else if (provider.name === 'open_router') {
 		let openRouter: OpenAIProvider
