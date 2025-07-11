@@ -201,19 +201,19 @@
 					provider: {
 						name: selectedModel.provider,
 						model: selectedModel.id,
-						reasoningEffort:
+						reasoning_effort:
 							selectedModel.id === 'o3-mini' ||
 							selectedModel.id === 'o4-mini'
 								? reasoningEffort
 								: undefined,
-						thinkingBudget:
+						thinking_budget:
 							selectedModel.id === 'gemini-2.5-flash-preview-04-17'
 								? thinkingBudget
 								: undefined,
-						apiKey: settings.getProviderAPIKey(
+						api_key: settings.getProviderAPIKey(
 							selectedModel.provider,
 						),
-						exaApiKey: settings.getProviderAPIKey('exa'),
+						exa_api_key: settings.getProviderAPIKey('exa'),
 					},
 					...custom,
 					search,
