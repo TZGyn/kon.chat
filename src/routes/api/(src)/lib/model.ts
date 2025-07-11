@@ -1,19 +1,22 @@
 import { z } from 'zod'
-import {
-	anthropic,
-	google,
-	groq,
-	mistral,
-	openai,
-	openRouter,
-	xai,
-} from '$api/ai/model'
+import { groq, mistral } from '$api/ai/model'
 import {
 	extractReasoningMiddleware,
 	type LanguageModelV1,
 	wrapLanguageModel,
 } from 'ai'
-import { type GoogleGenerativeAIProviderOptions } from '@ai-sdk/google'
+import {
+	createGoogleGenerativeAI,
+	type GoogleGenerativeAIProvider,
+	type GoogleGenerativeAIProviderOptions,
+} from '@ai-sdk/google'
+import { env } from '$env/dynamic/private'
+import { createOpenAI, type OpenAIProvider } from '@ai-sdk/openai'
+import {
+	createAnthropic,
+	type AnthropicProvider,
+} from '@ai-sdk/anthropic'
+import { createXai, type XaiProvider } from '@ai-sdk/xai'
 
 export const modelSchema = z
 	.union([
@@ -34,6 +37,7 @@ export const modelSchema = z
 				.enum(['low', 'medium', 'high'])
 				.default('low')
 				.optional(),
+			api_key: z.string().optional().nullable(),
 		}),
 		z.object({
 			name: z.literal('google'),
@@ -45,6 +49,7 @@ export const modelSchema = z
 				])
 				.or(z.string()),
 			thinking_budget: z.number().min(0).default(0).optional(),
+			api_key: z.string().optional().nullable(),
 		}),
 		z.object({
 			name: z.literal('groq'),
@@ -57,6 +62,7 @@ export const modelSchema = z
 					// 'meta-llama/llama-4-maverick-17b-128e-instruct',
 				])
 				.or(z.string()),
+			api_key: z.string().optional().nullable(),
 		}),
 		z.object({
 			name: z.literal('anthropic'),
@@ -67,6 +73,7 @@ export const modelSchema = z
 					'claude-4-sonnet-20250514',
 				])
 				.or(z.string()),
+			api_key: z.string().optional().nullable(),
 		}),
 		z.object({
 			name: z.literal('xai'),
@@ -78,10 +85,12 @@ export const modelSchema = z
 					'grok-3-mini-beta',
 				])
 				.or(z.string()),
+			api_key: z.string().optional().nullable(),
 		}),
 		z.object({
 			name: z.literal('mistral'),
 			model: z.enum(['mistral-small-latest']).or(z.string()),
+			api_key: z.string().optional().nullable(),
 		}),
 		z.object({
 			name: z.literal('open_router'),
@@ -91,6 +100,7 @@ export const modelSchema = z
 					'meta-llama/llama-4-maverick:free',
 				])
 				.or(z.string()),
+			api_key: z.string().optional().nullable(),
 		}),
 	])
 	.default({ name: 'google', model: 'gemini-2.0-flash-001' })
@@ -107,38 +117,6 @@ const getContextSize = (provider: Provider) => {
 }
 
 export type Provider = z.infer<typeof modelSchema>
-
-export const freeModels = [
-	'gemini-2.0-flash-001',
-	'gemini-2.5-pro-exp-03-25',
-	'meta-llama/llama-4-scout:free',
-	'meta-llama/llama-4-maverick:free',
-] as const
-
-export const standardModels = [
-	'gpt-4o',
-	'gpt-4o-mini',
-	'gpt-4.1',
-	'gpt-4.1-mini',
-	'gpt-4.1-nano',
-	'o3-mini',
-	'o4-mini',
-	'gemini-2.5-flash-preview-04-17',
-	'deepseek-r1-distill-llama-70b',
-	'llama-3.3-70b-versatile',
-	'grok-2-1212',
-	'grok-2-vision-1212',
-	'grok-3-beta',
-	'grok-3-mini-beta',
-	'qwen-qwq-32b',
-	'mistral-small-latest',
-] as const
-
-export const premiumModels = [
-	'claude-3-5-sonnet-latest',
-	'claude-3-7-sonnet-20250219',
-	'claude-4-sonnet-20250514',
-] as const
 
 export const getModel = ({
 	provider,
@@ -158,9 +136,27 @@ export const getModel = ({
 	let providerOptions = {}
 
 	if (provider.name === 'google') {
+		let google: GoogleGenerativeAIProvider
+		if (env.GEMINI_API_KEY) {
+			google = createGoogleGenerativeAI({
+				apiKey: env.GEMINI_API_KEY,
+			})
+		} else if (provider.api_key) {
+			google = createGoogleGenerativeAI({
+				apiKey: provider.api_key,
+			})
+		} else {
+			return {
+				error: 'API Key not provided',
+				model: null,
+				providerOptions: null,
+			}
+		}
+
 		model = google(provider.model, {
 			useSearchGrounding: searchGrounding,
 		})
+
 		if (provider.model === 'gemini-2.5-flash-preview-04-17') {
 			providerOptions = {
 				google: {
@@ -171,6 +167,23 @@ export const getModel = ({
 			}
 		}
 	} else if (provider.name === 'openai') {
+		let openai: OpenAIProvider
+		if (env.OPENAI_API_KEY) {
+			openai = createOpenAI({
+				apiKey: env.OPENAI_API_KEY,
+			})
+		} else if (provider.api_key) {
+			openai = createOpenAI({
+				apiKey: provider.api_key,
+			})
+		} else {
+			return {
+				error: 'API Key not provided',
+				model: null,
+				providerOptions: null,
+			}
+		}
+
 		if (
 			provider.model === 'o3-mini' ||
 			provider.model === 'o4-mini'
@@ -197,6 +210,23 @@ export const getModel = ({
 			model = groq(provider.model)
 		}
 	} else if (provider.name === 'anthropic') {
+		let anthropic: AnthropicProvider
+		if (env.CLAUDE_API_KEY) {
+			anthropic = createAnthropic({
+				apiKey: env.CLAUDE_API_KEY,
+			})
+		} else if (provider.api_key) {
+			anthropic = createAnthropic({
+				apiKey: provider.api_key,
+			})
+		} else {
+			return {
+				error: 'API Key not provided',
+				model: null,
+				providerOptions: null,
+			}
+		}
+
 		model = anthropic(provider.model)
 		if (
 			provider.model === 'claude-3-7-sonnet-20250219' ||
@@ -209,10 +239,52 @@ export const getModel = ({
 			}
 		}
 	} else if (provider.name === 'xai') {
+		let xai: XaiProvider
+		if (env.XAI_API_KEY) {
+			xai = createXai({
+				apiKey: env.XAI_API_KEY,
+			})
+		} else if (provider.api_key) {
+			xai = createXai({
+				apiKey: provider.api_key,
+			})
+		} else {
+			return {
+				error: 'API Key not provided',
+				model: null,
+				providerOptions: null,
+			}
+		}
 		model = xai(provider.model)
 	} else if (provider.name === 'mistral') {
 		model = mistral(provider.model)
 	} else if (provider.name === 'open_router') {
+		let openRouter: OpenAIProvider
+		if (env.OPENROUTER_API_KEY) {
+			openRouter = createOpenAI({
+				baseURL: 'https://openrouter.ai/api/v1',
+				apiKey: env.OPENROUTER_API_KEY,
+				headers: {
+					'HTTP-Referer': 'https://kon.chat', // Optional. Site URL for rankings on openrouter.ai.
+					'X-Title': 'kon.chat', // Optional. Site title for rankings on openrouter.ai.
+				},
+			})
+		} else if (provider.api_key) {
+			openRouter = createOpenAI({
+				baseURL: 'https://openrouter.ai/api/v1',
+				apiKey: provider.api_key,
+				headers: {
+					'HTTP-Referer': 'https://kon.chat', // Optional. Site URL for rankings on openrouter.ai.
+					'X-Title': 'kon.chat', // Optional. Site title for rankings on openrouter.ai.
+				},
+			})
+		} else {
+			return {
+				error: 'API Key not provided',
+				model: null,
+				providerOptions: null,
+			}
+		}
 		model = openRouter(provider.model)
 	} else {
 		return {
