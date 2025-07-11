@@ -71,11 +71,32 @@ export const useSettings = () => {
 		})
 		refetch()
 	}
+
+	const getProviderAPIKey = (provider: string) => {
+		if (provider === 'google') {
+			return settings.geminiApiKey
+		} else if (provider === 'anthropic') {
+			return settings.claudeApiKey
+		} else if (provider === 'openai') {
+			return settings.openAIApiKey
+		} else if (provider === 'mistral') {
+			return settings.mistralApiKey
+		} else if (provider === 'xai') {
+			return settings.xaiApiKey
+		} else if (provider === 'open_router') {
+			return settings.openRouterApiKey
+		} else if (provider === 'exa') {
+			return settings.exaApiKey
+		} else {
+			return undefined
+		}
+	}
 	return {
 		get settings() {
 			return settings
 		},
 		refetch,
 		update,
+		getProviderAPIKey,
 	}
 }

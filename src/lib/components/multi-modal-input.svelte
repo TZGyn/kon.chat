@@ -210,6 +210,10 @@
 							selectedModel.id === 'gemini-2.5-flash-preview-04-17'
 								? thinkingBudget
 								: undefined,
+						apiKey: settings.getProviderAPIKey(
+							selectedModel.provider,
+						),
+						exaApiKey: settings.getProviderAPIKey('exa'),
 					},
 					...custom,
 					search,
