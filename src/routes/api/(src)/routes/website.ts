@@ -1,5 +1,4 @@
-import { google, openai } from '$api/ai/model'
-import { processMessages } from '$api/message'
+import { openai } from '$api/ai/model'
 import { zValidator } from '@hono/zod-validator'
 import {
 	createDataStreamResponse,

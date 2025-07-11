@@ -6,7 +6,7 @@ import {
 	smoothStream,
 	streamText,
 } from 'ai'
-import { google, openai } from '$api/ai/model'
+import { openai } from '$api/ai/model'
 import { Innertube } from 'youtubei.js'
 import { z } from 'zod'
 import { youtube } from '$api/db/schema'

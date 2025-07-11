@@ -3,7 +3,7 @@ import {
 	findRelevantContent,
 	generateEmbeddings,
 } from '$api/ai/embeddings'
-import { google, openai } from '$api/ai/model'
+import { openai } from '$api/ai/model'
 import type { auth } from '$api/auth'
 import { db } from '$api/db'
 import { document, embeddings, upload } from '$api/db/schema'
