@@ -5,20 +5,17 @@ import { db } from '$api/db'
 import { s3Client } from '$api/s3'
 import { upload } from '$api/db/schema'
 import OpenAI, { toFile } from 'openai'
-import { OPENAI_API_KEY } from '$env/static/private'
 import { PUBLIC_APP_URL } from '$env/static/public'
 import type { User } from '$api/db/type'
-
-const client = new OpenAI({
-	apiKey: OPENAI_API_KEY,
-})
 
 export const openai_imagen = ({
 	chatId,
 	user,
+	apiKey,
 }: {
 	user: User
 	chatId: string
+	apiKey: string
 }) =>
 	tool({
 		description: 'Generate/Edit Image',
@@ -32,6 +29,10 @@ export const openai_imagen = ({
 		}),
 		execute: async ({ prompt, image_url }) => {
 			try {
+				const client = new OpenAI({
+					apiKey: apiKey,
+				})
+
 				let result
 				if (image_url) {
 					const response = await fetch(image_url)

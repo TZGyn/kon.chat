@@ -27,8 +27,11 @@ export const tools = (
 	settings?: Setting,
 ) => {
 	const exaAPIKey = env.EXA_API_KEY || settings?.exaApiKey
+	const openAIAPIKey = env.OPENAI_API_KEY || settings?.openAIApiKey
 
 	const searchEnable = !!exaAPIKey
+
+	const openaiEnable = !!openAIAPIKey
 
 	const toolMap = {
 		chat: {
@@ -47,9 +50,15 @@ export const tools = (
 		web_reader_exa: searchEnable
 			? { web_reader_exa: web_reader({ apiKey: exaAPIKey }) }
 			: {},
-		'gpt-image-1': {
-			'gpt-image-1': openai_imagen({ chatId, user }),
-		},
+		'gpt-image-1': openaiEnable
+			? {
+					'gpt-image-1': openai_imagen({
+						chatId,
+						user,
+						apiKey: openAIAPIKey,
+					}),
+				}
+			: {},
 	} as const
 
 	return toolMap[mode]
