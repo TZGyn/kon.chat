@@ -1,6 +1,6 @@
 import { type DataStreamWriter, tool } from 'ai'
 import { z } from 'zod'
-import { exa } from '$api/ai/exa'
+import Exa from 'exa-js'
 
 async function isValidImageUrl(url: string): Promise<boolean> {
 	try {
@@ -55,8 +55,10 @@ const deduplicateByDomainAndUrl = <T extends { url: string }>(
 
 export const web_search = ({
 	dataStream,
+	apiKey,
 }: {
 	dataStream: DataStreamWriter
+	apiKey: string
 }) =>
 	tool({
 		description:
@@ -105,6 +107,8 @@ export const web_search = ({
 			include_domains?: string[]
 			exclude_domains?: string[]
 		}) => {
+			const exa = new Exa(apiKey)
+
 			// Execute searches in parallel
 			const searchPromises = queries.map(async (query, index) => {
 				const currentTopic = topics[index] || topics[0] || 'general'

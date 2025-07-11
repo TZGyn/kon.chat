@@ -5,7 +5,8 @@ import { image_generation } from './google-imagen'
 import { x_search } from './x-search'
 import { web_search } from './web-search'
 import { openai_imagen } from './openai-imagen'
-import type { User } from '$api/db/type'
+import type { Setting, User } from '$api/db/type'
+import { env } from '$env/dynamic/private'
 
 export const toolList = [
 	'chat',
@@ -23,15 +24,26 @@ export const tools = (
 	chatId: string,
 	dataStream: DataStreamWriter,
 	mode: Tool,
+	settings?: Setting,
 ) => {
+	const exaAPIKey = env.EXA_API_KEY || settings?.exaApiKey
+
+	const searchEnable = !!exaAPIKey
+
 	const toolMap = {
 		chat: {
 			image_generation: image_generation({ chatId, user }),
 			// image_captioning: toolList.image_captioning,
 		},
-		x_search: { x_search: x_search() },
-		web_search: { web_search: web_search({ dataStream }) },
-		academic_search: { academic_search: academic_search() },
+		x_search: {
+			// x_search: x_search()
+		},
+		web_search: searchEnable
+			? { web_search: web_search({ dataStream, apiKey: exaAPIKey }) }
+			: {},
+		academic_search: searchEnable
+			? { academic_search: academic_search({ apiKey: exaAPIKey }) }
+			: {},
 		web_reader: { web_reader: web_reader() },
 		'gpt-image-1': {
 			'gpt-image-1': openai_imagen({ chatId, user }),

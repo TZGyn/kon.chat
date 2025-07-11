@@ -1,8 +1,8 @@
 import { tool } from 'ai'
 import { z } from 'zod'
-import { exa } from '$api/ai/exa'
+import Exa from 'exa-js'
 
-export const academic_search = () =>
+export const academic_search = ({ apiKey }: { apiKey: string }) =>
 	tool({
 		description: 'Search academic papers and research.',
 		parameters: z.object({
@@ -10,6 +10,8 @@ export const academic_search = () =>
 		}),
 		execute: async ({ query }: { query: string }) => {
 			try {
+				const exa = new Exa(apiKey)
+
 				// Search academic papers with content summary
 				const result = await exa.searchAndContents(query, {
 					type: 'auto',

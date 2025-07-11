@@ -1,6 +1,6 @@
 import { tool } from 'ai'
 import { z } from 'zod'
-import { exa } from '$api/ai/exa'
+import Exa from 'exa-js'
 
 type XResult = {
 	id: string
@@ -13,7 +13,7 @@ type XResult = {
 	tweetId: string
 }
 
-export const x_search = () =>
+export const x_search = ({ apiKey }: { apiKey: string }) =>
 	tool({
 		description: 'Search X (formerly Twitter) posts.',
 		parameters: z.object({
@@ -42,6 +42,7 @@ export const x_search = () =>
 			startDate?: string
 			endDate?: string
 		}) => {
+			const exa = new Exa(apiKey)
 			try {
 				const result = await exa.searchAndContents(query, {
 					type: 'keyword',

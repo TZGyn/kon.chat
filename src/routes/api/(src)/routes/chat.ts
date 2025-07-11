@@ -464,14 +464,19 @@ const app = new Hono<{
 
 			const user = c.get('user')
 
-			if (!user)
+			if (!user) {
 				return c.json({ error: { message: 'Unauthenticated' } }, 400)
+			}
 
 			if (session !== null) {
 				cookie = 'set'
 			} else {
 				cookie = 'delete'
 			}
+
+			const settings = await db.query.setting.findFirst({
+				where: (setting, t) => t.eq(setting.userId, user.id),
+			})
 
 			const {
 				coreMessages,
@@ -688,7 +693,7 @@ const app = new Hono<{
 						maxSteps: 5,
 						// experimental_activeTools: [...activeTools(mode)],
 						tools: {
-							...tools(user, chatId, dataStream, mode),
+							...tools(user, chatId, dataStream, mode, settings),
 						},
 						onStepFinish: (data) => {
 							const metadata = data.providerMetadata?.google as
