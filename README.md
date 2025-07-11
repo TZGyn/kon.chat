@@ -13,6 +13,12 @@ All in one chat app with search tools and file uploads
 
 # Preview + Features
 
+- Multimodal chats
+- Image/document uploads
+- Search capabilities
+- Image generation
+- Bring your own keys for each user
+
 ## Homepage
 
 ![homepage](./docs/homepage.png)
