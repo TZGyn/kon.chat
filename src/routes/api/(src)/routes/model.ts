@@ -193,25 +193,6 @@ const app = new Hono<{
 			| 'open_router'
 		)[] = []
 
-		if (OPENAI_API_KEY) {
-			available_models.push('openai')
-		}
-		if (CLAUDE_API_KEY) {
-			available_models.push('anthropic')
-		}
-		if (GEMINI_API_KEY) {
-			available_models.push('google')
-		}
-		if (XAI_API_KEY) {
-			available_models.push('xai')
-		}
-		if (MISTRAL_API_KEY) {
-			available_models.push('mistral')
-		}
-		if (OPENROUTER_API_KEY) {
-			available_models.push('open_router')
-		}
-
 		const user = await db.query.user.findFirst({
 			where: (user, t) => t.eq(user.id, loggedInUser.id),
 			with: {
@@ -221,6 +202,29 @@ const app = new Hono<{
 
 		if (!user) {
 			return c.json({ success: false }, 401)
+		}
+
+		const userSettings = await db.query.setting.findFirst({
+			where: (setting, t) => t.eq(setting.userId, user.id),
+		})
+
+		if (OPENAI_API_KEY || !!userSettings?.openAIApiKey) {
+			available_models.push('openai')
+		}
+		if (CLAUDE_API_KEY || !!userSettings?.claudeApiKey) {
+			available_models.push('anthropic')
+		}
+		if (GEMINI_API_KEY || !!userSettings?.geminiApiKey) {
+			available_models.push('google')
+		}
+		if (XAI_API_KEY || !!userSettings?.xaiApiKey) {
+			available_models.push('xai')
+		}
+		if (MISTRAL_API_KEY || !!userSettings?.mistralApiKey) {
+			available_models.push('mistral')
+		}
+		if (OPENROUTER_API_KEY || !!userSettings?.openRouterApiKey) {
+			available_models.push('open_router')
 		}
 
 		return c.json(

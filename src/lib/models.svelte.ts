@@ -39,15 +39,16 @@ export const useModels = () => {
 		available_models = JSON.parse(
 			localStorage.getItem('available_models') || '[]',
 		)
-		const response =
-			await makeClient(fetch).user.available_models.$get()
+		const response = await makeClient(fetch).user.capabilties.$get()
 
-		available_models = (await response.json()).available_models
+		if (response.status === 200) {
+			available_models = (await response.json()).available_providers
 
-		localStorage.setItem(
-			'available_models',
-			JSON.stringify(available_models || []),
-		)
+			localStorage.setItem(
+				'available_models',
+				JSON.stringify(available_models || []),
+			)
+		}
 	}
 
 	const getModels = async () => {

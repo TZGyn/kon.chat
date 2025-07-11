@@ -124,46 +124,6 @@ const app = new Hono<{
 			return c.json({ success: true })
 		},
 	)
-	.get('/available_models', async (c) => {
-		const {
-			OPENAI_API_KEY,
-			CLAUDE_API_KEY,
-			GEMINI_API_KEY,
-			XAI_API_KEY,
-			MISTRAL_API_KEY,
-			OPENROUTER_API_KEY,
-		} = env
-
-		const available_models: (
-			| 'openai'
-			| 'anthropic'
-			| 'google'
-			| 'xai'
-			| 'mistral'
-			| 'open_router'
-		)[] = []
-
-		if (OPENAI_API_KEY) {
-			available_models.push('openai')
-		}
-		if (CLAUDE_API_KEY) {
-			available_models.push('anthropic')
-		}
-		if (GEMINI_API_KEY) {
-			available_models.push('google')
-		}
-		if (XAI_API_KEY) {
-			available_models.push('xai')
-		}
-		if (MISTRAL_API_KEY) {
-			available_models.push('mistral')
-		}
-		if (OPENROUTER_API_KEY) {
-			available_models.push('open_router')
-		}
-
-		return c.json({ available_models }, 200)
-	})
 	.get('/capabilties', async (c) => {
 		const {
 			OPENAI_API_KEY,
