@@ -7,13 +7,16 @@ import { s3Client } from '$api/s3'
 import { upload } from '$api/db/schema'
 import { PUBLIC_APP_URL } from '$env/static/public'
 import type { User } from '$api/db/type'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 export const image_generation = ({
 	chatId,
 	user,
+	apiKey,
 }: {
 	user: User
 	chatId: string
+	apiKey: string
 }) =>
 	tool({
 		description: 'Generate/Edit Image',
@@ -27,6 +30,10 @@ export const image_generation = ({
 		}),
 		execute: async ({ prompt, image_url }) => {
 			try {
+				const google = createGoogleGenerativeAI({
+					apiKey: apiKey,
+				})
+
 				const result = await generateText({
 					model: google('gemini-2.0-flash-exp'),
 					providerOptions: {

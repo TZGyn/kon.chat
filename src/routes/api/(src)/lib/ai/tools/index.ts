@@ -28,16 +28,23 @@ export const tools = (
 ) => {
 	const exaAPIKey = env.EXA_API_KEY || settings?.exaApiKey
 	const openAIAPIKey = env.OPENAI_API_KEY || settings?.openAIApiKey
+	const googleAPIKey = env.GEMINI_API_KEY || settings?.geminiApiKey
 
 	const searchEnable = !!exaAPIKey
-
 	const openaiEnable = !!openAIAPIKey
+	const geminiEnable = !!googleAPIKey
 
 	const toolMap = {
-		chat: {
-			image_generation: image_generation({ chatId, user }),
-			// image_captioning: toolList.image_captioning,
-		},
+		chat: geminiEnable
+			? {
+					image_generation: image_generation({
+						chatId,
+						user,
+						apiKey: googleAPIKey,
+					}),
+					// image_captioning: toolList.image_captioning,
+				}
+			: {},
 		x_search: {
 			// x_search: x_search()
 		},

@@ -1,4 +1,4 @@
-import { google } from '$api/ai/model'
+import { google, openai } from '$api/ai/model'
 import { processMessages } from '$api/message'
 import { zValidator } from '@hono/zod-validator'
 import {
@@ -63,7 +63,7 @@ const app = new Hono().post(
 					}),
 				)
 				const result = streamText({
-					model: google('gemini-2.5-pro-preview-05-06'),
+					model: openai('gpt-4.1-mini'),
 					messages: [
 						{
 							role: 'user',

@@ -6,7 +6,7 @@ import {
 	smoothStream,
 	streamText,
 } from 'ai'
-import { google } from '$api/ai/model'
+import { google, openai } from '$api/ai/model'
 import { Innertube } from 'youtubei.js'
 import { z } from 'zod'
 import { youtube } from '$api/db/schema'
@@ -118,9 +118,7 @@ const app = new Hono()
 						})
 
 						const result = streamText({
-							model: google('gemini-2.5-flash-preview-04-17', {
-								structuredOutputs: false,
-							}),
+							model: openai('gpt-4.1-mini'),
 							system: `
 							- You will be given a transcript of a video
 							- The transcript will be in {start timestamp}-{end timestamp}:{text} format for each line

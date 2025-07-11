@@ -3,7 +3,7 @@ import {
 	findRelevantContent,
 	generateEmbeddings,
 } from '$api/ai/embeddings'
-import { google } from '$api/ai/model'
+import { google, openai } from '$api/ai/model'
 import type { auth } from '$api/auth'
 import { db } from '$api/db'
 import { document, embeddings, upload } from '$api/db/schema'
@@ -247,9 +247,7 @@ const app = new Hono<{
 						]
 					}
 					const result = streamText({
-						model: google('gemini-2.0-flash-001', {
-							structuredOutputs: false,
-						}),
+						model: openai('gpt-4.1-mini'),
 						system: `
 						- You are a pdf markdown generator, you must follow every instruction given to you with 100% accuracy (this is non-negotiable)
 						- You will be given a pdf in chunks and convert it to markdown
@@ -400,9 +398,7 @@ const app = new Hono<{
 		return createDataStreamResponse({
 			execute: async (dataStream) => {
 				const result = streamText({
-					model: google('gemini-2.5-flash-preview-04-17', {
-						structuredOutputs: false,
-					}),
+					model: openai('gpt-4.1-mini'),
 					maxSteps: 5,
 					experimental_continueSteps: true,
 					system: `
