@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { customFetch, customFetchRaw } from '$lib/fetch'
+	import { customFetchRaw } from '$lib/fetch'
 	import {
 		FileTextIcon,
 		Loader2Icon,
@@ -9,7 +9,7 @@
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 	import * as m from '$lib/paraglide/messages'
-	import { makeClient } from '$api/api-client'
+	import { PUBLIC_APP_URL } from '$env/static/public'
 
 	let {
 		file,
@@ -61,7 +61,7 @@
 			}
 
 			const body = (await response.json()) as { id: string }
-			url = '/api/file-upload/' + body.id
+			url = PUBLIC_APP_URL + '/api/file-upload/' + body.id
 			toast.success(`${m.file_uploaded()}: ${file.name}`)
 			status = 'ready'
 		} catch (error) {
