@@ -1,5 +1,5 @@
 import { embed, embedMany } from 'ai'
-import { google } from './model'
+import { openai } from './model'
 import { db } from '$api/db'
 import {
 	embeddings,
@@ -8,7 +8,7 @@ import {
 import { nanoid } from '$api/utils'
 import { cosineDistance, desc, gt, sql } from 'drizzle-orm'
 
-const embeddingModel = google.textEmbeddingModel('text-embedding-004')
+const embeddingModel = openai.embedding('text-embedding-3-large')
 
 const generateChunks = (input: string): string[] => {
 	return input
