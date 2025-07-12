@@ -216,7 +216,11 @@ export const processMessages = ({
 		})
 	}
 
-	if (provider.name !== 'anthropic') {
+	if (
+		provider.name !== 'anthropic' &&
+		provider.name !== 'google' &&
+		provider.name !== 'openai'
+	) {
 		coreMessages = coreMessages.map((message) => {
 			if (message.role === 'user') {
 				if (Array.isArray(message.content)) {
