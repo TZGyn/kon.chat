@@ -452,25 +452,7 @@ const app = new Hono<{
 
 			const chatId = c.req.param('chat_id')
 
-			let cookie: 'none' | 'set' | 'delete' = 'none'
-
-			const session = c.get('session')
-
-			if (!session) {
-				return c.json({ error: { message: 'Unauthenticated' } }, 400)
-			}
-
 			const user = c.get('user')
-
-			if (!user) {
-				return c.json({ error: { message: 'Unauthenticated' } }, 400)
-			}
-
-			if (session !== null) {
-				cookie = 'set'
-			} else {
-				cookie = 'delete'
-			}
 
 			const settings = await db.query.setting.findFirst({
 				where: (setting, t) => t.eq(setting.userId, user.id),
@@ -502,29 +484,6 @@ const app = new Hono<{
 				return c.text(error, 400)
 			}
 
-			let headers = {}
-			if (cookie === 'delete') {
-				headers = {
-					'Set-Cookie': serialize('session', '', {
-						httpOnly: true,
-						path: '/',
-						secure: Bun.env.APP_ENV === 'production',
-						sameSite: 'lax',
-						expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-					}),
-				}
-			} else if (cookie === 'set') {
-				headers = {
-					'Set-Cookie': serialize('session', session.token, {
-						httpOnly: true,
-						path: '/',
-						secure: Bun.env.APP_ENV === 'production',
-						sameSite: 'lax',
-						expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-					}),
-				}
-			}
-
 			const key = nanoid()
 
 			const streamKey = `llm:stream:${chatId}:${key}`
@@ -550,7 +509,6 @@ const app = new Hono<{
 			return createDataStreamResponse({
 				headers: {
 					...c.res.headers,
-					...headers,
 				},
 				execute: async (dataStream) => {
 					dataStream.writeMessageAnnotation({
