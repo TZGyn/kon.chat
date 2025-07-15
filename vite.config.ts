@@ -23,6 +23,6 @@ export default defineConfig({
 		},
 	},
 	preview: {
-		allowedHosts: [PUBLIC_APP_URL],
+		allowedHosts: [new URL(process.env.PUBLIC_APP_URL!).host],
 	},
 })
