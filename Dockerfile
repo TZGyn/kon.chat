@@ -19,6 +19,6 @@ COPY . .
 
 RUN bun --bun run build
 
-EXPOSE 3000
+EXPOSE 4173
 
-CMD ["bun", "build/index.js"]
+CMD ["bun", "run", "preview"]
