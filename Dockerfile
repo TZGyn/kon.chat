@@ -21,4 +21,4 @@ RUN bun --bun run build
 
 EXPOSE 4173
 
-CMD ["bun", "run", "preview"]
+CMD ["bun", "run", "preview", "--host"]
