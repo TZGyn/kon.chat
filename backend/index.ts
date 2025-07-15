@@ -71,7 +71,10 @@ const router = app
 			headers: c.req.raw.headers,
 		})
 
-		if (c.req.path.startsWith('/auth')) {
+		if (
+			c.req.path.startsWith('/auth') ||
+			c.req.path.startsWith('/file-upload')
+		) {
 			return next()
 		}
 
