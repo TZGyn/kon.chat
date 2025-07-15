@@ -2,15 +2,15 @@ FROM oven/bun
 
 WORKDIR /app
 
-COPY ./package.json ./
-COPY ./bun.lock ./
+COPY ../package.json ./
+COPY ../bun.lock ./
 
 RUN bun install
 
 ARG PUBLIC_APP_URL
 ARG PUBLIC_API_URL
 
-COPY . .
+COPY .. .
 # COPY ./.env.example ./.env
 
 RUN bun run build
