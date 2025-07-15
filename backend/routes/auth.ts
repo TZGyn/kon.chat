@@ -8,7 +8,7 @@ const app = new Hono()
 	.use(
 		'*', // or replace with "*" to enable cors for all routes
 		cors({
-			origin: Bun.env.PUBLIC_APP_URL, // replace with your origin
+			origin: '*', // replace with your origin
 			allowHeaders: ['Content-Type', 'Authorization'],
 			allowMethods: ['POST', 'GET', 'OPTIONS'],
 			exposeHeaders: ['Content-Length'],

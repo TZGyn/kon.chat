@@ -18,7 +18,7 @@ import { s3Client } from './s3'
 
 export const auth = betterAuth({
 	baseURL: Bun.env.PUBLIC_API_URL,
-	trustedOrigins: [Bun.env.PUBLIC_APP_URL],
+	trustedOrigins: ['*'],
 	basePath: '/auth',
 	secret: Bun.env.BETTER_AUTH_SECRET,
 	emailAndPassword: {

@@ -28,7 +28,7 @@ const app = new Hono<{
 }>()
 app.use(
 	cors({
-		origin: Bun.env.PUBLIC_APP_URL,
+		origin: '*',
 		credentials: true,
 	}),
 )
