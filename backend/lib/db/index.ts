@@ -2,12 +2,11 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import * as schema from './schema'
 import * as pg from 'pg'
-import { DATABASE_URL } from '$env/static/private'
 
 const { Pool } = pg
 
 const pool = new Pool({
-	connectionString: DATABASE_URL,
+	connectionString: Bun.env.DATABASE_URL,
 })
 
 // const client = new Bun.SQL({

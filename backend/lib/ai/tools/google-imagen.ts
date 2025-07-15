@@ -1,11 +1,9 @@
 import { generateText, tool } from 'ai'
 import { z } from 'zod'
-import { google } from '$api/ai/model'
 import { nanoid } from '$api/utils'
 import { db } from '$api/db'
 import { s3Client } from '$api/s3'
 import { upload } from '$api/db/schema'
-import { PUBLIC_APP_URL } from '$env/static/public'
 import type { User } from '$api/db/type'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
@@ -95,7 +93,7 @@ export const image_generation = ({
 						})
 
 						files.push(
-							PUBLIC_APP_URL + '/api/file-upload/' + uploadId,
+							Bun.env.PUBLIC_APP_URL + '/api/file-upload/' + uploadId,
 						)
 					}
 				}

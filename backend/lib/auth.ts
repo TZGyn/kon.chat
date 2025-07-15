@@ -1,11 +1,6 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { admin, apiKey } from 'better-auth/plugins'
-import {
-	BETTER_AUTH_SECRET,
-	BETTER_AUTH_ENABLE_SIGNUP,
-} from '$env/static/private'
-import { PUBLIC_APP_URL } from '$env/static/public'
 import * as schema from './db/schema.js'
 
 import {
@@ -21,31 +16,30 @@ import { and, eq, inArray } from 'drizzle-orm'
 import { getUploadIDsFromMessages } from './chat/attachments.js'
 import { s3Client } from './s3'
 
-import { env } from '$env/dynamic/private'
-
 export const auth = betterAuth({
-	baseURL: PUBLIC_APP_URL,
-	secret: BETTER_AUTH_SECRET,
+	baseURL: Bun.env.PUBLIC_API_URL,
+	basePath: '/auth',
+	secret: Bun.env.BETTER_AUTH_SECRET,
 	emailAndPassword: {
 		enabled: true,
-		disableSignUp: BETTER_AUTH_ENABLE_SIGNUP !== 'true',
+		disableSignUp: Bun.env.BETTER_AUTH_ENABLE_SIGNUP !== 'true',
 	},
 	socialProviders: {
 		google: {
 			enabled:
-				!!env.GOOGLE_OAUTH_CLIENT_ID &&
-				!!env.GOOGLE_OAUTH_CLIENT_SECRET,
-			disableSignUp: BETTER_AUTH_ENABLE_SIGNUP !== 'true',
-			clientId: env.GOOGLE_OAUTH_CLIENT_ID,
-			clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET,
+				!!Bun.env.GOOGLE_OAUTH_CLIENT_ID &&
+				!!Bun.env.GOOGLE_OAUTH_CLIENT_SECRET,
+			disableSignUp: Bun.env.BETTER_AUTH_ENABLE_SIGNUP !== 'true',
+			clientId: Bun.env.GOOGLE_OAUTH_CLIENT_ID,
+			clientSecret: Bun.env.GOOGLE_OAUTH_CLIENT_SECRET,
 		},
 		github: {
 			enabled:
-				!!env.GITHUB_OAUTH_CLIENT_ID &&
-				!!env.GITHUB_OAUTH_CLIENT_SECRET,
-			disableSignUp: BETTER_AUTH_ENABLE_SIGNUP !== 'true',
-			clientId: env.GITHUB_OAUTH_CLIENT_ID,
-			clientSecret: env.GITHUB_OAUTH_CLIENT_SECRET,
+				!!Bun.env.GITHUB_OAUTH_CLIENT_ID &&
+				!!Bun.env.GITHUB_OAUTH_CLIENT_SECRET,
+			disableSignUp: Bun.env.BETTER_AUTH_ENABLE_SIGNUP !== 'true',
+			clientId: Bun.env.GITHUB_OAUTH_CLIENT_ID,
+			clientSecret: Bun.env.GITHUB_OAUTH_CLIENT_SECRET,
 		},
 	},
 	account: {
@@ -145,6 +139,6 @@ export const auth = betterAuth({
 })
 
 export type AuthType = {
-	user: typeof auth.$Infer.Session.user | null
-	session: typeof auth.$Infer.Session.session | null
+	user: typeof auth.$Infer.Session.user
+	session: typeof auth.$Infer.Session.session
 }

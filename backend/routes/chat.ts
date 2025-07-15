@@ -8,8 +8,6 @@ import {
 	type ToolSet,
 } from 'ai'
 import { z } from 'zod'
-import { getCookie } from 'hono/cookie'
-import { APP_ENV } from '$env/static/private'
 
 // For extending the Zod schema with OpenAPI properties
 import 'zod-openapi/extend'
@@ -51,8 +49,8 @@ const arrToObj = (arr: string[]) => {
 
 const app = new Hono<{
 	Variables: {
-		user: typeof auth.$Infer.Session.user | null
-		session: typeof auth.$Infer.Session.session | null
+		user: typeof auth.$Infer.Session.user
+		session: typeof auth.$Infer.Session.session
 	}
 }>()
 	.get('/', describeRoute({ tags: ['chat'] }), async (c) => {
@@ -510,7 +508,7 @@ const app = new Hono<{
 					'Set-Cookie': serialize('session', '', {
 						httpOnly: true,
 						path: '/',
-						secure: APP_ENV === 'production',
+						secure: Bun.env.APP_ENV === 'production',
 						sameSite: 'lax',
 						expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
 					}),
@@ -520,7 +518,7 @@ const app = new Hono<{
 					'Set-Cookie': serialize('session', session.token, {
 						httpOnly: true,
 						path: '/',
-						secure: APP_ENV === 'production',
+						secure: Bun.env.APP_ENV === 'production',
 						sameSite: 'lax',
 						expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
 					}),
@@ -773,42 +771,46 @@ const app = new Hono<{
 						],
 					)
 
-					let start = true
-					for await (const stream of result.fullStream) {
-						let values: string[] = []
-						for (const key in stream) {
-							// @ts-ignore
-							if (!stream[key]) continue
-							values.push(
+					try {
+						let start = true
+						for await (const stream of result.fullStream) {
+							let values: string[] = []
+							for (const key in stream) {
 								// @ts-ignore
-								...[key, JSON.stringify(stream[key])],
-							)
-						}
-						await redis.xadd(streamKey, '*', ...values)
+								if (!stream[key]) continue
+								values.push(
+									// @ts-ignore
+									...[key, JSON.stringify(stream[key])],
+								)
+							}
+							await redis.xadd(streamKey, '*', ...values)
 
-						if (start) {
+							if (start) {
+								await publisher.publish(
+									chatSessionKey,
+									JSON.stringify({
+										message: 'message',
+										id: key,
+										data: messages[messages.length - 1],
+										clientId: clientId,
+									}),
+								)
+								start = false
+							}
 							await publisher.publish(
-								chatSessionKey,
-								JSON.stringify({
-									message: 'message',
-									id: key,
-									data: messages[messages.length - 1],
-									clientId: clientId,
-								}),
+								streamKey,
+								JSON.stringify({ type: 'chunk' }),
 							)
-							start = false
 						}
+
 						await publisher.publish(
 							streamKey,
-							JSON.stringify({ type: 'chunk' }),
+							JSON.stringify({ type: 'finish' }),
 						)
+						await redis.expire(streamKey, 300)
+					} catch (error) {
+						console.log('Catching', error)
 					}
-
-					await publisher.publish(
-						streamKey,
-						JSON.stringify({ type: 'finish' }),
-					)
-					await redis.expire(streamKey, 300)
 				},
 				onError: (error) => {
 					publisher.publish(
@@ -817,6 +819,7 @@ const app = new Hono<{
 					)
 					redis.expire(streamKey, 300)
 					const responseMessages = mergeChunksToResponse(chunks)
+					console.log(responseMessages)
 					updateUserChatAndLimit({
 						chatId,
 						messages:

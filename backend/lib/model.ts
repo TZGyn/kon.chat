@@ -5,7 +5,6 @@ import {
 	type GoogleGenerativeAIProvider,
 	type GoogleGenerativeAIProviderOptions,
 } from '@ai-sdk/google'
-import { env } from '$env/dynamic/private'
 import { createOpenAI, type OpenAIProvider } from '@ai-sdk/openai'
 import {
 	createAnthropic,
@@ -120,9 +119,9 @@ export const getModel = ({
 
 	if (provider.name === 'google') {
 		let google: GoogleGenerativeAIProvider
-		if (env.GEMINI_API_KEY) {
+		if (Bun.env.GEMINI_API_KEY) {
 			google = createGoogleGenerativeAI({
-				apiKey: env.GEMINI_API_KEY,
+				apiKey: Bun.env.GEMINI_API_KEY,
 			})
 		} else if (provider.api_key) {
 			google = createGoogleGenerativeAI({
@@ -151,9 +150,9 @@ export const getModel = ({
 		}
 	} else if (provider.name === 'openai') {
 		let openai: OpenAIProvider
-		if (env.OPENAI_API_KEY) {
+		if (Bun.env.OPENAI_API_KEY) {
 			openai = createOpenAI({
-				apiKey: env.OPENAI_API_KEY,
+				apiKey: Bun.env.OPENAI_API_KEY,
 			})
 		} else if (provider.api_key) {
 			openai = createOpenAI({
@@ -183,9 +182,9 @@ export const getModel = ({
 		}
 	} else if (provider.name === 'anthropic') {
 		let anthropic: AnthropicProvider
-		if (env.CLAUDE_API_KEY) {
+		if (Bun.env.CLAUDE_API_KEY) {
 			anthropic = createAnthropic({
-				apiKey: env.CLAUDE_API_KEY,
+				apiKey: Bun.env.CLAUDE_API_KEY,
 			})
 		} else if (provider.api_key) {
 			anthropic = createAnthropic({
@@ -212,9 +211,9 @@ export const getModel = ({
 		}
 	} else if (provider.name === 'xai') {
 		let xai: XaiProvider
-		if (env.XAI_API_KEY) {
+		if (Bun.env.XAI_API_KEY) {
 			xai = createXai({
-				apiKey: env.XAI_API_KEY,
+				apiKey: Bun.env.XAI_API_KEY,
 			})
 		} else if (provider.api_key) {
 			xai = createXai({
@@ -230,9 +229,9 @@ export const getModel = ({
 		model = xai(provider.model)
 	} else if (provider.name === 'mistral') {
 		let mistral: MistralProvider
-		if (env.MISTRAL_API_KEY) {
+		if (Bun.env.MISTRAL_API_KEY) {
 			mistral = createMistral({
-				apiKey: env.MISTRAL_API_KEY,
+				apiKey: Bun.env.MISTRAL_API_KEY,
 			})
 		} else if (provider.api_key) {
 			mistral = createMistral({
@@ -248,10 +247,10 @@ export const getModel = ({
 		model = mistral(provider.model)
 	} else if (provider.name === 'open_router') {
 		let openRouter: OpenAIProvider
-		if (env.OPENROUTER_API_KEY) {
+		if (Bun.env.OPENROUTER_API_KEY) {
 			openRouter = createOpenAI({
 				baseURL: 'https://openrouter.ai/api/v1',
-				apiKey: env.OPENROUTER_API_KEY,
+				apiKey: Bun.env.OPENROUTER_API_KEY,
 				headers: {
 					'HTTP-Referer': 'https://kon.chat', // Optional. Site URL for rankings on openrouter.ai.
 					'X-Title': 'kon.chat', // Optional. Site title for rankings on openrouter.ai.

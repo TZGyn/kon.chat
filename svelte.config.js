@@ -1,5 +1,6 @@
 // import adapter from '@sveltejs/adapter-node'
-import adapter from 'svelte-adapter-bun-next'
+// import adapter from 'svelte-adapter-bun-next'
+import adapter from '@sveltejs/adapter-static'
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -10,15 +11,15 @@ const config = {
 
 	kit: {
 		alias: {
-			$api: './src/routes/api/(src)/lib',
-			'$api/*': './src/routes/api/(src)/lib/*',
+			$api: './backend/lib',
+			'$api/*': './backend/lib/*',
 		},
-		adapter: adapter(),
-		// adapter: adapter({
-		// 	// pages: 'build',
-		// 	// assets: 'build',
-		// 	fallback: '404.html',
-		// }),
+		// adapter: adapter(),
+		adapter: adapter({
+			// pages: 'build',
+			// assets: 'build',
+			fallback: '404.html',
+		}),
 	},
 }
 

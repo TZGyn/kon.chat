@@ -42,7 +42,7 @@
 		type ChatRequestOptions,
 		type UIMessage,
 	} from '@ai-sdk/ui-utils'
-	import { PUBLIC_APP_URL } from '$env/static/public'
+	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { makeClient } from '$api/api-client.js'
 	import { customFetchRaw } from '$lib/fetch.js'
 	import { processStream } from '$lib/stream.js'
@@ -138,7 +138,7 @@
 	let customUseChat = getChatState({
 		initialMessages: [],
 		get api() {
-			return `/api/chat/${chat_id}`
+			return `${PUBLIC_API_URL}/chat/${chat_id}`
 		},
 		get id() {
 			return chat_id
@@ -637,6 +637,15 @@
 		enableSearch={true}
 		{autoScroll}
 		stop={() => {
+			customUseChat.stop()
+			if (
+				!customUseChat.messages[customUseChat.messages.length - 1]
+					.annotations
+			) {
+				customUseChat.messages[
+					customUseChat.messages.length - 1
+				].annotations = []
+			}
 			customUseChat.messages[
 				customUseChat.messages.length - 1
 			].annotations?.push({
@@ -647,6 +656,11 @@
 					message: 'Stopped By User',
 				},
 			})
+
+			customUseChat.messages[
+				customUseChat.messages.length - 1
+			].status = 'ready'
+
 			if (page.url.searchParams) {
 				page.url.searchParams.delete('type')
 				replaceState(page.url, page.state)
@@ -670,6 +684,5 @@
 					messages: customUseChat.messages as any,
 				}
 			}
-			customUseChat.stop()
 		}} />
 {/if}

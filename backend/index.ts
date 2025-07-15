@@ -17,21 +17,25 @@ import { YoutubeRoutes } from './routes/youtube'
 import { WebsiteRoutes } from './routes/website'
 import { AdminRoutes } from './routes/admin'
 
-import { PUBLIC_APP_URL } from '$env/static/public'
 import { ModelRoutes } from './routes/model'
 import { auth } from '$api/auth'
 
 const app = new Hono<{
 	Variables: {
-		user: typeof auth.$Infer.Session.user | null
-		session: typeof auth.$Infer.Session.session | null
+		user: typeof auth.$Infer.Session.user
+		session: typeof auth.$Infer.Session.session
 	}
 }>()
-app.use(cors())
+app.use(
+	cors({
+		origin: Bun.env.PUBLIC_APP_URL,
+		credentials: true,
+	}),
+)
 app.use(logger())
 
 app.get('/', (c) => {
-	return c.redirect('/')
+	return c.text('hello')
 })
 
 app.get(
@@ -45,7 +49,7 @@ app.get(
 			},
 			servers: [
 				{
-					url: PUBLIC_APP_URL + '/api',
+					url: Bun.env.PUBLIC_API_URL,
 					description: 'Local server',
 				},
 			],
@@ -57,7 +61,7 @@ app.get(
 	'/docs',
 	Scalar({
 		theme: 'saturn',
-		url: '/api/openapi',
+		url: '/openapi',
 	}),
 )
 
@@ -67,10 +71,12 @@ const router = app
 			headers: c.req.raw.headers,
 		})
 
-		if (!session) {
-			c.set('user', null)
-			c.set('session', null)
+		if (c.req.path.startsWith('/auth')) {
 			return next()
+		}
+
+		if (!session) {
+			return c.body(null, 401)
 		}
 
 		c.set('user', session.user)
@@ -88,6 +94,11 @@ const router = app
 	.route('/website', WebsiteRoutes)
 	.route('/admin', AdminRoutes)
 
-export const api = new Hono().route('/api', app)
+export const api = app
 
 export type Router = typeof router
+
+export default {
+	port: 3000,
+	fetch: app.fetch,
+}

@@ -7,7 +7,6 @@ import { validator as zValidator } from 'hono-openapi/zod'
 import { z } from 'zod'
 import { message } from '$api/db/schema'
 import { eq } from 'drizzle-orm'
-import { env } from '$env/dynamic/private'
 
 const app = new Hono().post(
 	'/migrate_message_assets',
@@ -29,7 +28,7 @@ const app = new Hono().post(
 			password,
 		} = c.req.valid('json')
 
-		const admin_password = env.ADMIN_PASSWORD
+		const admin_password = Bun.env.ADMIN_PASSWORD
 		if (!admin_password || password !== admin_password) {
 			return c.json({ success: false }, 400)
 		}

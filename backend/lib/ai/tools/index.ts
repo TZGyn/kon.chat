@@ -6,7 +6,6 @@ import { x_search } from './x-search'
 import { web_search } from './web-search'
 import { openai_imagen } from './openai-imagen'
 import type { Setting, User } from '$api/db/type'
-import { env } from '$env/dynamic/private'
 
 export const toolList = [
 	'chat',
@@ -26,9 +25,11 @@ export const tools = (
 	mode: Tool,
 	settings?: Setting,
 ) => {
-	const exaAPIKey = env.EXA_API_KEY || settings?.exaApiKey
-	const openAIAPIKey = env.OPENAI_API_KEY || settings?.openAIApiKey
-	const googleAPIKey = env.GEMINI_API_KEY || settings?.geminiApiKey
+	const exaAPIKey = Bun.env.EXA_API_KEY || settings?.exaApiKey
+	const openAIAPIKey =
+		Bun.env.OPENAI_API_KEY || settings?.openAIApiKey
+	const googleAPIKey =
+		Bun.env.GEMINI_API_KEY || settings?.geminiApiKey
 
 	const searchEnable = !!exaAPIKey
 	const openaiEnable = !!openAIAPIKey

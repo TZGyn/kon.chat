@@ -1,3 +1,4 @@
+import { PUBLIC_API_URL } from '$env/static/public'
 import type { Router } from '../index'
 import { hc } from 'hono/client'
 
@@ -11,7 +12,10 @@ export const makeClient = (fetch: Window['fetch']) => {
 		return browserClient
 	}
 
-	const client = hc<Router>(origin + '/api', { fetch })
+	const client = hc<Router>(PUBLIC_API_URL, {
+		fetch,
+		init: { credentials: 'include' },
+	})
 
 	if (isBrowser) {
 		browserClient = client

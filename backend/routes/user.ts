@@ -6,7 +6,6 @@ import { validator as zValidator } from 'hono-openapi/zod'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { env } from '$env/dynamic/private'
 import type { AuthType } from '$api/auth'
 
 const app = new Hono<{
@@ -134,7 +133,7 @@ const app = new Hono<{
 			OPENROUTER_API_KEY,
 
 			EXA_API_KEY,
-		} = env
+		} = Bun.env
 
 		const user = c.get('user')
 

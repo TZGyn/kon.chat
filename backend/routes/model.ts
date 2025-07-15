@@ -9,7 +9,6 @@ import { z } from 'zod'
 import { nanoid } from '$lib/nanoid'
 import { and, eq } from 'drizzle-orm'
 
-import { env } from '$env/dynamic/private'
 import type { auth } from '$api/auth'
 
 const app = new Hono<{
@@ -182,7 +181,7 @@ const app = new Hono<{
 			XAI_API_KEY,
 			MISTRAL_API_KEY,
 			OPENROUTER_API_KEY,
-		} = env
+		} = Bun.env
 
 		const available_models: (
 			| 'openai'

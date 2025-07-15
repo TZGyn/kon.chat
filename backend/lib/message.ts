@@ -13,7 +13,6 @@ import { z } from 'zod'
 import { db } from './db'
 import { generateTitleFromUserMessage } from './ai/utils'
 import { chat } from './db/schema'
-import { PUBLIC_APP_URL } from '$env/static/public'
 import type { User } from './db/type'
 
 export const processMessages = ({
@@ -59,7 +58,7 @@ export const processMessages = ({
 									if (content.type === 'image') {
 										if (
 											content.image instanceof URL &&
-											content.image.origin === PUBLIC_APP_URL
+											content.image.origin === Bun.env.PUBLIC_APP_URL
 										) {
 											return [
 												{
@@ -102,7 +101,9 @@ export const processMessages = ({
 				) {
 					const files = (
 						message.content[0].result as { files: string[] }
-					).files.filter((url) => url.startsWith(PUBLIC_APP_URL))
+					).files.filter((url) =>
+						url.startsWith(Bun.env.PUBLIC_APP_URL),
+					)
 
 					if (files.length <= 0) {
 						return [message] as (

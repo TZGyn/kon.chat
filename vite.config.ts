@@ -13,4 +13,12 @@ export default defineConfig({
 			strategy: ['cookie', 'baseLocale'],
 		}),
 	],
+	server: {
+		fs: {
+			allow: ['./backend/lib/api-client.ts'],
+		},
+		watch: {
+			ignored: ['**/backend/**'],
+		},
+	},
 })
