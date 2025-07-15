@@ -13,7 +13,7 @@ ARG PUBLIC_API_URL
 COPY . .
 # COPY ./.env.example ./.env
 
-RUN bun run build
+RUN bun run check
 
 EXPOSE 3000
 
