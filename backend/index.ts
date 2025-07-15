@@ -102,6 +102,6 @@ export const api = app
 export type Router = typeof router
 
 export default {
-	port: 3000,
+	port: 8080,
 	fetch: app.fetch,
 }
