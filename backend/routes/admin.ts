@@ -110,7 +110,7 @@ const app = new Hono().post(
 											)
 										}
 									}
-									content.image = newUrl.href
+									content.data = newUrl.href
 								}
 							} else if (
 								content.type === 'tool-result' &&
