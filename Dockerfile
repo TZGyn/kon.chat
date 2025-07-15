@@ -7,6 +7,7 @@ RUN apt-get update -qq && \
     apt-get install -y git 
 
 ARG PUBLIC_APP_URL
+ARG PUBLIC_API_URL
 ARG BETTER_AUTH_SECRET
 ARG BETTER_AUTH_ENABLE_SIGNUP
 ARG APP_ENV
