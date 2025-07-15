@@ -16,6 +16,7 @@ const app = new Hono().post(
 		z.object({
 			oldUrl: z.string().url(),
 			newUrl: z.string().url(),
+			removePathPrefix: z.string().optional(),
 			addPathPrefix: z.string().optional(),
 			password: z.string(),
 		}),
@@ -24,6 +25,7 @@ const app = new Hono().post(
 		const {
 			newUrl: newUrlInput,
 			oldUrl: oldUrlInput,
+			removePathPrefix,
 			addPathPrefix,
 			password,
 		} = c.req.valid('json')
@@ -77,6 +79,15 @@ const app = new Hono().post(
 									if (addPathPrefix) {
 										newUrl.pathname = addPathPrefix + newUrl.pathname
 									}
+									if (removePathPrefix) {
+										if (
+											newUrl.pathname.startsWith(removePathPrefix)
+										) {
+											newUrl.pathname = newUrl.pathname.slice(
+												removePathPrefix.length,
+											)
+										}
+									}
 									content.image = newUrl.href
 								}
 
@@ -89,6 +100,15 @@ const app = new Hono().post(
 									newUrl.hostname = new URL(newUrlInput).hostname
 									if (addPathPrefix) {
 										newUrl.pathname = addPathPrefix + newUrl.pathname
+									}
+									if (removePathPrefix) {
+										if (
+											newUrl.pathname.startsWith(removePathPrefix)
+										) {
+											newUrl.pathname = newUrl.pathname.slice(
+												removePathPrefix.length,
+											)
+										}
 									}
 									content.image = newUrl.href
 								}
@@ -105,6 +125,15 @@ const app = new Hono().post(
 										if (addPathPrefix) {
 											newUrl.pathname =
 												addPathPrefix + newUrl.pathname
+										}
+										if (removePathPrefix) {
+											if (
+												newUrl.pathname.startsWith(removePathPrefix)
+											) {
+												newUrl.pathname = newUrl.pathname.slice(
+													removePathPrefix.length,
+												)
+											}
 										}
 										return newUrl.href
 									}
