@@ -117,7 +117,7 @@ export const openai_imagen = ({
 					})
 
 					files.push(
-						Bun.env.PUBLIC_APP_URL + '/api/file-upload/' + uploadId,
+						Bun.env.PUBLIC_API_URL + '/file-upload/' + uploadId,
 					)
 				}
 

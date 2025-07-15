@@ -17,7 +17,7 @@ export const getUploadIDsFromMessages = (messages: Message[]) => {
 				} else if (content.type === 'image') {
 					const url = content.image as string
 
-					if (url.startsWith(Bun.env.PUBLIC_APP_URL)) {
+					if (url.startsWith(Bun.env.PUBLIC_API_URL)) {
 						const id = (content.image as string).split('/').pop()
 						if (!id) continue
 						res.push(id)
@@ -27,7 +27,7 @@ export const getUploadIDsFromMessages = (messages: Message[]) => {
 				} else if (content.type === 'file') {
 					const url = content.data as string
 
-					if (url.startsWith(Bun.env.PUBLIC_APP_URL)) {
+					if (url.startsWith(Bun.env.PUBLIC_API_URL)) {
 						const id = (content.data as string).split('/').pop()
 
 						if (!id) continue
@@ -39,7 +39,7 @@ export const getUploadIDsFromMessages = (messages: Message[]) => {
 				) {
 					const files: string[] = []
 					for (const url of content.result.files as string[]) {
-						if (url.startsWith(Bun.env.PUBLIC_APP_URL)) {
+						if (url.startsWith(Bun.env.PUBLIC_API_URL)) {
 							const id = (url as string).split('/').pop()
 
 							if (!id) continue
@@ -91,7 +91,7 @@ export const replaceAttachment = (
 
 				const final_files: string[] = []
 				for (const url of files) {
-					if (url.startsWith(Bun.env.PUBLIC_APP_URL)) {
+					if (url.startsWith(Bun.env.PUBLIC_API_URL)) {
 						const id = url.split('/').pop()
 						if (!id) continue
 						const upload = uploadsData.find(
@@ -99,9 +99,7 @@ export const replaceAttachment = (
 						)
 						if (upload) {
 							final_files.push(
-								Bun.env.PUBLIC_APP_URL +
-									'/api/file-upload/' +
-									upload.id,
+								Bun.env.PUBLIC_API_URL + '/file-upload/' + upload.id,
 							)
 						}
 						continue
@@ -115,7 +113,7 @@ export const replaceAttachment = (
 			} else if (content.type === 'image') {
 				const url = content.image as string
 
-				if (url.startsWith(Bun.env.PUBLIC_APP_URL)) {
+				if (url.startsWith(Bun.env.PUBLIC_API_URL)) {
 					const id = (content.image as string).split('/').pop()
 					if (!id) continue
 					const upload = uploadsData.find(
@@ -125,9 +123,7 @@ export const replaceAttachment = (
 						res.push({
 							type: 'image',
 							image:
-								Bun.env.PUBLIC_APP_URL +
-								'/api/file-upload/' +
-								upload.id,
+								Bun.env.PUBLIC_API_URL + '/file-upload/' + upload.id,
 						})
 					} else {
 						res.push(content)
@@ -139,7 +135,7 @@ export const replaceAttachment = (
 			} else if (content.type === 'file') {
 				const url = content.data as string
 
-				if (url.startsWith(Bun.env.PUBLIC_APP_URL)) {
+				if (url.startsWith(Bun.env.PUBLIC_API_URL)) {
 					const id = (content.data as string).split('/').pop()
 
 					if (!id) continue
@@ -151,9 +147,7 @@ export const replaceAttachment = (
 						res.push({
 							type: 'file',
 							data:
-								Bun.env.PUBLIC_APP_URL +
-								'/api/file-upload/' +
-								upload.id,
+								Bun.env.PUBLIC_API_URL + '/file-upload/' + upload.id,
 							mimeType: upload.mimeType,
 						})
 					} else {
