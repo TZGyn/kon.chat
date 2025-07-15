@@ -23,5 +23,6 @@ export default defineConfig({
 	},
 	preview: {
 		allowedHosts: [new URL(process.env.PUBLIC_APP_URL!).host],
+		port: 8080,
 	},
 })
