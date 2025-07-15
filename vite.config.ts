@@ -21,4 +21,7 @@ export default defineConfig({
 			ignored: ['**/backend/**'],
 		},
 	},
+	preview: {
+		allowedHosts: [process.env.PUBLIC_APP_URL!],
+	},
 })
