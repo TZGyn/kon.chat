@@ -143,16 +143,16 @@
 	})
 
 	let selectedModel = $state<Model>({
-		name: 'Gemini 2.0 Flash',
+		name: 'GPT 4.1',
 		info: '',
-		provider: 'google',
-		id: 'gemini-2.0-flash-001',
+		provider: 'openai',
+		id: 'gpt-4.1',
 		capabilities: {
 			image: true,
-			file: true,
+			file: false,
 			fast: false,
 			reasoning: false,
-			searchGrounding: true,
+			searchGrounding: false,
 		},
 	})
 
