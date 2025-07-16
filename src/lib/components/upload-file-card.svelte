@@ -9,7 +9,7 @@
 	import { onMount } from 'svelte'
 	import { toast } from 'svelte-sonner'
 	import * as m from '$lib/paraglide/messages'
-	import { PUBLIC_APP_URL } from '$env/static/public'
+	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 
 	let {
 		file,
@@ -61,7 +61,7 @@
 			}
 
 			const body = (await response.json()) as { id: string }
-			url = PUBLIC_APP_URL + '/api/file-upload/' + body.id
+			url = PUBLIC_API_URL + '/file-upload/' + body.id
 			toast.success(`${m.file_uploaded()}: ${file.name}`)
 			status = 'ready'
 		} catch (error) {
