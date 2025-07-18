@@ -6,8 +6,6 @@ WORKDIR /app
 RUN apt-get update -qq && \
     apt-get install -y git python3 python3-pip python-is-python3 python3-yfinance
 
-RUN pip install yfinance
-
 ARG PUBLIC_APP_URL
 ARG PUBLIC_API_URL
 
