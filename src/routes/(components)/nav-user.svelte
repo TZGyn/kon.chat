@@ -32,6 +32,7 @@
 	import { Input } from '$lib/components/ui/input/index.js'
 	import { authClient } from '$lib/auth-client'
 	import { toast } from 'svelte-sonner'
+	import { PUBLIC_APP_URL } from '$env/static/public'
 
 	const sidebar = useSidebar()
 	const chats = useChats()
@@ -236,6 +237,7 @@
 				onclick={() => {
 					authClient.signIn.social({
 						provider: 'github',
+						callbackURL: PUBLIC_APP_URL,
 					})
 				}}
 				variant="outline"
@@ -256,6 +258,7 @@
 				onclick={() => {
 					authClient.signIn.social({
 						provider: 'google',
+						callbackURL: PUBLIC_APP_URL,
 					})
 				}}
 				variant="outline"
@@ -345,6 +348,7 @@
 								email,
 								password,
 								name,
+								callbackURL: PUBLIC_APP_URL,
 							})
 						}}
 						class="w-full"
@@ -357,6 +361,7 @@
 							authClient.signIn.email({
 								email,
 								password,
+								callbackURL: PUBLIC_APP_URL,
 							})
 						}}
 						class="w-full"
