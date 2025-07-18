@@ -5,6 +5,7 @@ import { image_generation } from './google-imagen'
 import { x_search } from './x-search'
 import { web_search } from './web-search'
 import { openai_imagen } from './openai-imagen'
+import { currency_converter } from './currency-converter'
 import type { Setting, User } from '$api/db/type'
 
 export const toolList = [
@@ -44,8 +45,11 @@ export const tools = (
 						apiKey: googleAPIKey,
 					}),
 					// image_captioning: toolList.image_captioning,
+					currency_converter: currency_converter(),
 				}
-			: {},
+			: {
+					currency_converter: currency_converter(),
+				},
 		x_search: {
 			// x_search: x_search()
 		},

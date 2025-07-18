@@ -85,7 +85,7 @@
 			{/if}
 
 			{#if message.parts.length > 0}
-				<div class="flex w-full flex-col gap-5">
+				<div class="flex w-[100cqw] flex-col gap-5">
 					{#each message.parts as part, index (index)}
 						{#if part.type === 'tool-invocation'}
 							<ToolInvocation

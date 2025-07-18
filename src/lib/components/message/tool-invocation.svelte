@@ -8,10 +8,11 @@
 	import AcademicSearch from './tool/academic-search.svelte'
 	import { BookIcon, LibraryBigIcon } from 'lucide-svelte'
 	import ImageGeneration from './tool/image-generation.svelte'
-	import { ImageIcon } from '@lucide/svelte'
+	import { CircleDollarSignIcon, ImageIcon } from '@lucide/svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
 	import * as m from '$lib/paraglide/messages'
 	import WebReaderExa from './tool/web-reader-exa.svelte'
+	import CurrencyConverter from './tool/currency-converter.svelte'
 
 	let {
 		toolInvocation,
@@ -54,6 +55,8 @@
 		<WebReaderExa result={toolInvocation.result} />
 	{:else if toolInvocation.toolName === 'image_generation' || toolInvocation.toolName === 'gpt-image-1'}
 		<ImageGeneration result={toolInvocation.result} />
+	{:else if toolInvocation.toolName === 'currency_converter'}
+		<CurrencyConverter result={toolInvocation.result} />
 	{/if}
 {:else if toolInvocation.toolName === 'x_search'}
 	<div class="flex items-center gap-4 rounded border p-4">
@@ -100,7 +103,7 @@
 {:else if toolInvocation.toolName === 'image_generation' || toolInvocation.toolName === 'gpt-image-1'}
 	<!-- https://github.com/cruip/cruip-tutorials/blob/main/animated-gradient-border/index.html -->
 	<div
-		class="h-96 w-full animate-[border_4s_linear_infinite] rounded-2xl border border-transparent [background:linear-gradient(45deg,hsl(var(--background)))_padding-box,conic-gradient(from_var(--border-angle),hsl(var(--secondary))_80%,hsl(var(--primary))_86%,hsl(var(--primary))_90%,hsl(var(--primary))_94%,hsl(var(--secondary)))_border-box]">
+		class="h-96 w-full animate-[border_4s_linear_infinite] rounded-2xl border border-transparent [background:linear-gradient(45deg,var(--background))_padding-box,conic-gradient(from_var(--border-angle),var(--secondary)_80%,var(--primary)_86%,var(--primary)_90%,var(--primary)_94%,var(--secondary))_border-box]">
 		<div class="flex h-full items-center justify-center gap-4 p-4">
 			<div
 				class="flex size-32 animate-pulse items-center justify-center rounded-full border object-cover p-3">
@@ -109,6 +112,16 @@
 				{:else}
 					<OpenaiIcon class="size-16" />
 				{/if}
+			</div>
+		</div>
+	</div>
+{:else if toolInvocation.toolName === 'currency_converter'}
+	<div
+		class="h-96 w-full animate-[border_4s_linear_infinite] rounded-2xl border border-transparent [background:linear-gradient(45deg,var(--background))_padding-box,conic-gradient(from_var(--border-angle),var(--secondary)_80%,var(--primary)_86%,var(--primary)_90%,var(--primary)_94%,var(--secondary))_border-box]">
+		<div class="flex h-full items-center justify-center gap-4 p-4">
+			<div
+				class="flex size-32 animate-pulse items-center justify-center rounded-full border object-cover p-3">
+				<CircleDollarSignIcon class="size-16" />
 			</div>
 		</div>
 	</div>

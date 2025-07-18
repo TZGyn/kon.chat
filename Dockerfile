@@ -4,7 +4,9 @@ WORKDIR /app
 
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
-    apt-get install -y git 
+    apt-get install -y git python3 python3-pip python-is-python3
+
+RUN pip install yfinance
 
 ARG PUBLIC_APP_URL
 ARG PUBLIC_API_URL

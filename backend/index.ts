@@ -104,4 +104,5 @@ export type Router = typeof router
 export default {
 	port: 8080,
 	fetch: app.fetch,
+	idleTimeout: 0,
 }

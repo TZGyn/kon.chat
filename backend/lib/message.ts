@@ -241,34 +241,41 @@ export const processMessages = ({
 	}
 
 	coreMessages = [
-		...coreMessages.map((message) => {
-			if (
-				message.role === 'assistant' &&
-				typeof message.content !== 'string'
-			) {
-				return {
-					...message,
-					content: message.content
-						.filter(
-							(content) =>
-								content.type !== 'reasoning' &&
-								content.type !== 'redacted-reasoning',
-						)
-						.map((message) => {
-							if (message.type === 'text') {
-								return {
-									...message,
-									text:
-										message.text ||
-										'/*LLM DID NOT GENERATE ANY RESPONSE*/',
-								}
-							}
-							return message
-						}),
+		...coreMessages
+			.filter((message) => {
+				if (typeof message.content !== 'string') {
+					return message.content.length > 0
 				}
-			}
-			return message
-		}),
+				return message.content
+			})
+			.map((message) => {
+				if (
+					message.role === 'assistant' &&
+					typeof message.content !== 'string'
+				) {
+					return {
+						...message,
+						content: message.content
+							.filter(
+								(content) =>
+									content.type !== 'reasoning' &&
+									content.type !== 'redacted-reasoning',
+							)
+							.map((message) => {
+								if (message.type === 'text') {
+									return {
+										...message,
+										text:
+											message.text ||
+											'/*LLM DID NOT GENERATE ANY RESPONSE*/',
+									}
+								}
+								return message
+							}),
+					}
+				}
+				return message
+			}),
 	]
 	return { coreMessages, userMessage, userMessageDate }
 }
