@@ -27,7 +27,9 @@ export const currency_converter = () =>
 				.describe('The time range of data. Default to 1y'),
 			amount: z
 				.number()
-				.describe('The amount to convert. Default is 1.'),
+				.describe(
+					'The amount to convert. Default to 1 if not specified by user.',
+				),
 		}),
 		execute: async ({
 			from,

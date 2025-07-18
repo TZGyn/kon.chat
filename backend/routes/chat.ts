@@ -538,6 +538,9 @@ const app = new Hono<{
 						Dont say back to the user you cant generate a transparent background 
 						Just use the tool and let the user see the result themselves
 
+						For currency converter: 
+						- Always default the amount to 1 if not specified by the user, do not ask the user the amount
+
 						Remember to evaluate after using the tools
 						
 						IMPORTANT NOTES FOR IMAGE GENERATION TOOL: ONCE YOU RECEIVE THE FILES URL, THE IMAGE GENERATION IS CONSIDERED DONE
