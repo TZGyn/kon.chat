@@ -368,6 +368,24 @@
 	<Textarea
 		bind:value={input}
 		bind:ref={inputElement}
+		onpaste={(event) => {
+			const files = Array.from(event.clipboardData?.files ?? [])
+			const images = files.filter((file) =>
+				file.type.includes('image'),
+			)
+			if (images.length > 0) {
+				event.preventDefault()
+				attachments.push(
+					...images.map((image) => ({
+						file: image,
+						url: '',
+						status: 'submitted' as const,
+					})),
+				)
+
+				return
+			}
+		}}
 		class="bg-popover dark:bg-popover max-h-96 min-h-4 resize-none border-none px-4 pt-2 pb-0 focus-visible:ring-0 focus-visible:ring-offset-0"
 		placeholder={m.send_a_message() + ' ' + m.ctrl_enter_to_send()}
 		onkeydown={(event) => {
