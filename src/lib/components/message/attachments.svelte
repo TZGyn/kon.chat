@@ -9,7 +9,7 @@
 {#if attachments}
 	{#each attachments as attachment}
 		{#if attachment.contentType?.startsWith('image/')}
-			<div class="bg-secondary rounded border">
+			<div class="bg-secondary w-fit place-self-end rounded border">
 				<img
 					src={attachment.url}
 					alt={attachment.name}
