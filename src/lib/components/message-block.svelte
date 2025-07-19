@@ -154,8 +154,17 @@
 							? 'visible'
 							: 'invisible',
 					)}>
-					{#if message.content}
-						<CopyButton text={message.content} />
+					{#if message.parts.filter((part) => part.type === 'text' && part.text)}
+						<CopyButton
+							text={message.parts
+								.map((part) => {
+									if (part.type === 'text') {
+										return part.text
+									}
+									return ''
+								})
+								.join('\n')
+								.trim()} />
 					{/if}
 					{#if branch}
 						<Button
