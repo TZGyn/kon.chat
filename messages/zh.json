@@ -112,6 +112,9 @@
 		},
 		"currency_converter": {
 			"showing_convertion_rate_over": "显示{period}的转换率"
+		},
+		"stock_chart": {
+			"showing_stock_price_over": "显示{period}内的股票价格"
 		}
 	},
 	"copied_to_clipboard": "已复制到剪贴板",

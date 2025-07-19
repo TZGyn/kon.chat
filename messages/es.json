@@ -112,6 +112,9 @@
 		},
 		"currency_converter": {
 			"showing_convertion_rate_over": "Se muestra la tasa de conversión durante {period}"
+		},
+		"stock_chart": {
+			"showing_stock_price_over": "Se muestra el precio de las acciones durante {period}"
 		}
 	},
 	"copied_to_clipboard": "Copiado al portapapeles",

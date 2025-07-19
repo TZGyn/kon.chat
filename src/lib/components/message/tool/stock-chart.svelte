@@ -5,18 +5,16 @@
 	import { AreaChart } from 'layerchart'
 	import { curveLinear } from 'd3-shape'
 	import { m } from '$lib/paraglide/messages'
-	import { getSymbol } from '$lib/currency-symbol'
 
 	let {
 		result,
 	}: {
 		result: {
-			forwardRate: Record<string, any>
-			backwardRate: Record<string, any>
-			fromCurrency: string
-			toCurrency: string
-			amount: number
-			convertedAmount: number
+			prices: Record<string, any>
+			symbol: string
+			currency: 'USD'
+			locale: 'en-us'
+			latestPrice: number
 			period:
 				| '1d'
 				| '5d'
@@ -33,28 +31,33 @@
 	} = $props()
 
 	let chartData = $derived(
-		Object.keys(result.forwardRate['Close']).map((key) => {
-			const data = result.forwardRate['Close'][key]
+		Object.keys(result.prices['Close']).map((key) => {
+			const data = result.prices['Close'][key]
 			return {
 				date: new Date(parseInt(key)),
-				to: parseFloat(data),
+				price: parseFloat(data),
 			}
 		}),
 	)
 
-	const chartConfig = {
-		to: { label: result.toCurrency, color: 'var(--chart-1)' },
-	} satisfies Chart.ChartConfig
+	let chartConfig = $derived({
+		symbol: {
+			label: result.symbol.toUpperCase(),
+			color:
+				chartData[0].price > chartData[chartData.length - 1].price
+					? 'var(--color-red-600)'
+					: 'var(--color-green-600)',
+		},
+	} satisfies Chart.ChartConfig)
 </script>
 
 <Card.Root>
 	<Card.Header>
 		<Card.Title>
-			{result.fromCurrency} ({getSymbol(result.fromCurrency) || ''}) -
-			{result.toCurrency} ({getSymbol(result.toCurrency) || ''})
+			{result.symbol.toUpperCase()}
 		</Card.Title>
 		<Card.Description>
-			{m['tools.currency_converter.showing_convertion_rate_over']({
+			{m['tools.stock_chart.showing_stock_price_over']({
 				period: result.period,
 			})}
 		</Card.Description>
@@ -67,14 +70,16 @@
 				xScale={scaleUtc()}
 				series={[
 					{
-						key: 'to',
-						label: result.toCurrency,
-						color: chartConfig.to.color,
+						key: 'price',
+						label: result.symbol,
+						color: chartConfig.symbol.color,
 					},
 				]}
 				yDomain={[
-					chartData.reduce((a, b) => (a.to < b.to ? a : b)).to,
-					chartData.reduce((a, b) => (a.to > b.to ? a : b)).to,
+					chartData.reduce((a, b) => (a.price < b.price ? a : b))
+						.price,
+					chartData.reduce((a, b) => (a.price > b.price ? a : b))
+						.price,
 				]}
 				props={{
 					area: {
@@ -99,8 +104,11 @@
 						labelFormatter={(label: Date) => {
 							return label.toLocaleDateString()
 						}}
-						valueFormatter={(value: Number) => {
-							return value.toString().slice(0, 8)
+						valueFormatter={(value: number) => {
+							return new Intl.NumberFormat(result.locale, {
+								currency: result.currency,
+								style: 'currency',
+							}).format(value)
 						}} />
 				{/snippet}
 			</AreaChart>

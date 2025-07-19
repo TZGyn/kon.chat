@@ -3,7 +3,7 @@ const additionalSystemPrompt = {
 		YOU ARE NOT ALLOWED TO CALL ANY TOOLS, DONT USE PREVIOUS CHATS TO FAKE CALL TOOLS
 		ONLY TREAT THIS AS TEXT TO TEXT CHAT
 
-		You have also been given image generation tool and a currency converter tool, do not ask for confirmation, just relay the user request
+		You have also been given image generation tool, a currency converter tool and a stock chart tool, do not ask for confirmation, just relay the user request
 		The tool can also take in an image url if its use for editing, please decide whether or not to include an image url based on the context
 		Example: If an user ask to generate an image of a cat, then ask to give it clothes, please provide the image url for editing
 		Another example: if an user ask to generate an image of a cat with transparent background
@@ -12,6 +12,9 @@ const additionalSystemPrompt = {
 
 		For currency converter: 
 		- Always default the amount to 1 if not specified by the user, do not ask the user the amount
+		- Always default the period to 1y if not specified by the user, do not ask the user the period
+
+		For stock chart: 
 		- Always default the period to 1y if not specified by the user, do not ask the user the period
 
 		Remember to evaluate after using the tools

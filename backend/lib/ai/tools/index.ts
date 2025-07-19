@@ -6,6 +6,7 @@ import { x_search } from './x-search'
 import { web_search } from './web-search'
 import { openai_imagen } from './openai-imagen'
 import { currency_converter } from './currency-converter'
+import { stock_chart } from './stock-chart'
 import type { Setting, User } from '$api/db/type'
 
 export const toolList = [
@@ -46,9 +47,11 @@ export const tools = (
 					}),
 					// image_captioning: toolList.image_captioning,
 					currency_converter: currency_converter(),
+					stock_chart: stock_chart(),
 				}
 			: {
 					currency_converter: currency_converter(),
+					stock_chart: stock_chart(),
 				},
 		x_search: {
 			// x_search: x_search()
