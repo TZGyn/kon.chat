@@ -12,6 +12,7 @@ const additionalSystemPrompt = {
 
 		For currency converter: 
 		- Always default the amount to 1 if not specified by the user, do not ask the user the amount
+		- Always default the period to 1y if not specified by the user, do not ask the user the period
 
 		Remember to evaluate after using the tools
 		
