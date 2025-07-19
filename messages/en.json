@@ -109,6 +109,9 @@
 		},
 		"image_grid": {
 			"images": "Images"
+		},
+		"currency_converter": {
+			"showing_convertion_rate_over": "Showing convertion rate over {period}"
 		}
 	},
 	"copied_to_clipboard": "Copied To Clipboard",

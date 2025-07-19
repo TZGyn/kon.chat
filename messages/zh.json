@@ -109,6 +109,9 @@
 			"results": "结果",
 			"view_all_sources": "查看所有来源",
 			"sources_and_links": "来源和链接"
+		},
+		"currency_converter": {
+			"showing_convertion_rate_over": "显示{period}的转换率"
 		}
 	},
 	"copied_to_clipboard": "已复制到剪贴板",

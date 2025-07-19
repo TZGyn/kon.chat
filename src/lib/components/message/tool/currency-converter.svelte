@@ -1,13 +1,11 @@
 <script lang="ts">
-	import TrendingUpIcon from '@lucide/svelte/icons/trending-up'
 	import * as Chart from '$lib/components/ui/chart/index.js'
 	import * as Card from '$lib/components/ui/card/index.js'
-	import * as Select from '$lib/components/ui/select/index.js'
 	import { scaleUtc } from 'd3-scale'
-	import { Area, AreaChart, ChartClipPath } from 'layerchart'
-	import { curveNatural, curveLinear } from 'd3-shape'
-	import ChartContainer from '$lib/components/ui/chart/chart-container.svelte'
-	import { cubicInOut } from 'svelte/easing'
+	import { AreaChart } from 'layerchart'
+	import { curveLinear } from 'd3-shape'
+	import { m } from '$lib/paraglide/messages'
+	import { getSymbol } from '$lib/currency-symbol'
 
 	let {
 		result,
@@ -39,23 +37,26 @@
 			const data = result.forwardRate['Close'][key]
 			return {
 				date: new Date(parseInt(key)),
-				desktop: parseFloat(data),
+				to: parseFloat(data),
 			}
 		}),
 	)
 
 	const chartConfig = {
-		desktop: { label: 'Desktop', color: 'var(--chart-1)' },
+		to: { label: result.toCurrency, color: 'var(--chart-1)' },
 	} satisfies Chart.ChartConfig
 </script>
 
 <Card.Root>
 	<Card.Header>
 		<Card.Title>
-			{result.fromCurrency} - {result.toCurrency}
+			{result.fromCurrency} ({getSymbol(result.fromCurrency) || ''}) -
+			{result.toCurrency} ({getSymbol(result.toCurrency) || ''})
 		</Card.Title>
 		<Card.Description>
-			Showing currency rate over {result.period}
+			{m['tools.currency_converter.showing_convertion_rate_over']({
+				period: result.period,
+			})}
 		</Card.Description>
 	</Card.Header>
 	<Card.Content>
@@ -66,16 +67,14 @@
 				xScale={scaleUtc()}
 				series={[
 					{
-						key: 'desktop',
-						label: 'Desktop',
-						color: chartConfig.desktop.color,
+						key: 'to',
+						label: result.toCurrency,
+						color: chartConfig.to.color,
 					},
 				]}
 				yDomain={[
-					chartData.reduce((a, b) => (a.desktop < b.desktop ? a : b))
-						.desktop,
-					chartData.reduce((a, b) => (a.desktop > b.desktop ? a : b))
-						.desktop,
+					chartData.reduce((a, b) => (a.to < b.to ? a : b)).to,
+					chartData.reduce((a, b) => (a.to > b.to ? a : b)).to,
 				]}
 				props={{
 					area: {
@@ -98,6 +97,9 @@
 					<Chart.Tooltip
 						labelFormatter={(label: Date) => {
 							return label.toLocaleDateString()
+						}}
+						valueFormatter={(value: Number) => {
+							return value.toString().slice(0, 8)
 						}} />
 				{/snippet}
 			</AreaChart>
