@@ -339,17 +339,23 @@
 				{/if}
 				{#if isSignUp}
 					<Button
-						onclick={() => {
+						onclick={async () => {
 							if (password !== passwordConfirm) {
 								toast.error(m.password_not_match())
 								return
 							}
-							authClient.signUp.email({
+							const response = await authClient.signUp.email({
 								email,
 								password,
 								name,
 								callbackURL: PUBLIC_APP_URL,
 							})
+
+							if (response.error) {
+								toast.error(
+									'Sign up not enabled, visit the github repo https://github.com/TZGyn/kon.chat to use the self host version',
+								)
+							}
 						}}
 						class="w-full"
 						variant="secondary">
