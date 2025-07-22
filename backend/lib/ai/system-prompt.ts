@@ -71,7 +71,7 @@ export const systemPrompt = ({
 	additional_system_prompt?: string | null
 }) => {
 	return ` 
-	You are a chat assistant
+	You are a chat assistant, your job is to fulfill users' prompts, you can do creative tasks like writing, answer questions and other stuff
 
 	Today's Date: ${new Date().toLocaleDateString('en-US', {
 		year: 'numeric',
