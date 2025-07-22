@@ -352,6 +352,20 @@ const app = new Hono<{
 		return c.json({ chat: null })
 	})
 
+	.get('/:chat_id/active_streams', async (c) => {
+		const chatId = c.req.param('chat_id')
+
+		const key = `active_streams:${chatId}`
+
+		const activeStreams = JSON.parse(
+			(await redis.get(key)) || '[]',
+		) as any[]
+
+		return c.json({
+			activeStreams,
+		})
+	})
+
 	.post('/:chat_id/sse', async (c) => {
 		return streamSSE(c, async (stream) => {
 			const chatId = c.req.param('chat_id')
@@ -638,6 +652,21 @@ const app = new Hono<{
 							await redis.xadd(streamKey, '*', ...values)
 
 							if (start) {
+								const activeStreamsKey = `active_streams:${chatId}`
+
+								const activeStreams = JSON.parse(
+									(await redis.get(activeStreamsKey)) || '[]',
+								) as any[]
+
+								activeStreams.push({
+									id: key,
+									message: messages[messages.length - 1],
+								})
+								await redis.set(
+									activeStreamsKey,
+									JSON.stringify(activeStreams),
+								)
+
 								await publisher.publish(
 									chatSessionKey,
 									JSON.stringify({
@@ -662,6 +691,17 @@ const app = new Hono<{
 						await redis.expire(streamKey, 300)
 					} catch (error) {
 						console.log('Catching', error)
+					} finally {
+						const activeStreamsKey = `active_streams:${chatId}`
+						const activeStreams = JSON.parse(
+							(await redis.get(activeStreamsKey)) || '[]',
+						) as any[]
+						await redis.set(
+							activeStreamsKey,
+							JSON.stringify(
+								activeStreams.filter((stream) => stream.id !== key),
+							),
+						)
 					}
 				},
 				onError: (error) => {

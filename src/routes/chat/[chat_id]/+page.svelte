@@ -112,7 +112,91 @@
 
 	let chat = $derived(useLocalStorage<Chat>(`chat:${chat_id}`, null))
 
-	onMount(() => {})
+	onMount(async () => {
+		const response = await makeClient(fetch).chat[
+			':chat_id'
+		].active_streams.$get({
+			param: {
+				chat_id: chat_id,
+			},
+		})
+
+		if (response.status === 200) {
+			const activeStreams = await response.json()
+
+			if (activeStreams.activeStreams.length > 0) {
+				customUseChat.messages.push(
+					activeStreams.activeStreams[0].message as ChatUIMessage,
+				)
+				const messages = $state.snapshot(customUseChat.messages)
+				try {
+					await callChatApi({
+						api: `${PUBLIC_API_URL}/chat/${chat_id}/resume`,
+						body: {
+							id: activeStreams.activeStreams[0].id,
+						},
+						headers: {},
+						streamProtocol: 'data',
+						credentials: 'include',
+						abortController: undefined,
+						onUpdate: ({ message, data, replaceLastMessage }) => {
+							customUseChat.messages = messages
+							if (replaceLastMessage) {
+								customUseChat.messages[
+									customUseChat.messages.length - 1
+								] = { ...message, status: 'streaming' }
+							} else {
+								customUseChat.messages.push({
+									...message,
+									status: 'streaming',
+								})
+							}
+
+							if (data?.length) {
+								// useChat.data = existingData;
+								customUseChat.data?.push(...data)
+							}
+						},
+						onResponse: () => {},
+						onFinish: () => {
+							customUseChat.messages[
+								customUseChat.messages.length - 1
+							].status = 'ready'
+						},
+						onToolCall: () => {},
+						restoreMessagesOnFailure: () => {},
+						fetch: undefined,
+						lastMessage: $state.snapshot(
+							customUseChat.messages[
+								customUseChat.messages.length - 1
+							],
+						),
+						generateId: () => nanoid(),
+					})
+				} catch (error) {
+					if (!(error instanceof Error)) {
+						return
+					}
+					console.log(error)
+					customUseChat.messages[
+						customUseChat.messages.length - 1
+					].status = 'ready'
+
+					customUseChat.status = 'ready'
+					customUseChat.messages[
+						customUseChat.messages.length - 1
+					].annotations?.push({
+						type: 'kon_chat',
+						status: 'error',
+						error: {
+							type: error.name,
+							message: error.message,
+						},
+					})
+				}
+			}
+		}
+	})
 
 	$effect(() => {
 		const chat = localStorage.getItem(`chat:${chat_id}`)
