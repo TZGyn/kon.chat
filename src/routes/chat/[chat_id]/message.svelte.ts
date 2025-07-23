@@ -15,10 +15,18 @@ import {
 	type UIMessage,
 } from '@ai-sdk/ui-utils'
 
-export const getChatState = (options: ChatOptions = {}) => {
+export const getChatState = ({
+	options,
+	chatId: chat_id,
+}: {
+	options: ChatOptions
+	chatId: string
+}) => {
 	let api = $derived(options.api ?? '/api/chat')
 
 	let id = $derived(options.id ?? nanoid())
+
+	let chatId = $derived(chat_id)
 
 	let messages = $state<ChatUIMessage[]>([])
 	let abortController: AbortController | null = null
@@ -85,6 +93,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 		index,
 		type,
 		chatRequest,
+		streamId,
 	}: {
 		type: 'resume' | 'new'
 		index: number
@@ -94,6 +103,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 			headers?: Record<string, string> | Headers | undefined
 			messages?: ChatMessage[]
 		}
+		streamId?: string
 	}) => {
 		if (chatRequest.messages) {
 			const new_messages = fillMessageParts(
@@ -131,12 +141,16 @@ export const getChatState = (options: ChatOptions = {}) => {
 
 			const existingData = data ?? []
 
+			console.log('chat id', chatId)
+			console.log('stream id', streamId)
 			messages.push({
 				id: nanoid(),
 				role: 'assistant',
 				content: '',
 				parts: [],
 				status: 'submitted',
+				chatId: chatId,
+				streamId: streamId,
 			})
 
 			await callChatApi({
@@ -161,6 +175,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 					messages = messages
 
 					messages[index + 1] = {
+						...messages[index + 1],
 						...message,
 						status: 'streaming',
 					}

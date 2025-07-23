@@ -2,6 +2,8 @@ import type { UIMessage, Message } from '@ai-sdk/ui-utils'
 
 export type ChatUIMessage = UIMessage & {
 	status: 'submitted' | 'streaming' | 'ready' | 'error'
+	streamId?: string
+	chatId?: string
 }
 
 export type ChatMessage = Message & {

@@ -12,6 +12,7 @@
 	import Reasoning from './markdown/reasoning.svelte'
 	import * as m from '$lib/paraglide/messages'
 	import type { ChatUIMessage } from '$lib/message'
+	import { makeClient } from '$api/api-client'
 
 	let {
 		isLast,
@@ -147,13 +148,7 @@
 			{/each}
 
 			{#if message.role !== 'user'}
-				<div
-					class={cn(
-						'flex items-center',
-						status !== 'streaming' || !isLast
-							? 'visible'
-							: 'invisible',
-					)}>
+				<div class={cn('flex items-center')}>
 					{#if message.parts.filter((part) => part.type === 'text' && part.text)}
 						<CopyButton
 							text={message.parts
@@ -172,6 +167,25 @@
 							variant="ghost"
 							onclick={() => branch()}>
 							<SplitIcon class="rotate-180" />
+						</Button>
+					{/if}
+					{#if message.status === 'streaming' && message.chatId && message.streamId}
+						<Button
+							size="icon"
+							variant="ghost"
+							onclick={() => {
+								makeClient(fetch).chat[
+									':chat_id'
+								].cancel_stream.$post({
+									param: {
+										chat_id: message.chatId!,
+									},
+									json: {
+										id: message.streamId!,
+									},
+								})
+							}}>
+							<SquareIcon />
 						</Button>
 					{/if}
 				</div>

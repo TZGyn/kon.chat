@@ -366,6 +366,26 @@ const app = new Hono<{
 		})
 	})
 
+	.post(
+		'/:chat_id/cancel_stream',
+		describeRoute({ tags: ['chat'] }),
+		zValidator('json', z.object({ id: z.string() })),
+		async (c) => {
+			const chatId = c.req.param('chat_id')
+			const { id } = c.req.valid('json')
+
+			const streamKey = `llm:stream:${chatId}:${id}`
+			const publisher = createRedis()
+
+			await publisher.publish(
+				streamKey,
+				JSON.stringify({ type: 'cancel' }),
+			)
+
+			return c.json({})
+		},
+	)
+
 	.post('/:chat_id/sse', async (c) => {
 		return streamSSE(c, async (stream) => {
 			const chatId = c.req.param('chat_id')
@@ -521,6 +541,20 @@ const app = new Hono<{
 				}
 			>[] = []
 
+			const abortController = new AbortController()
+
+			const subscription = createRedis()
+
+			subscription.subscribe(streamKey)
+			subscription.on('message', async (channel, message) => {
+				if (channel === streamKey) {
+					const type = JSON.parse(message).type
+					if (type === 'cancel') {
+						abortController.abort()
+					}
+				}
+			})
+
 			return createDataStreamResponse({
 				headers: {
 					...c.res.headers,
@@ -550,7 +584,7 @@ const app = new Hono<{
 							name_for_llm,
 						}),
 						providerOptions: providerOptions,
-						abortSignal: c.req.raw.signal,
+						abortSignal: abortController.signal,
 						onChunk: ({ chunk }) => {
 							chunks.push(chunk)
 						},
@@ -949,6 +983,17 @@ const app = new Hono<{
 								if (channel === streamKey) {
 									const type = JSON.parse(message).type
 									await readStreamMessages()
+									if (type === 'cancel') {
+										controller.enqueue(
+											formatDataStreamPart(
+												'error',
+												'An Error Occured',
+												// getErrorMessage(chunk.error),
+											),
+										)
+										subscription.unsubscribe(streamKey)
+										controller.close()
+									}
 									if (type === 'finish') {
 										subscription.unsubscribe(streamKey)
 										controller.close()

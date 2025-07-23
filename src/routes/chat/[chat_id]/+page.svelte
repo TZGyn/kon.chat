@@ -125,6 +125,7 @@
 							id: stream.id,
 						},
 					},
+					streamId: stream.id,
 				})
 			})
 		}
@@ -152,65 +153,70 @@
 	const chats = useChats()
 
 	let customUseChat = getChatState({
-		initialMessages: [],
-		get api() {
-			return `${PUBLIC_API_URL}/chat/${chat_id}`
-		},
-		get id() {
+		get chatId() {
 			return chat_id
 		},
-		onFinish: (response) => {
-			if (page.url.searchParams.has('type')) {
-				page.url.searchParams.delete('type')
-				replaceState(page.url, page.state)
-				isNew = false
-			}
-			setTimeout(() => {
-				chats.getChats()
-			}, 3000)
-
-			const message: Message = {
-				chatId: customUseChat.id,
-				...response,
-				content: response.parts,
-				model:
-					// @ts-ignore
-					response.annotations?.find(
-						(annotation) =>
-							// @ts-ignore
-							annotation['type'] === 'model' &&
-							// @ts-ignore
-							annotation['model'] !== null,
-						// @ts-ignore
-					).model || '',
-				provider: '',
-				providerMetadata: {},
-				responseId: '',
-				createdAt: Date.now(),
-			}
-			if (chat.value !== null) {
-				chat.value = {
-					...chat.value,
-					messages: [...chat.value.messages, message],
+		options: {
+			initialMessages: [],
+			get api() {
+				return `${PUBLIC_API_URL}/chat/${chat_id}`
+			},
+			get id() {
+				return chat_id
+			},
+			onFinish: (response) => {
+				if (page.url.searchParams.has('type')) {
+					page.url.searchParams.delete('type')
+					replaceState(page.url, page.state)
+					isNew = false
 				}
-			}
+				setTimeout(() => {
+					chats.getChats()
+				}, 3000)
 
-			customUseChat.status = 'ready'
+				const message: Message = {
+					chatId: customUseChat.id,
+					...response,
+					content: response.parts,
+					model:
+						// @ts-ignore
+						response.annotations?.find(
+							(annotation) =>
+								// @ts-ignore
+								annotation['type'] === 'model' &&
+								// @ts-ignore
+								annotation['model'] !== null,
+							// @ts-ignore
+						).model || '',
+					provider: '',
+					providerMetadata: {},
+					responseId: '',
+					createdAt: Date.now(),
+				}
+				if (chat.value !== null) {
+					chat.value = {
+						...chat.value,
+						messages: [...chat.value.messages, message],
+					}
+				}
+
+				customUseChat.status = 'ready'
+			},
+			onError: (error) => {
+				customUseChat.status = 'ready'
+				customUseChat.messages[
+					customUseChat.messages.length - 1
+				].annotations?.push({
+					type: 'kon_chat',
+					status: 'error',
+					error: {
+						type: error.name,
+						message: error.message,
+					},
+				})
+			},
+			credentials: 'include',
 		},
-		onError: (error) => {
-			customUseChat.status = 'ready'
-			customUseChat.messages[
-				customUseChat.messages.length - 1
-			].annotations?.push({
-				type: 'kon_chat',
-				status: 'error',
-				error: {
-					type: error.name,
-					message: error.message,
-				},
-			})
-		},
-		credentials: 'include',
 	})
 
 	let shareChatDialogOpen = $state(false)
@@ -350,6 +356,7 @@
 								id: event.data.id,
 							},
 						},
+						streamId: event.data.id,
 					})
 				}
 			},
