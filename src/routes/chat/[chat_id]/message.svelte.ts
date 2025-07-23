@@ -30,6 +30,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 
 	const stop = () => {
 		try {
+			console.log('aborted')
 			abortController?.abort()
 		} catch {
 			// ignore
@@ -71,20 +72,40 @@ export const getChatState = (options: ChatOptions = {}) => {
 			data: options.data,
 		}
 
-		const request = triggerRequest(chatRequest)
+		const request = getMessage({
+			index: newMessages.length - 1,
+			type: 'new',
+			chatRequest,
+		})
 		input = ''
 		await request
 	}
 
-	const triggerRequest = async (chatRequest: ChatRequest) => {
-		const new_messages = fillMessageParts(
-			chatRequest.messages as ChatMessage[],
-		)
-		try {
-			abortController = new AbortController()
+	const getMessage = async ({
+		index,
+		type,
+		chatRequest,
+	}: {
+		type: 'resume' | 'new'
+		index: number
+		chatRequest: {
+			data?: JSONValue | undefined
+			body?: object | undefined
+			headers?: Record<string, string> | Headers | undefined
+			messages?: ChatMessage[]
+		}
+	}) => {
+		if (chatRequest.messages) {
+			const new_messages = fillMessageParts(
+				chatRequest.messages as ChatMessage[],
+			)
 
 			// Optimistically update messages
 			messages = new_messages
+		}
+
+		try {
+			abortController = new AbortController()
 
 			const constructedMessagesPayload = messages.map(
 				({
@@ -119,7 +140,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 			})
 
 			await callChatApi({
-				api: api,
+				api: type == 'new' ? api : api + '/resume',
 				body: {
 					id: id,
 					messages: constructedMessagesPayload,
@@ -139,7 +160,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 
 					messages = messages
 
-					messages[messages.length - 1] = {
+					messages[index + 1] = {
 						...message,
 						status: 'streaming',
 					}
@@ -152,17 +173,18 @@ export const getChatState = (options: ChatOptions = {}) => {
 				onToolCall: () => {},
 				onFinish: (message, option) => {
 					options.onFinish?.(message, option)
-					messages[messages.length - 1].status = 'ready'
+					messages[index + 1].status = 'ready'
 				},
 				generateId: nanoid,
 				fetch: options.fetch,
 				// callChatApi calls structuredClone on the message
-				lastMessage: $state.snapshot(messages[messages.length - 1]),
+				lastMessage: $state.snapshot(messages[index]),
 			})
 
 			abortController = null
 			status = 'ready'
 		} catch (error) {
+			console.log(isAbortError(error))
 			if (isAbortError(error)) {
 				return
 			}
@@ -171,10 +193,14 @@ export const getChatState = (options: ChatOptions = {}) => {
 			if (options.onError) {
 				options.onError(coalescedError)
 			}
-			messages[messages.length - 1].status = 'ready'
+			messages[index + 1].status = 'ready'
 			// this.#store.error = coalescedError
 		}
 	}
+
+	$effect(() => {
+		console.log(messages)
+	})
 
 	return {
 		get messages(): ChatUIMessage[] {
@@ -201,6 +227,7 @@ export const getChatState = (options: ChatOptions = {}) => {
 		get id() {
 			return id
 		},
+		getMessage,
 	}
 }
 

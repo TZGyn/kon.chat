@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Chat } from '@ai-sdk/svelte'
 	import type {
 		Chat as ChatType,
 		Message as MessageType,
@@ -7,12 +6,9 @@
 	import { page } from '$app/state'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
 
-	import { cn } from '$lib/utils'
 	import { toast } from 'svelte-sonner'
 
 	import { useChats } from '../../state.svelte.js'
-	import * as Avatar from '$lib/components/ui/avatar/index.js'
-	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import { goto, replaceState } from '$app/navigation'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte.js'
@@ -37,18 +33,12 @@
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
 	import { Snippet } from '$lib/components/ui/snippet'
 	import { nanoid } from '$lib/nanoid.js'
-	import {
-		callChatApi,
-		type ChatRequestOptions,
-		type UIMessage,
-	} from '@ai-sdk/ui-utils'
+	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { makeClient } from '$api/api-client.js'
-	import { customFetchRaw } from '$lib/fetch.js'
 	import { processStream } from '$lib/stream.js'
 	import { parseSSE } from '$lib/sse.js'
 	import { browser } from '$app/environment'
-	import { type UIMessage as ChatMessage } from '@ai-sdk/svelte'
 	import { getChatState } from './message.svelte.js'
 	import type { ChatUIMessage } from '$lib/message.js'
 
@@ -124,77 +114,19 @@
 		if (response.status === 200) {
 			const activeStreams = await response.json()
 
-			if (activeStreams.activeStreams.length > 0) {
-				customUseChat.messages.push(
-					activeStreams.activeStreams[0].message as ChatUIMessage,
-				)
+			activeStreams.activeStreams.map(async (stream) => {
+				customUseChat.messages.push(stream.message as ChatUIMessage)
 				const messages = $state.snapshot(customUseChat.messages)
-				try {
-					await callChatApi({
-						api: `${PUBLIC_API_URL}/chat/${chat_id}/resume`,
+				await customUseChat.getMessage({
+					index: messages.length - 1,
+					type: 'resume',
+					chatRequest: {
 						body: {
-							id: activeStreams.activeStreams[0].id,
+							id: stream.id,
 						},
-						headers: {},
-						streamProtocol: 'data',
-						credentials: 'include',
-						abortController: undefined,
-						onUpdate: ({ message, data, replaceLastMessage }) => {
-							customUseChat.messages = messages
-							if (replaceLastMessage) {
-								customUseChat.messages[
-									customUseChat.messages.length - 1
-								] = { ...message, status: 'streaming' }
-							} else {
-								customUseChat.messages.push({
-									...message,
-									status: 'streaming',
-								})
-							}
-
-							if (data?.length) {
-								// useChat.data = existingData;
-								customUseChat.data?.push(...data)
-							}
-						},
-						onResponse: () => {},
-						onFinish: () => {
-							customUseChat.messages[
-								customUseChat.messages.length - 1
-							].status = 'ready'
-						},
-						onToolCall: () => {},
-						restoreMessagesOnFailure: () => {},
-						fetch: undefined,
-						lastMessage: $state.snapshot(
-							customUseChat.messages[
-								customUseChat.messages.length - 1
-							],
-						),
-						generateId: () => nanoid(),
-					})
-				} catch (error) {
-					if (!(error instanceof Error)) {
-						return
-					}
-					console.log(error)
-					customUseChat.messages[
-						customUseChat.messages.length - 1
-					].status = 'ready'
-
-					customUseChat.status = 'ready'
-					customUseChat.messages[
-						customUseChat.messages.length - 1
-					].annotations?.push({
-						type: 'kon_chat',
-						status: 'error',
-						error: {
-							type: error.name,
-							message: error.message,
-						},
-					})
-				}
-			}
+					},
+				})
+			})
 		}
 	})
 
@@ -410,75 +342,15 @@
 					)
 					const messages = $state.snapshot(customUseChat.messages)
 
-					const abortController = new AbortController()
-					// await resumeMessage({ messageId: event.data.id })
-					try {
-						await callChatApi({
-							api: `/api/chat/${chat_id}/resume`,
+					await customUseChat.getMessage({
+						index: messages.length - 1,
+						type: 'resume',
+						chatRequest: {
 							body: {
 								id: event.data.id,
 							},
-							headers: {},
-							streamProtocol: 'data',
-							credentials: 'include',
-							abortController: () => abortController,
-							onUpdate: ({ message, data, replaceLastMessage }) => {
-								customUseChat.messages = messages
-								if (replaceLastMessage) {
-									customUseChat.messages[
-										customUseChat.messages.length - 1
-									] = { ...message, status: 'streaming' }
-								} else {
-									customUseChat.messages.push({
-										...message,
-										status: 'streaming',
-									})
-								}
-
-								if (data?.length) {
-									// useChat.data = existingData;
-									customUseChat.data?.push(...data)
-								}
-							},
-							onResponse: () => {},
-							onFinish: () => {
-								abortController.abort()
-								customUseChat.messages[
-									customUseChat.messages.length - 1
-								].status = 'ready'
-							},
-							onToolCall: () => {},
-							restoreMessagesOnFailure: () => {},
-							fetch: undefined,
-							lastMessage: $state.snapshot(
-								customUseChat.messages[
-									customUseChat.messages.length - 1
-								],
-							),
-							generateId: () => nanoid(),
-						})
-					} catch (error) {
-						if (!(error instanceof Error)) {
-							return
-						}
-						console.log(error)
-						abortController.abort()
-						customUseChat.messages[
-							customUseChat.messages.length - 1
-						].status = 'ready'
-
-						customUseChat.status = 'ready'
-						customUseChat.messages[
-							customUseChat.messages.length - 1
-						].annotations?.push({
-							type: 'kon_chat',
-							status: 'error',
-							error: {
-								type: error.name,
-								message: error.message,
-							},
-						})
-					}
+						},
+					})
 				}
 			},
 		})
