@@ -11,6 +11,7 @@
 	import { browser } from '$app/environment'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { Loader2Icon } from 'lucide-svelte'
+	import { PUBLIC_API_URL } from '$env/static/public'
 
 	let { markdown, pdf_id }: { markdown: string; pdf_id: string } =
 		$props()
@@ -27,7 +28,7 @@
 				: []
 		},
 		get api() {
-			return `/api/documents/pdf/${pdf_id}`
+			return `${PUBLIC_API_URL}/documents/pdf/${pdf_id}`
 		},
 		get id() {
 			return pdf_id
@@ -55,9 +56,8 @@
 			{#each useChat.messages as message, index (index)}
 				<MessageBlock
 					data={useChat.data}
-					{message}
+					message={{ ...message, status: 'ready' }}
 					role={message.role}
-					status={useChat.status}
 					halfSize={true}
 					isLast={index === useChat.messages.length - 1} />
 			{/each}
