@@ -278,7 +278,7 @@ export const useModels = () => {
 			},
 		},
 		{
-			name: 'Clause 3.5 Sonnet',
+			name: 'Claude 3.5 Sonnet',
 			info: '',
 			provider: 'anthropic',
 			id: 'claude-3-5-sonnet-latest',
@@ -291,7 +291,7 @@ export const useModels = () => {
 			},
 		},
 		{
-			name: 'Clause 3.7 Sonnet',
+			name: 'Claude 3.7 Sonnet',
 			info: '',
 			provider: 'anthropic',
 			id: 'claude-3-7-sonnet-20250219',
@@ -304,7 +304,7 @@ export const useModels = () => {
 			},
 		},
 		{
-			name: 'Clause 4 Sonnet',
+			name: 'Claude 4 Sonnet',
 			info: '',
 			provider: 'anthropic',
 			id: 'claude-4-sonnet-20250514',
