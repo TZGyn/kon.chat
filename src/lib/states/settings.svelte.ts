@@ -55,6 +55,10 @@ export const useSettings = () => {
 
 		exaApiKey?: string | null
 	}) => {
+		if (!openAIApiKey) {
+			return
+		}
+
 		await client.user.settings.$post({
 			json: {
 				additional_system_prompt: additionalSystemPrompt,

@@ -19,6 +19,10 @@
 	let dialogOpen = $derived(!!user && !settings.settings.openAIApiKey)
 
 	let apiKey = $derived(settings.settings.openAIApiKey)
+
+	$effect(() => {
+		user && settings.refetch()
+	})
 </script>
 
 <Dialog.Root
