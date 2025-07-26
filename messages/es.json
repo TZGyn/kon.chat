@@ -160,5 +160,6 @@
 	"delete_chat_message": "Estás a punto de eliminar este chat, esta acción es irreversible.",
 	"cancel": "Cancelar",
 	"delete": "Borrar",
-	"password_not_match": "¡La contraseña no coincide!"
+	"password_not_match": "¡La contraseña no coincide!",
+	"sign_up": "Inscribirse"
 }

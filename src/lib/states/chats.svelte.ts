@@ -29,7 +29,6 @@ export function useChats() {
 			chats = data.chats.map((chat) => ({ ...chat, status: 'ready' }))
 			localStorage.setItem('chats', JSON.stringify(chats || []))
 		} else {
-			console.log('hit')
 			chats = []
 			localStorage.setItem('chats', JSON.stringify(chats || []))
 		}

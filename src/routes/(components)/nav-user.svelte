@@ -288,7 +288,34 @@
 					Or continue with
 				</span>
 			</div>
-			<div class="flex flex-col gap-6">
+			<form
+				onsubmit={async () => {
+					if (isSignUp) {
+						if (password !== passwordConfirm) {
+							toast.error(m.password_not_match())
+							return
+						}
+						const response = await authClient.signUp.email({
+							email,
+							password,
+							name,
+							callbackURL: PUBLIC_APP_URL,
+						})
+
+						if (response.error) {
+							toast.error(
+								'Sign up not enabled, visit the github repo https://github.com/TZGyn/kon.chat to use the self host version',
+							)
+						}
+					} else {
+						authClient.signIn.email({
+							email,
+							password,
+							callbackURL: PUBLIC_APP_URL,
+						})
+					}
+				}}
+				class="flex flex-col gap-6">
 				{#if isSignUp}
 					<div class="grid gap-2">
 						<Label for="name">Name</Label>
@@ -334,45 +361,14 @@
 							bind:value={passwordConfirm} />
 					</div>
 				{/if}
-				{#if isSignUp}
-					<Button
-						onclick={async () => {
-							if (password !== passwordConfirm) {
-								toast.error(m.password_not_match())
-								return
-							}
-							const response = await authClient.signUp.email({
-								email,
-								password,
-								name,
-								callbackURL: PUBLIC_APP_URL,
-							})
-
-							if (response.error) {
-								toast.error(
-									'Sign up not enabled, visit the github repo https://github.com/TZGyn/kon.chat to use the self host version',
-								)
-							}
-						}}
-						class="w-full"
-						variant="secondary">
-						Sign Up
-					</Button>
-				{:else}
-					<Button
-						onclick={() => {
-							authClient.signIn.email({
-								email,
-								password,
-								callbackURL: PUBLIC_APP_URL,
-							})
-						}}
-						class="w-full"
-						variant="secondary">
-						Login
-					</Button>
-				{/if}
-			</div>
+				<Button type="submit" class="w-full" variant="secondary">
+					{#if isSignUp}
+						{m.sign_up()}
+					{:else}
+						{m.log_in()}
+					{/if}
+				</Button>
+			</form>
 			{#if isSignUp}
 				<div class="text-center text-sm">
 					Have an account?

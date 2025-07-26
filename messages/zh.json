@@ -160,5 +160,6 @@
 	"delete_chat_message": "您即将删除此聊天，此操作不可逆。",
 	"cancel": "取消",
 	"delete": "删除",
-	"password_not_match": "密码不匹配！"
+	"password_not_match": "密码不匹配！",
+	"sign_up": "报名"
 }
