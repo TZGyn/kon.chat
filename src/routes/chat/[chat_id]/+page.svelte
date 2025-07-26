@@ -8,7 +8,7 @@
 
 	import { toast } from 'svelte-sonner'
 
-	import { useChats } from '../../state.svelte.js'
+	import { useChats } from '$lib/states/chats.svelte.js'
 	import { goto, replaceState } from '$app/navigation'
 	import MessageBlock from '$lib/components/message-block.svelte'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte.js'

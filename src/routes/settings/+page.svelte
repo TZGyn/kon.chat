@@ -5,7 +5,6 @@
 	import { Input } from '$lib/components/ui/input'
 	import { Textarea } from '$lib/components/ui/textarea'
 	import { cn } from '$lib/utils'
-	import { useChats } from '../state.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import { useLocale } from '$lib/lang.svelte'
@@ -19,7 +18,6 @@
 
 	const settings = useSettings()
 	const session = authClient.useSession()
-	const chats = useChats()
 
 	const locale = useLocale()
 
@@ -54,7 +52,6 @@
 
 		await authClient.deleteUser({})
 
-		chats.getChats()
 		deleteAccountDialogOpen = false
 		isDeletingAccount = false
 		localStorage.clear()

@@ -9,7 +9,7 @@
 		XIcon,
 	} from 'lucide-svelte'
 	import { page } from '$app/state'
-	import { useChats } from '../state.svelte.js'
+	import { useChats } from '$lib/states/chats.svelte'
 	import { cn } from '$lib/utils.js'
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte'
 	import * as m from '$lib/paraglide/messages'

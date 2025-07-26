@@ -16,7 +16,6 @@
 	import Sparkles from 'lucide-svelte/icons/sparkles'
 	import { onMount } from 'svelte'
 	import { Button } from '$lib/components/ui/button'
-	import { useChats } from '../state.svelte'
 	import { cn } from '$lib/utils'
 	import {
 		CheckIcon,
@@ -35,7 +34,6 @@
 	import { PUBLIC_APP_URL } from '$env/static/public'
 
 	const sidebar = useSidebar()
-	const chats = useChats()
 
 	let session = authClient.useSession()
 
@@ -52,7 +50,6 @@
 		isLoggingOut = true
 		const response = await authClient.signOut()
 
-		chats.getChats()
 		logoutDialogOpen = false
 		isLoggingOut = false
 		localStorage.clear()
