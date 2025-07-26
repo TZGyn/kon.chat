@@ -6,7 +6,6 @@ import {
 	smoothStream,
 	streamText,
 } from 'ai'
-import { openai } from '$api/ai/model'
 import { Innertube } from 'youtubei.js'
 import { z } from 'zod'
 import { youtube } from '$api/db/schema'
@@ -16,6 +15,8 @@ import { getCookie } from 'hono/cookie'
 import { getMostRecentUserMessage } from '$api/utils'
 // import { type TranscriptSegment } from 'youtubei.js/dist/src/parser/nodes'
 import { getModel, modelSchema } from '$api/model'
+import type { AuthType } from '$api/auth'
+import { createOpenAI } from '@ai-sdk/openai'
 
 // https://stackoverflow.com/questions/19700283/how-to-convert-time-in-milliseconds-to-hours-min-sec-format-in-javascript
 function msToTime(duration: number) {
@@ -43,14 +44,20 @@ function msToTime(duration: number) {
 	)
 }
 
-const app = new Hono()
+const app = new Hono<{
+	Variables: AuthType
+}>()
 	.get('/:youtube_id', async (c) => {
-		let token = getCookie(c, 'session') ?? null
-		if (!token || token.startsWith('free:')) {
-			return c.text('You must be logged in to use this feature', {
-				status: 400,
-			})
+		const settings = c.get('setting')
+		if (!settings.openAIApiKey) {
+			return c.text('Missing OpenAI Api Key', { status: 400 })
 		}
+
+		const apiKey = settings.openAIApiKey
+
+		const openai = createOpenAI({
+			apiKey: apiKey,
+		})
 		const youtube_id = c.req.param('youtube_id')
 
 		const youtubeData = await db.query.youtube.findFirst({

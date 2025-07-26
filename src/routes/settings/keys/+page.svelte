@@ -31,7 +31,7 @@
 				<OpenaiIcon />
 				{m['settings.keys.provider_api_key']({ provider: 'OpenAI' })}
 				<span class="text-muted-foreground">
-					({m['settings.keys.optional']()})
+					({m['settings.keys.required']()})
 				</span>
 			</Label>
 			<Input

@@ -15,6 +15,7 @@ import { db } from './db/index.js'
 import { and, eq, inArray } from 'drizzle-orm'
 import { getUploadIDsFromMessages } from './chat/attachments.js'
 import { s3Client } from './s3'
+import type { Setting } from './db/type.js'
 
 export const auth = betterAuth({
 	baseURL: Bun.env.PUBLIC_API_URL,
@@ -142,4 +143,5 @@ export const auth = betterAuth({
 export type AuthType = {
 	user: typeof auth.$Infer.Session.user
 	session: typeof auth.$Infer.Session.session
+	setting: Setting
 }

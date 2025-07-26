@@ -59,7 +59,8 @@
 			"enter_api_key": "输入{provider} API 密钥",
 			"provider_api_key": "{provider} API密钥",
 			"optional": "选修的",
-			"update_api_keys": "更新 API 密钥"
+			"update_api_keys": "更新 API 密钥",
+			"required": "必需的"
 		}
 	},
 	"locale": "区域设置",

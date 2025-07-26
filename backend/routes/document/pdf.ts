@@ -3,14 +3,14 @@ import {
 	findRelevantContent,
 	generateEmbeddings,
 } from '$api/ai/embeddings'
-import { openai } from '$api/ai/model'
-import type { auth } from '$api/auth'
+import type { auth, AuthType } from '$api/auth'
 import { db } from '$api/db'
 import { document, embeddings, upload } from '$api/db/schema'
 import { processMessages } from '$api/message'
 import { getModel, modelSchema } from '$api/model'
 import { s3Client } from '$api/s3'
 import { nanoid } from '$api/utils'
+import { createOpenAI } from '@ai-sdk/openai'
 import { zValidator } from '@hono/zod-validator'
 import {
 	createDataStreamResponse,
@@ -27,10 +27,7 @@ import { PDFDocument } from 'pdf-lib'
 import { z } from 'zod'
 
 const app = new Hono<{
-	Variables: {
-		user: typeof auth.$Infer.Session.user | null
-		session: typeof auth.$Infer.Session.session | null
-	}
+	Variables: AuthType
 }>()
 	.get('/', async (c) => {
 		const user = c.get('user')
@@ -150,12 +147,16 @@ const app = new Hono<{
 	)
 
 	.get('/:pdf_id/markdown', async (c) => {
-		let token = getCookie(c, 'session') ?? null
-		if (!token || token.startsWith('free:')) {
-			return c.text('You must be logged in to use this feature', {
-				status: 400,
-			})
+		const settings = c.get('setting')
+		if (!settings.openAIApiKey) {
+			return c.text('Missing OpenAI Api Key', { status: 400 })
 		}
+
+		const apiKey = settings.openAIApiKey
+
+		const openai = createOpenAI({
+			apiKey: apiKey,
+		})
 
 		const pdf_id = c.req.param('pdf_id')
 
@@ -361,18 +362,22 @@ const app = new Hono<{
 					.set({ markdown: markdown })
 					.where(eq(document.id, pdf_id))
 
-				await addEmbeddings(pdf_id, 'document', markdown)
+				await addEmbeddings(pdf_id, 'document', markdown, apiKey)
 			},
 		})
 	})
 
 	.get('/:pdf_id/summary', async (c) => {
-		let token = getCookie(c, 'session') ?? null
-		if (!token || token.startsWith('free:')) {
-			return c.text('You must be logged in to use this feature', {
-				status: 400,
-			})
+		const settings = c.get('setting')
+		if (!settings.openAIApiKey) {
+			return c.text('Missing OpenAI Api Key', { status: 400 })
 		}
+
+		const apiKey = settings.openAIApiKey
+
+		const openai = createOpenAI({
+			apiKey: apiKey,
+		})
 
 		const pdf_id = c.req.param('pdf_id')
 
@@ -488,6 +493,13 @@ const app = new Hono<{
 			const { messages, provider, searchGrounding, mode, markdown } =
 				c.req.valid('json')
 
+			const settings = c.get('setting')
+			if (!settings.openAIApiKey) {
+				return c.text('Missing OpenAI Api Key', { status: 400 })
+			}
+
+			const apiKey = settings.openAIApiKey
+
 			const {
 				coreMessages,
 				error: processMessageError,
@@ -539,7 +551,10 @@ const app = new Hono<{
 							question: z.string().describe('the users question'),
 						}),
 						execute: async ({ question }) => {
-							const content = await findRelevantContent(question)
+							const content = await findRelevantContent(
+								question,
+								apiKey,
+							)
 							return content
 						},
 					}),

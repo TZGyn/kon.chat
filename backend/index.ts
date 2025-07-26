@@ -18,13 +18,12 @@ import { WebsiteRoutes } from './routes/website'
 import { AdminRoutes } from './routes/admin'
 
 import { ModelRoutes } from './routes/model'
-import { auth } from '$api/auth'
+import { auth, type AuthType } from '$api/auth'
+import { db } from '$api/db'
+import { setting } from '$api/db/schema'
 
 const app = new Hono<{
-	Variables: {
-		user: typeof auth.$Infer.Session.user
-		session: typeof auth.$Infer.Session.session
-	}
+	Variables: AuthType
 }>()
 app.use(
 	cors({
@@ -82,8 +81,24 @@ const router = app
 			return c.body(null, 401)
 		}
 
+		let settings = await db.query.setting.findFirst({
+			where: (setting, t) => t.eq(setting.userId, session.user.id),
+		})
+
+		if (!settings) {
+			settings = (
+				await db
+					.insert(setting)
+					.values({
+						userId: session.user.id,
+					})
+					.returning()
+			)[0]
+		}
+
 		c.set('user', session.user)
 		c.set('session', session.session)
+		c.set('setting', settings)
 		return next()
 	})
 	.route('/auth', AuthRoutes)

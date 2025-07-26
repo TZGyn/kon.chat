@@ -1,4 +1,5 @@
-import { openai } from '$api/ai/model'
+import type { AuthType } from '$api/auth'
+import { createOpenAI } from '@ai-sdk/openai'
 import { zValidator } from '@hono/zod-validator'
 import {
 	createDataStreamResponse,
@@ -10,7 +11,9 @@ import {
 import { Hono } from 'hono'
 import { z } from 'zod'
 
-const app = new Hono().post(
+const app = new Hono<{
+	Variables: AuthType
+}>().post(
 	'/',
 	zValidator(
 		'form',
@@ -43,6 +46,17 @@ const app = new Hono().post(
 	async (c) => {
 		const { prompt, file, currentHtml, userAvatar } =
 			c.req.valid('form')
+
+		const settings = c.get('setting')
+		if (!settings.openAIApiKey) {
+			return c.text('Missing OpenAI Api Key', { status: 400 })
+		}
+
+		const apiKey = settings.openAIApiKey
+
+		const openai = createOpenAI({
+			apiKey: apiKey,
+		})
 
 		return createDataStreamResponse({
 			execute: async (dataStream) => {

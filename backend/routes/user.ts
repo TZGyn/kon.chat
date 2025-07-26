@@ -73,7 +73,7 @@ const app = new Hono<{
 			z.object({
 				name: z.string().max(50).optional(),
 				additional_system_prompt: z.string().max(1000).optional(),
-				openai_api_key: z.string().optional().nullable(),
+				openai_api_key: z.string(),
 				anthropic_api_key: z.string().optional().nullable(),
 				google_api_key: z.string().optional().nullable(),
 				open_router_api_key: z.string().optional().nullable(),

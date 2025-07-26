@@ -59,7 +59,8 @@
 			"enter_api_key": "Ingresar la clave {provider}",
 			"provider_api_key": "{provider}",
 			"optional": "opcional",
-			"update_api_keys": "Actualizar claves API"
+			"update_api_keys": "Actualizar claves API",
+			"required": "requerido"
 		}
 	},
 	"locale": "Lugar",

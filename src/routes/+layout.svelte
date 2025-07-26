@@ -6,6 +6,7 @@
 	import 'katex/dist/katex.css'
 	import { ModeWatcher } from 'mode-watcher'
 	import { useLocale } from '$lib/lang.svelte'
+	import OpenaiApikeyChecker from './(components)/openai-apikey-checker.svelte'
 
 	let { children } = $props()
 
@@ -28,4 +29,5 @@
 	</Sidebar.Provider>
 	<Toaster richColors position="top-right" />
 	<ModeWatcher defaultMode="system" />
+	<OpenaiApikeyChecker />
 {/key}

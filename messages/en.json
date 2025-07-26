@@ -58,6 +58,7 @@
 		"keys": {
 			"enter_api_key": "Enter {provider} api key",
 			"optional": "optional",
+			"required": "required",
 			"provider_api_key": "{provider} api key",
 			"update_api_keys": "Update Api Keys"
 		},

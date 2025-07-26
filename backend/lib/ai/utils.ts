@@ -1,16 +1,22 @@
+import { createOpenAI } from '@ai-sdk/openai'
 import {
 	type CoreAssistantMessage,
 	type CoreToolMessage,
 	type CoreUserMessage,
 	generateText,
 } from 'ai'
-import { openai } from './model'
 
 export async function generateTitleFromUserMessage({
 	message,
+	apiKey,
 }: {
 	message: CoreUserMessage
+	apiKey: string
 }) {
+	const openai = createOpenAI({
+		apiKey: apiKey,
+	})
+
 	const { text: title } = await generateText({
 		model: openai('gpt-4o-mini'),
 		system: `\n

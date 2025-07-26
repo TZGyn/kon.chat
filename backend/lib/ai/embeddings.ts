@@ -1,5 +1,4 @@
 import { embed, embedMany } from 'ai'
-import { openai } from './model'
 import { db } from '$api/db'
 import {
 	embeddings,
@@ -7,8 +6,7 @@ import {
 } from '$api/db/schema'
 import { nanoid } from '$api/utils'
 import { cosineDistance, desc, gt, sql } from 'drizzle-orm'
-
-const embeddingModel = openai.embedding('text-embedding-3-large')
+import { createOpenAI } from '@ai-sdk/openai'
 
 const generateChunks = (input: string): string[] => {
 	return input
@@ -19,7 +17,14 @@ const generateChunks = (input: string): string[] => {
 
 export const generateEmbeddings = async (
 	value: string,
+	apiKey: string,
 ): Promise<Array<{ embedding: number[]; content: string }>> => {
+	const openai = createOpenAI({
+		apiKey: apiKey,
+	})
+
+	const embeddingModel = openai.embedding('text-embedding-3-large')
+
 	const chunks = generateChunks(value)
 	const chunkSize = 100,
 		chunkArray = []
@@ -46,9 +51,10 @@ export const addEmbeddings = async (
 	resourceId: string,
 	resourceType: 'document',
 	content: string,
+	apiKey: string,
 ) => {
 	try {
-		const embeddings = await generateEmbeddings(content)
+		const embeddings = await generateEmbeddings(content, apiKey)
 		await db.insert(embeddingsTable).values(
 			embeddings.map((embedding) => ({
 				id: nanoid(),
@@ -68,7 +74,14 @@ export const addEmbeddings = async (
 
 export const generateEmbedding = async (
 	value: string,
+	apiKey: string,
 ): Promise<number[]> => {
+	const openai = createOpenAI({
+		apiKey: apiKey,
+	})
+
+	const embeddingModel = openai.embedding('text-embedding-3-large')
+
 	const input = value.replaceAll('\\n', ' ')
 	const { embedding } = await embed({
 		model: embeddingModel,
@@ -77,8 +90,11 @@ export const generateEmbedding = async (
 	return embedding
 }
 
-export const findRelevantContent = async (userQuery: string) => {
-	const userQueryEmbedded = await generateEmbedding(userQuery)
+export const findRelevantContent = async (
+	userQuery: string,
+	apiKey: string,
+) => {
+	const userQueryEmbedded = await generateEmbedding(userQuery, apiKey)
 	const similarity = sql<number>`1 - (${cosineDistance(
 		embeddings.embedding,
 		userQueryEmbedded,
