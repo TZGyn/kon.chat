@@ -3,7 +3,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
 	import * as Tooltip from '$lib/components/ui/tooltip'
 	import { Toggle } from '$lib/components/ui/toggle/index.js'
-	import { useModels, type Model } from '$lib/models.svelte.js'
+	import { useModels, type Model } from '$lib/states/models.svelte.js'
 	import UploadFileCard from '$lib/components/upload-file-card.svelte'
 	import { Button, buttonVariants } from '$lib/components/ui/button'
 	import * as Popover from '$lib/components/ui/popover/index.js'
@@ -319,26 +319,24 @@
 			name: 'Models',
 			models: modelState.models.filter(
 				(model) =>
-					(model.name
+					model.name
 						.toLowerCase()
 						.includes(modelSearch.toLowerCase()) ||
-						model.provider
-							.toLowerCase()
-							.includes(modelSearch.toLowerCase())) &&
-					modelState.available_models.includes(model.provider),
+					model.provider
+						.toLowerCase()
+						.includes(modelSearch.toLowerCase()),
 			),
 		},
 		{
 			name: 'Custom Models',
 			models: modelState.customModels.filter(
 				(model) =>
-					(model.name
+					model.name
 						.toLowerCase()
 						.includes(modelSearch.toLowerCase()) ||
-						model.provider
-							.toLowerCase()
-							.includes(modelSearch.toLowerCase())) &&
-					modelState.available_models.includes(model.provider as any),
+					model.provider
+						.toLowerCase()
+						.includes(modelSearch.toLowerCase()),
 			),
 		},
 	])

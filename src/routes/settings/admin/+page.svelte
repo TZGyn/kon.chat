@@ -27,7 +27,7 @@
 	import { toast } from 'svelte-sonner'
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
 	import { m } from '$lib/paraglide/messages'
-	import { useModels } from '$lib/models.svelte'
+	import { useModels } from '$lib/states/models.svelte'
 
 	const client = makeClient(fetch)
 

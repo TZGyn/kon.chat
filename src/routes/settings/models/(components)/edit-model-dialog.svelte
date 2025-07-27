@@ -17,7 +17,7 @@
 	import { toast } from 'svelte-sonner'
 	import { makeClient } from '$api/api-client'
 	import type { Model } from '$api/db/type'
-	import { useModels } from '$lib/models.svelte'
+	import { useModels } from '$lib/states/models.svelte'
 
 	let {
 		model,

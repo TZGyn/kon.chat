@@ -28,7 +28,7 @@
 	import MistralIcon from '$lib/icons/mistral-icon.svelte'
 	import { m } from '$lib/paraglide/messages'
 	import EditModelDialog from './(components)/edit-model-dialog.svelte'
-	import { useModels } from '$lib/models.svelte'
+	import { useModels } from '$lib/states/models.svelte'
 
 	const client = makeClient(fetch)
 
