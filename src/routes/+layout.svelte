@@ -5,7 +5,7 @@
 	import { Toaster } from '$lib/components/ui/sonner'
 	import 'katex/dist/katex.css'
 	import { ModeWatcher } from 'mode-watcher'
-	import { useLocale } from '$lib/lang.svelte'
+	import { useLocale } from '$lib/states/lang.svelte'
 	import OpenaiApikeyChecker from './(components)/openai-apikey-checker.svelte'
 
 	let { children } = $props()

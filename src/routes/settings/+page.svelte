@@ -7,7 +7,7 @@
 	import { cn } from '$lib/utils'
 	import { setLocale } from '$lib/paraglide/runtime'
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
-	import { useLocale } from '$lib/lang.svelte'
+	import { useLocale } from '$lib/states/lang.svelte'
 	import { CheckIcon, Loader2Icon } from '@lucide/svelte'
 	import * as m from '$lib/paraglide/messages'
 	import { MoonIcon, SunIcon } from '@lucide/svelte'

@@ -25,7 +25,7 @@
 	} from '@lucide/svelte'
 	import { resetMode, setMode, mode } from 'mode-watcher'
 	import * as m from '$lib/paraglide/messages'
-	import { useLocale } from '$lib/lang.svelte'
+	import { useLocale } from '$lib/states/lang.svelte'
 	import { setLocale } from '$lib/paraglide/runtime'
 	import { Label } from '$lib/components/ui/label/index.js'
 	import { Input } from '$lib/components/ui/input/index.js'

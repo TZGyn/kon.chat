@@ -1,4 +1,4 @@
-import { getLocale, type Locale } from './paraglide/runtime'
+import { getLocale, type Locale } from '../paraglide/runtime'
 
 let lang = $state<Locale>(getLocale() || 'en')
 
