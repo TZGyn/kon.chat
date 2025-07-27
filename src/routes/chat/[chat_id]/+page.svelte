@@ -339,13 +339,13 @@
 				console.log(event)
 				if (!event) return
 
-				if (
-					event.event === 'new-message' &&
-					event.data.clientId != clientId
-				) {
-					customUseChat.messages.push(
-						event.data.data as ChatUIMessage,
-					)
+				if (event.event === 'new-message') {
+					if (event.data.clientId != clientId) {
+						customUseChat.messages.push(
+							event.data.data as ChatUIMessage,
+						)
+					}
+
 					const messages = $state.snapshot(customUseChat.messages)
 
 					await customUseChat.getMessage({

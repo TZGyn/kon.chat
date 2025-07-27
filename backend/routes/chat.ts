@@ -24,7 +24,6 @@ import {
 	mergeChunksToResponse,
 	updateUserChatAndLimit,
 } from '$api/chat/utils'
-import { serialize } from 'hono/utils/cookie'
 import { tools } from '$api/ai/tools'
 import { nanoid } from '$api/utils'
 import { s3Client } from '$api/s3'
@@ -37,6 +36,22 @@ import { createRedis, redis } from '$api/redis'
 import { streamSSE } from 'hono/streaming'
 import type { auth } from '$api/auth'
 import { systemPrompt } from '$api/ai/system-prompt'
+
+function getErrorMessage(error: unknown | undefined) {
+	if (error == null) {
+		return 'unknown error'
+	}
+
+	if (typeof error === 'string') {
+		return error
+	}
+
+	if (error instanceof Error) {
+		return error.message
+	}
+
+	return JSON.stringify(error)
+}
 
 const arrToObj = (arr: string[]) => {
 	const obj: Record<string, string> = {}
@@ -653,10 +668,6 @@ const app = new Hono<{
 						},
 					})
 
-					result.mergeIntoDataStream(dataStream, {
-						sendReasoning: true,
-					})
-
 					await redis.xadd(
 						streamKey,
 						'*',
@@ -675,13 +686,27 @@ const app = new Hono<{
 						let start = true
 						for await (const stream of result.fullStream) {
 							let values: string[] = []
-							for (const key in stream) {
-								// @ts-ignore
-								if (!stream[key]) continue
+							if (abortController.signal.aborted) {
+								throw Error('Stopped By User')
+							}
+							if (stream.type === 'error') {
 								values.push(
-									// @ts-ignore
-									...[key, JSON.stringify(stream[key])],
+									...[
+										'type',
+										'"error"',
+										'error',
+										`"${getErrorMessage(stream.error)}"`,
+									],
 								)
+							} else {
+								for (const key in stream) {
+									// @ts-ignore
+									if (!stream[key]) continue
+									values.push(
+										// @ts-ignore
+										...[key, JSON.stringify(stream[key])],
+									)
+								}
 							}
 							await redis.xadd(streamKey, '*', ...values)
 
@@ -724,6 +749,41 @@ const app = new Hono<{
 						)
 						await redis.expire(streamKey, 300)
 					} catch (error) {
+						const responseMessages = mergeChunksToResponse(chunks)
+
+						updateUserChatAndLimit({
+							chatId,
+							messages:
+								responseMessages.length > 0
+									? responseMessages
+									: [
+											{
+												role: 'assistant',
+												content: [{ type: 'text', text: '' }],
+											},
+										],
+							provider,
+							providerMetadata: {
+								kon_chat: {
+									status: 'error',
+									error: {
+										type: 'stopped_by_user',
+										message: 'Stopped By User',
+									},
+								},
+							},
+							reasoning: undefined,
+							user,
+							usage: {
+								completionTokens: 0,
+								promptTokens: 0,
+								totalTokens: 0,
+							},
+							userMessage,
+							userMessageDate,
+							mode,
+							response_id: nanoid(),
+						})
 						console.log('Catching', error)
 					} finally {
 						const activeStreamsKey = `active_streams:${chatId}`
@@ -932,8 +992,7 @@ const app = new Hono<{
 										controller.enqueue(
 											formatDataStreamPart(
 												'error',
-												'An Error Occured',
-												// getErrorMessage(chunk.error),
+												chunk.error as string,
 											),
 										)
 									} else if (chunkType == 'step-start') {
@@ -987,8 +1046,7 @@ const app = new Hono<{
 										controller.enqueue(
 											formatDataStreamPart(
 												'error',
-												'An Error Occured',
-												// getErrorMessage(chunk.error),
+												'Stopped By User',
 											),
 										)
 										subscription.unsubscribe(streamKey)

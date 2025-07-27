@@ -1,3 +1,4 @@
+import { makeClient } from '$api/api-client'
 import {
 	fillMessageParts,
 	type ChatMessage,
@@ -141,20 +142,19 @@ export const getChatState = ({
 
 			const existingData = data ?? []
 
-			console.log('chat id', chatId)
-			console.log('stream id', streamId)
-			messages.push({
-				id: nanoid(),
-				role: 'assistant',
-				content: '',
-				parts: [],
-				status: 'submitted',
-				chatId: chatId,
-				streamId: streamId,
-			})
-
+			if (type !== 'new') {
+				messages.push({
+					id: nanoid(),
+					role: 'assistant',
+					content: '',
+					parts: [],
+					status: 'submitted',
+					chatId: chatId,
+					streamId: streamId,
+				})
+			}
 			await callChatApi({
-				api: type == 'new' ? api : api + '/resume',
+				api: type === 'new' ? api : api + '/resume',
 				body: {
 					id: id,
 					messages: constructedMessagesPayload,
@@ -170,6 +170,7 @@ export const getChatState = ({
 				restoreMessagesOnFailure: () => {},
 				onResponse: () => {},
 				onUpdate: ({ message, data, replaceLastMessage }) => {
+					if (type === 'new') return
 					status = 'streaming'
 
 					messages = messages
@@ -187,6 +188,7 @@ export const getChatState = ({
 				},
 				onToolCall: () => {},
 				onFinish: (message, option) => {
+					if (type === 'new') return
 					options.onFinish?.(message, option)
 					messages[index + 1].status = 'ready'
 				},
@@ -212,10 +214,6 @@ export const getChatState = ({
 			// this.#store.error = coalescedError
 		}
 	}
-
-	$effect(() => {
-		console.log(messages)
-	})
 
 	return {
 		get messages(): ChatUIMessage[] {
