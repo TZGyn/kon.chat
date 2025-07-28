@@ -23,6 +23,7 @@
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { mode } from 'mode-watcher'
 	import * as m from '$lib/paraglide/messages'
+	import FileIcon from '$lib/icons/filetype/file-icon.svelte'
 
 	let { code, lang }: { code: string; lang: string } = $props()
 
@@ -262,7 +263,11 @@
 	<Tabs.Content value="code" class="mt-1">
 		<div
 			class="bg-secondary flex items-center justify-between rounded-t px-2">
-			<span class="py-1 text-sm">{lang}</span>
+			<span
+				class="flex items-center gap-2 py-1 text-sm [&_svg]:size-4">
+				<FileIcon filetype={lang} />
+				{lang}
+			</span>
 			<div>
 				<CopyButton
 					variant="ghost"
