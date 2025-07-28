@@ -34,7 +34,7 @@ import {
 import { describeRoute } from 'hono-openapi'
 import { createRedis, redis } from '$api/redis'
 import { streamSSE } from 'hono/streaming'
-import type { auth } from '$api/auth'
+import type { auth, AuthType } from '$api/auth'
 import { systemPrompt } from '$api/ai/system-prompt'
 
 function getErrorMessage(error: unknown | undefined) {
@@ -64,10 +64,7 @@ const arrToObj = (arr: string[]) => {
 }
 
 const app = new Hono<{
-	Variables: {
-		user: typeof auth.$Infer.Session.user
-		session: typeof auth.$Infer.Session.session
-	}
+	Variables: AuthType
 }>()
 	.get('/', describeRoute({ tags: ['chat'] }), async (c) => {
 		const user = c.get('user')
@@ -504,9 +501,7 @@ const app = new Hono<{
 
 			const user = c.get('user')
 
-			const settings = await db.query.setting.findFirst({
-				where: (setting, t) => t.eq(setting.userId, user.id),
-			})
+			const setting = c.get('setting')
 
 			const {
 				coreMessages,
@@ -523,6 +518,7 @@ const app = new Hono<{
 				chat_id: chatId,
 				user_message: userMessage,
 				user,
+				api_key: setting.openAIApiKey!,
 			})
 
 			const { model, error, providerOptions } = getModel({
@@ -606,7 +602,7 @@ const app = new Hono<{
 						maxSteps: 5,
 						// experimental_activeTools: [...activeTools(mode)],
 						tools: {
-							...tools(user, chatId, dataStream, mode, settings),
+							...tools(user, chatId, dataStream, mode, setting),
 						},
 						onStepFinish: (data) => {
 							const metadata = data.providerMetadata?.google as
@@ -664,6 +660,7 @@ const app = new Hono<{
 								userMessageDate,
 								mode,
 								response_id: response.id,
+								apiKey: setting.openAIApiKey!,
 							})
 						},
 					})
@@ -783,6 +780,7 @@ const app = new Hono<{
 							userMessageDate,
 							mode,
 							response_id: nanoid(),
+							apiKey: setting.openAIApiKey!,
 						})
 						console.log('Catching', error)
 					} finally {
@@ -851,6 +849,7 @@ const app = new Hono<{
 						userMessageDate,
 						mode,
 						response_id: nanoid(),
+						apiKey: setting.openAIApiKey!,
 					})
 					// Error messages are masked by default for security reasons.
 					// If you want to expose the error message to the client, you can do so here:

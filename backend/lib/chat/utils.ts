@@ -33,6 +33,7 @@ export const updateUserChatAndLimit = async ({
 	mode,
 	response_id,
 	user,
+	apiKey,
 }: {
 	chatId: string
 	userMessage: CoreUserMessage
@@ -45,6 +46,7 @@ export const updateUserChatAndLimit = async ({
 	mode: Tool
 	response_id: string
 	user: typeof auth.$Infer.Session.user
+	apiKey: string
 }) => {
 	let existingChat = await db.query.chat.findFirst({
 		where: (chat, { eq, and }) => and(eq(chat.id, chatId)),
@@ -54,6 +56,7 @@ export const updateUserChatAndLimit = async ({
 	if (!existingChat) {
 		const title = await generateTitleFromUserMessage({
 			message: userMessage,
+			apiKey,
 		})
 
 		try {
@@ -75,6 +78,7 @@ export const updateUserChatAndLimit = async ({
 	if (existingChat && existingChat.title === 'New Chat') {
 		const title = await generateTitleFromUserMessage({
 			message: userMessage,
+			apiKey,
 		})
 		await db
 			.update(chat)
