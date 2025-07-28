@@ -263,78 +263,10 @@ const app = new Hono<{
 	.get('/:chat_id', describeRoute({ tags: ['chat'] }), async (c) => {
 		const chatId = c.req.param('chat_id')
 
-		const session = c.get('session')
-
-		if (!session) {
-			const chat = await db.query.chat.findFirst({
-				where: (chat, { eq, and, or }) =>
-					and(eq(chat.id, chatId), eq(chat.visibility, 'public')),
-				with: {
-					messages: {
-						columns: {
-							content: true,
-							role: true,
-							model: true,
-							id: true,
-							responseId: true,
-							createdAt: true,
-							chatId: true,
-							provider: true,
-							providerMetadata: true,
-						},
-						orderBy: (message, { asc }) => [asc(message.createdAt)],
-					},
-				},
-			})
-
-			if (chat) {
-				const { userId: chatUserId, ...rest } = chat
-
-				return c.json({
-					chat: { ...rest, isOwner: false },
-				})
-			}
-
-			return c.json({ chat: null })
-		}
-
 		const user = c.get('user')
 
-		if (!user) {
-			const chat = await db.query.chat.findFirst({
-				where: (chat, { eq, and, or }) =>
-					and(eq(chat.id, chatId), eq(chat.visibility, 'public')),
-				with: {
-					messages: {
-						columns: {
-							content: true,
-							role: true,
-							model: true,
-							id: true,
-							responseId: true,
-							createdAt: true,
-							chatId: true,
-							provider: true,
-							providerMetadata: true,
-						},
-						orderBy: (message, { asc }) => [asc(message.createdAt)],
-					},
-				},
-			})
-
-			if (chat) {
-				const { userId: chatUserId, ...rest } = chat
-
-				return c.json({
-					chat: { ...rest, isOwner: false },
-				})
-			}
-			return c.json({ chat: null })
-		}
-
 		const chat = await db.query.chat.findFirst({
-			where: (chat, { eq, and, or }) =>
-				and(eq(chat.id, chatId), or(eq(chat.userId, user.id))),
+			where: (chat, { eq, and, or }) => eq(chat.id, chatId),
 			with: {
 				messages: {
 					columns: {
@@ -353,15 +285,23 @@ const app = new Hono<{
 			},
 		})
 
-		if (chat) {
+		if (!chat) return c.json({ chat: null })
+
+		if (chat.userId !== user.id) {
+			if (chat.visibility === 'private') return c.json({ chat: null })
+
 			const { userId: chatUserId, ...rest } = chat
 
 			return c.json({
-				chat: { ...rest, isOwner: user.id === chatUserId },
+				chat: { ...rest, isOwner: false },
 			})
 		}
 
-		return c.json({ chat: null })
+		const { userId: chatUserId, ...rest } = chat
+
+		return c.json({
+			chat: { ...rest, isOwner: true },
+		})
 	})
 
 	.get('/:chat_id/active_streams', async (c) => {
