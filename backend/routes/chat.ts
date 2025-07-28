@@ -566,105 +566,67 @@ const app = new Hono<{
 				}
 			})
 
-			return createDataStreamResponse({
-				headers: {
-					...c.res.headers,
-				},
-				execute: async (dataStream) => {
-					dataStream.writeMessageAnnotation({
-						type: 'model',
-						model: provider.model,
-					})
-
-					dataStream.writeData({
-						type: 'message',
-						message: 'Understanding prompt',
-					})
-
-					dataStream.writeData({
-						type: 'message',
-						message: 'Generating Response',
-					})
-
-					const result = streamText({
-						model: model,
-						messages: coreMessages,
-						system: systemPrompt({
-							mode,
-							additional_system_prompt,
-							name_for_llm,
-						}),
-						providerOptions: providerOptions,
-						abortSignal: abortController.signal,
-						onChunk: ({ chunk }) => {
-							chunks.push(chunk)
-						},
-						maxSteps: 5,
-						// experimental_activeTools: [...activeTools(mode)],
-						tools: {
-							...tools(user, chatId, dataStream, mode, setting),
-						},
-						onStepFinish: (data) => {
-							const metadata = data.providerMetadata?.google as
-								| GoogleGenerativeAIProviderMetadata
-								| undefined
-							if (metadata) {
-								// @ts-ignore
-								dataStream.writeMessageAnnotation({
-									type: 'google-grounding',
-									data: metadata,
-								})
-							}
-							// console.log(data)
-							// console.log(
-							// 	require('util').inspect(
-							// 		data,
-							// 		false,
-							// 		null,
-							// 		true /* enable colors */,
-							// 	),
-							// )
-						},
-						onError: (error) => {
-							console.log('Error', error)
-						},
-						experimental_transform: smoothStream({
-							delayInMs: 20, // optional: defaults to 10ms
-							chunking: 'word', // optional: defaults to 'word'
-						}),
-						onFinish: async ({
-							response,
-							usage,
-							reasoning,
+			try {
+				const result = streamText({
+					model: model,
+					messages: coreMessages,
+					system: systemPrompt({
+						mode,
+						additional_system_prompt,
+						name_for_llm,
+					}),
+					providerOptions: providerOptions,
+					abortSignal: abortController.signal,
+					onChunk: ({ chunk }) => {
+						chunks.push(chunk)
+					},
+					maxSteps: 5,
+					// experimental_activeTools: [...activeTools(mode)],
+					tools: {
+						...tools(user, chatId, mode, setting),
+					},
+					onStepFinish: (data) => {},
+					onError: (error) => {
+						console.log('Error', error)
+					},
+					experimental_transform: smoothStream({
+						delayInMs: 20, // optional: defaults to 10ms
+						chunking: 'word', // optional: defaults to 'word'
+					}),
+					onFinish: async ({
+						response,
+						usage,
+						reasoning,
+						providerMetadata,
+						finishReason,
+					}) => {
+						// const util = require('util')
+						// console.log('on finish')
+						// console.log(
+						// 	util.inspect(response.messages, {
+						// 		showHidden: false,
+						// 		depth: null,
+						// 		colors: true,
+						// 	}),
+						// )
+						updateUserChatAndLimit({
+							chatId,
+							messages: response.messages,
+							provider,
 							providerMetadata,
-							finishReason,
-						}) => {
-							// const util = require('util')
-							// console.log('on finish')
-							// console.log(
-							// 	util.inspect(response.messages, {
-							// 		showHidden: false,
-							// 		depth: null,
-							// 		colors: true,
-							// 	}),
-							// )
-							updateUserChatAndLimit({
-								chatId,
-								messages: response.messages,
-								provider,
-								providerMetadata,
-								reasoning,
-								user,
-								usage,
-								userMessage,
-								userMessageDate,
-								mode,
-								response_id: response.id,
-								apiKey: setting.openAIApiKey!,
-							})
-						},
-					})
+							reasoning,
+							user,
+							usage,
+							userMessage,
+							userMessageDate,
+							mode,
+							response_id: response.id,
+							apiKey: setting.openAIApiKey!,
+						})
+					},
+				})
 
+				const processStream = async () => {
 					await redis.xadd(
 						streamKey,
 						'*',
@@ -795,70 +757,70 @@ const app = new Hono<{
 							),
 						)
 					}
-				},
-				onError: (error) => {
-					publisher.publish(
-						streamKey,
-						JSON.stringify({ type: 'finish' }),
-					)
-					redis.expire(streamKey, 300)
-					const responseMessages = mergeChunksToResponse(chunks)
-					console.log(responseMessages)
-					updateUserChatAndLimit({
-						chatId,
-						messages:
-							responseMessages.length > 0
-								? responseMessages
-								: [
-										{
-											role: 'assistant',
-											content: [{ type: 'text', text: '' }],
+				}
+
+				processStream()
+			} catch (error) {
+				publisher.publish(
+					streamKey,
+					JSON.stringify({ type: 'finish' }),
+				)
+				redis.expire(streamKey, 300)
+				const responseMessages = mergeChunksToResponse(chunks)
+				console.log(responseMessages)
+				updateUserChatAndLimit({
+					chatId,
+					messages:
+						responseMessages.length > 0
+							? responseMessages
+							: [
+									{
+										role: 'assistant',
+										content: [{ type: 'text', text: '' }],
+									},
+								],
+					provider,
+					providerMetadata: {
+						kon_chat:
+							error instanceof APICallError
+								? {
+										status: 'error',
+										error: {
+											type: 'api_call_error',
+											message:
+												// @ts-ignore
+												error.data?.error?.message ||
+												'Error when generating response',
+											error: error,
 										},
-									],
-						provider,
-						providerMetadata: {
-							kon_chat:
-								error instanceof APICallError
-									? {
-											status: 'error',
-											error: {
-												type: 'api_call_error',
-												message:
-													// @ts-ignore
-													error.data?.error?.message ||
-													'Error when generating response',
-												error: error,
-											},
-										}
-									: {
-											status: 'error',
-											error: {
-												type: 'stopped_by_user',
-												message: 'Stopped By User',
-											},
+									}
+								: {
+										status: 'error',
+										error: {
+											type: 'stopped_by_user',
+											message: 'Stopped By User',
 										},
-						},
-						reasoning: undefined,
-						user,
-						usage: {
-							completionTokens: 0,
-							promptTokens: 0,
-							totalTokens: 0,
-						},
-						userMessage,
-						userMessageDate,
-						mode,
-						response_id: nanoid(),
-						apiKey: setting.openAIApiKey!,
-					})
-					// Error messages are masked by default for security reasons.
-					// If you want to expose the error message to the client, you can do so here:
-					console.log('Stream Error', error)
-					return error instanceof Error
-						? error.message
-						: String(error)
-				},
-			})
+									},
+					},
+					reasoning: undefined,
+					user,
+					usage: {
+						completionTokens: 0,
+						promptTokens: 0,
+						totalTokens: 0,
+					},
+					userMessage,
+					userMessageDate,
+					mode,
+					response_id: nanoid(),
+					apiKey: setting.openAIApiKey!,
+				})
+				// Error messages are masked by default for security reasons.
+				// If you want to expose the error message to the client, you can do so here:
+				console.log('Stream Error', error)
+			}
+
+			return c.json({}, 200)
 		},
 	)
 
