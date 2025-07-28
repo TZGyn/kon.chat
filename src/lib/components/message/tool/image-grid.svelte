@@ -125,8 +125,8 @@
 
 	{#if isDesktop.current}
 		<Dialog.Root bind:open={isOpen}>
-			<Dialog.Content class="">
-				<Dialog.Header>
+			<Dialog.Content class="px-0">
+				<Dialog.Header class="px-6">
 					<Dialog.Title>
 						{m['tools.image_grid.images']()}
 					</Dialog.Title>
@@ -135,7 +135,7 @@
 					</Dialog.Description>
 				</Dialog.Header>
 				<Carousel.Root
-					class="w-full"
+					class="h-full w-full overflow-hidden px-6"
 					setApi={(emblaApi) => (api = emblaApi)}>
 					<Carousel.Content>
 						{#each images as image, i (i)}
@@ -147,15 +147,15 @@
 											<img
 												src={image.url}
 												alt={image.description}
-												class="h-full w-full object-contain" />
+												class="h-full max-h-screen w-full max-w-screen object-contain" />
 										</Card.Content>
 									</Card.Root>
 								</div>
 							</Carousel.Item>
 						{/each}
 					</Carousel.Content>
-					<Carousel.Previous class="-left-2" />
-					<Carousel.Next class="-right-2" />
+					<Carousel.Previous class="left-2" variant="secondary" />
+					<Carousel.Next class="right-2" variant="secondary" />
 				</Carousel.Root>
 			</Dialog.Content>
 		</Dialog.Root>
