@@ -53,6 +53,7 @@
 	import { Brain } from '@lucide/svelte'
 	import Drawing from './input/drawing.svelte'
 	import { useSettings } from '$lib/states/settings.svelte'
+	import { useCapabilities } from '$lib/states/capabilities.svelte'
 
 	let {
 		input = $bindable(),
@@ -92,6 +93,7 @@
 	let modelState = useModels()
 
 	const settings = useSettings()
+	const capabilities = useCapabilities()
 
 	let inputElement: HTMLTextAreaElement | null = $state(null)
 
@@ -255,54 +257,69 @@
 		adjustInputHeight()
 	})
 
-	let modes = $derived([
-		{
-			id: 'chat',
-			name: m['mode.chat.name'](),
-			description: m['mode.chat.description'](),
-			credits: 0,
-			icon: MessageCircleIcon,
-		},
-		{
-			id: 'gpt-image-1',
-			name: m['mode.gpt-image-1.name'](),
-			description: m['mode.gpt-image-1.description'](),
-			icon: ImagesIcon,
-		},
-		{
-			id: 'web_search',
-			name: m['mode.web_search.name'](),
-			description: m['mode.web_search.description'](),
-			icon: GlobeIcon,
-		},
-		// {
-		// 	id: 'x_search',
-		// 	name: m['mode.x_search.name'](),
-		// 	description: m['mode.x_search.description'](),
-		// 	icon: TwitterLogo,
-		// 	credits: 200,
-		// 	disable: !user,
-		// },
-		// {
-		// 	id: 'analysis',
-		// 	name: 'Analysis',
-		// 	description: 'Code, stock and currency stuff',
-		// 	icon: CodeXmlIcon,
-		// 	show: true,
-		// },
-		{
-			id: 'academic_search',
-			name: m['mode.academic_search.name'](),
-			description: m['mode.academic_search.description'](),
-			icon: BookIcon,
-		},
-		{
-			id: 'web_reader_exa',
-			name: m['mode.web_reader.name'](),
-			description: m['mode.web_reader.description'](),
-			icon: LibraryBigIcon,
-		},
-	] as const)
+	let modes = $derived(
+		(
+			[
+				{
+					id: 'chat',
+					name: m['mode.chat.name'](),
+					description: m['mode.chat.description'](),
+					credits: 0,
+					icon: MessageCircleIcon,
+				},
+				{
+					id: 'gpt-image-1',
+					name: m['mode.gpt-image-1.name'](),
+					description: m['mode.gpt-image-1.description'](),
+					icon: ImagesIcon,
+				},
+				{
+					id: 'web_search',
+					name: m['mode.web_search.name'](),
+					description: m['mode.web_search.description'](),
+					icon: GlobeIcon,
+				},
+				// {
+				// 	id: 'x_search',
+				// 	name: m['mode.x_search.name'](),
+				// 	description: m['mode.x_search.description'](),
+				// 	icon: TwitterLogo,
+				// 	credits: 200,
+				// 	disable: !user,
+				// },
+				// {
+				// 	id: 'analysis',
+				// 	name: 'Analysis',
+				// 	description: 'Code, stock and currency stuff',
+				// 	icon: CodeXmlIcon,
+				// 	show: true,
+				// },
+				{
+					id: 'academic_search',
+					name: m['mode.academic_search.name'](),
+					description: m['mode.academic_search.description'](),
+					icon: BookIcon,
+				},
+				{
+					id: 'web_reader_exa',
+					name: m['mode.web_reader.name'](),
+					description: m['mode.web_reader.description'](),
+					icon: LibraryBigIcon,
+				},
+			] as const
+		).filter((mode) => {
+			if (!capabilities.capabilities.search) {
+				if (
+					mode.id === 'web_reader_exa' ||
+					mode.id === 'web_search' ||
+					mode.id === 'academic_search'
+				) {
+					return false
+				}
+			}
+			return true
+		}),
+	)
 
 	let selectedMode = $state<(typeof modes)[number]>()
 
