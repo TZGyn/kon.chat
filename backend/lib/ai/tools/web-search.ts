@@ -53,7 +53,13 @@ const deduplicateByDomainAndUrl = <T extends { url: string }>(
 	})
 }
 
-export const web_search = ({ apiKey }: { apiKey: string }) =>
+export const web_search = ({
+	writeMessageAnnotation,
+	apiKey,
+}: {
+	writeMessageAnnotation: (value: any) => Promise<void>
+	apiKey: string
+}) =>
 	tool({
 		description:
 			'Search the web for information with multiple queries, max results and search depth. Note: This is different from google search grounding, so dont call this if youre using google search grounding',
@@ -157,17 +163,17 @@ export const web_search = ({ apiKey }: { apiKey: string }) =>
 				})
 
 				// Add annotation for query completion
-				// dataStream.writeMessageAnnotation({
-				// 	type: 'query_completion',
-				// 	data: {
-				// 		query,
-				// 		index,
-				// 		total: queries.length,
-				// 		status: 'completed',
-				// 		resultsCount: results.length,
-				// 		imagesCount: images.length,
-				// 	},
-				// })
+				writeMessageAnnotation({
+					type: 'query_completion',
+					data: {
+						query,
+						index,
+						total: queries.length,
+						status: 'completed',
+						resultsCount: results.length,
+						imagesCount: images.length,
+					},
+				})
 
 				return {
 					query,

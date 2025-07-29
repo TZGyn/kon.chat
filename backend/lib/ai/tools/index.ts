@@ -23,6 +23,7 @@ export type Tool = (typeof toolList)[number]
 export const tools = (
 	user: User,
 	chatId: string,
+	writeMessageAnnotation: (value: any) => Promise<void>,
 	mode: Tool,
 	settings?: Setting,
 ) => {
@@ -56,7 +57,12 @@ export const tools = (
 			// x_search: x_search()
 		},
 		web_search: searchEnable
-			? { web_search: web_search({ apiKey: exaAPIKey }) }
+			? {
+					web_search: web_search({
+						writeMessageAnnotation,
+						apiKey: exaAPIKey,
+					}),
+				}
 			: {},
 		academic_search: searchEnable
 			? { academic_search: academic_search({ apiKey: exaAPIKey }) }

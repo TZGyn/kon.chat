@@ -507,6 +507,18 @@ const app = new Hono<{
 			})
 
 			try {
+				const writeMessageAnnotation = async (value: any) => {
+					await redis.xadd(
+						streamKey,
+						'*',
+						...[
+							'type',
+							'"message_annotations"',
+							'annotation',
+							JSON.stringify(value),
+						],
+					)
+				}
 				const result = streamText({
 					model: model,
 					messages: coreMessages,
@@ -523,7 +535,13 @@ const app = new Hono<{
 					maxSteps: 5,
 					// experimental_activeTools: [...activeTools(mode)],
 					tools: {
-						...tools(user, chatId, mode, setting),
+						...tools(
+							user,
+							chatId,
+							writeMessageAnnotation,
+							mode,
+							setting,
+						),
 					},
 					onStepFinish: (data) => {},
 					onError: (error) => {
