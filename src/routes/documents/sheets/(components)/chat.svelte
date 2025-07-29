@@ -272,7 +272,5 @@
 	handleSubmit={useChat.handleSubmit}
 	bind:messages={useChat.messages}
 	bind:data={useChat.data}
-	status={useChat.status}
 	customData={getCustomData}
-	{autoScroll}
-	{stop} />
+	{autoScroll} />

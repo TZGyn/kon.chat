@@ -594,58 +594,8 @@
 		}}
 		bind:messages={customUseChat.messages}
 		bind:data={customUseChat.data}
-		status={customUseChat.status}
 		imageUpload={true}
 		fileUpload={true}
 		enableSearch={true}
-		{autoScroll}
-		stop={() => {
-			customUseChat.stop()
-			if (
-				!customUseChat.messages[customUseChat.messages.length - 1]
-					.annotations
-			) {
-				customUseChat.messages[
-					customUseChat.messages.length - 1
-				].annotations = []
-			}
-			customUseChat.messages[
-				customUseChat.messages.length - 1
-			].annotations?.push({
-				type: 'kon_chat',
-				status: 'error',
-				error: {
-					type: 'stopped_by_user',
-					message: 'Stopped By User',
-				},
-			})
-
-			customUseChat.messages[
-				customUseChat.messages.length - 1
-			].status = 'ready'
-
-			if (page.url.searchParams) {
-				page.url.searchParams.delete('type')
-				replaceState(page.url, page.state)
-				isNew = false
-			}
-			setTimeout(() => {
-				chats.getChats()
-			}, 3000)
-			if (chat.value !== null) {
-				chat.value = {
-					...chat.value,
-					messages: customUseChat.messages as any,
-				}
-			} else {
-				chat.value = {
-					id: 'new chat',
-					title: 'new chat',
-					visibility: 'private',
-					isOwner: true,
-					createdAt: Date.now(),
-					messages: customUseChat.messages as any,
-				}
-			}
-		}} />
+		{autoScroll} />
 {/if}

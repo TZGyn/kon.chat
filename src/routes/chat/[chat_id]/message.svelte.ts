@@ -147,7 +147,7 @@ export const getChatState = ({
 					id: nanoid(),
 					role: 'assistant',
 					content: '',
-					parts: [],
+					parts: [{ type: 'text', text: '' }],
 					status: 'submitted',
 					chatId: chatId,
 					streamId: streamId,
@@ -171,7 +171,6 @@ export const getChatState = ({
 				onResponse: () => {},
 				onUpdate: ({ message, data, replaceLastMessage }) => {
 					if (type === 'new') return
-					status = 'streaming'
 
 					messages = messages
 
@@ -199,7 +198,6 @@ export const getChatState = ({
 			})
 
 			abortController = null
-			status = 'ready'
 		} catch (error) {
 			console.log(isAbortError(error))
 			if (isAbortError(error)) {

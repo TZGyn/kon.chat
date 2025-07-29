@@ -58,7 +58,6 @@
 	let {
 		input = $bindable(),
 		selectedModelLocator,
-		status,
 		messages = $bindable(),
 		data = $bindable(),
 		handleSubmit,
@@ -67,12 +66,10 @@
 		fileUpload = false,
 		enableSearch = false,
 		autoScroll,
-		stop,
 		upload_url,
 	}: {
 		input: string
 		selectedModelLocator: string
-		status: 'submitted' | 'streaming' | 'ready' | 'error'
 		messages: UIMessage[]
 		data: JSONValue[] | undefined
 		handleSubmit: (
@@ -87,7 +84,6 @@
 		enableSearch?: boolean
 		autoScroll?: UseAutoScroll
 		upload_url?: string
-		stop?: () => void
 	} = $props()
 
 	let modelState = useModels()
@@ -192,58 +188,46 @@
 			return
 		}
 
-		if (status === 'streaming') {
-			toast.warning(
-				'Please wait for the model to finish its response',
-			)
-		} else {
-			data = []
-			handleSubmit(event, {
-				body: {
-					provider: {
-						name: selectedModel.provider,
-						model: selectedModel.id,
-						reasoning_effort:
-							selectedModel.id === 'o3-mini' ||
-							selectedModel.id === 'o4-mini'
-								? reasoningEffort
-								: undefined,
-						thinking_budget:
-							selectedModel.id === 'gemini-2.5-flash-preview-04-17'
-								? thinkingBudget
-								: undefined,
-						api_key: settings.getProviderAPIKey(
-							selectedModel.provider,
-						),
-						exa_api_key: settings.getProviderAPIKey('exa'),
-					},
-					...custom,
-					search,
-					searchGrounding,
-					mode: selectedMode?.id || 'chat',
-					name_for_llm: settings.settings.nameForLLM || '',
-					additional_system_prompt:
-						settings.settings.additionalSystemPrompt || '',
+		data = []
+		handleSubmit(event, {
+			body: {
+				provider: {
+					name: selectedModel.provider,
+					model: selectedModel.id,
+					reasoning_effort:
+						selectedModel.id === 'o3-mini' ||
+						selectedModel.id === 'o4-mini'
+							? reasoningEffort
+							: undefined,
+					thinking_budget:
+						selectedModel.id === 'gemini-2.5-flash-preview-04-17'
+							? thinkingBudget
+							: undefined,
+					api_key: settings.getProviderAPIKey(selectedModel.provider),
+					exa_api_key: settings.getProviderAPIKey('exa'),
 				},
-				experimental_attachments: attachments
-					.filter(
-						(attachment) =>
-							attachment.url !== undefined &&
-							attachment.status === 'ready',
-					)
-					.map((attachment) => ({
-						contentType: attachment.file.type,
-						url: attachment.url!,
-						name: attachment.file.name,
-					})),
-			})
-			attachments = []
-		}
+				...custom,
+				search,
+				searchGrounding,
+				mode: selectedMode?.id || 'chat',
+				name_for_llm: settings.settings.nameForLLM || '',
+				additional_system_prompt:
+					settings.settings.additionalSystemPrompt || '',
+			},
+			experimental_attachments: attachments
+				.filter(
+					(attachment) =>
+						attachment.url !== undefined &&
+						attachment.status === 'ready',
+				)
+				.map((attachment) => ({
+					contentType: attachment.file.type,
+					url: attachment.url!,
+					name: attachment.file.name,
+				})),
+		})
+		attachments = []
 	}
-
-	$effect(() => {
-		status && autoScroll?.scrollToBottom()
-	})
 
 	const adjustInputHeight = () => {
 		if (inputElement) {
@@ -696,21 +680,9 @@
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 			{/if}
-			{#if status === 'submitted' || status === 'streaming'}
-				{#if stop !== undefined}
-					<Button onclick={() => stop()} class="" size="icon">
-						<SquareIcon />
-					</Button>
-				{:else}
-					<Button disabled size="icon">
-						<Loader2Icon class="animate-spin" />
-					</Button>
-				{/if}
-			{:else}
-				<Button type="submit" size="icon">
-					<SendIcon />
-				</Button>
-			{/if}
+			<Button type="submit" size="icon">
+				<SendIcon />
+			</Button>
 		</div>
 	</div>
 </form>

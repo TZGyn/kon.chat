@@ -98,9 +98,7 @@
 	handleSubmit={useChat.handleSubmit}
 	bind:messages={useChat.messages}
 	bind:data={useChat.data}
-	status={useChat.status}
 	imageUpload={false}
 	enableSearch={false}
 	customData={() => ({ transcript: transcript })}
-	{autoScroll}
-	{stop} />
+	{autoScroll} />
