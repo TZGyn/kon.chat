@@ -50,10 +50,11 @@
 	import { Input } from './ui/input'
 	import * as m from '$lib/paraglide/messages'
 	import { cn } from '$lib/utils'
-	import { Brain } from '@lucide/svelte'
+	import { Brain, WandSparklesIcon } from '@lucide/svelte'
 	import Drawing from './input/drawing.svelte'
 	import { useSettings } from '$lib/states/settings.svelte'
 	import { useCapabilities } from '$lib/states/capabilities.svelte'
+	import Suggestions from './input/suggestions.svelte'
 
 	let {
 		input = $bindable(),
@@ -347,13 +348,15 @@
 	let thinkingBudget = $state(0)
 
 	let modelSelectPopoverOpen = $state(false)
+
+	let openSuggestions = $state(false)
 </script>
 
 <form
 	onsubmit={customSubmit}
 	class="bg-popover absolute right-1/2 bottom-0 flex h-auto w-full max-w-[700px] translate-x-1/2 flex-col gap-2 rounded-xl rounded-b-none p-3">
 	<div
-		class="absolute right-1/2 bottom-[calc(100%+0.5rem)] flex translate-x-1/2 flex-col gap-2">
+		class="absolute right-1/2 bottom-[calc(100%+0.5rem)] flex w-full translate-x-1/2 flex-col items-center gap-2">
 		{#if !autoScroll?.isAtBottom}
 			<Button
 				class="bg-input/70 hover:bg-input dark:bg-input/70 dark:hover:bg-input"
@@ -362,6 +365,14 @@
 				onclick={() => autoScroll?.scrollToBottom()}>
 				<ArrowDownIcon />
 			</Button>
+		{/if}
+
+		{#if openSuggestions}
+			<Suggestions
+				updatePrompt={(value) => {
+					input = value
+					openSuggestions = false
+				}} />
 		{/if}
 	</div>
 	<Textarea
@@ -642,6 +653,11 @@
 			{/if}
 		</div>
 		<div class="flex items-center gap-2">
+			<Toggle
+				bind:pressed={openSuggestions}
+				aria-label="toggle suggestion">
+				<WandSparklesIcon class="size-4" />
+			</Toggle>
 			{#if enableSearch}
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger
