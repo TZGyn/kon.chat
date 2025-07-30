@@ -24,11 +24,16 @@ export const useSettings = () => {
 	})
 
 	const refetch = async () => {
+		const cached = localStorage.getItem('settings')
+		if (cached) {
+			settings = JSON.parse(cached)
+		}
 		const response = await client.user.settings.$get()
 
 		if (response.status === 200) {
 			const data = await response.json()
 			settings = data.settings
+			localStorage.setItem('settings', JSON.stringify(settings))
 		}
 	}
 
