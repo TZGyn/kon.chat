@@ -18,7 +18,6 @@
 			speechRecognition?.start()
 		}
 		if (toggleSpeech === false) {
-			console.log('stopped')
 			speechRecognition?.stop()
 		}
 	})

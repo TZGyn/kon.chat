@@ -152,6 +152,10 @@
 
 	const chats = useChats()
 
+	$effect(() => {
+		customUseChat.chatId = chat_id
+	})
+
 	let customUseChat = getChatState({
 		get chatId() {
 			return chat_id
@@ -324,49 +328,6 @@
 			},
 		})
 	}
-
-	const resumeChat = async (chat_id: string) => {
-		const response = await client.chat[':chat_id'].sse.$post({
-			param: { chat_id },
-		})
-
-		if (!response.body) return
-
-		await processStream({
-			stream: response.body,
-			onValue: async ({ value }) => {
-				const event = parseSSE(value)
-				console.log(event)
-				if (!event) return
-
-				if (event.event === 'new-message') {
-					if (event.data.clientId != clientId) {
-						customUseChat.messages.push(
-							event.data.data as ChatUIMessage,
-						)
-					}
-
-					const messages = $state.snapshot(customUseChat.messages)
-
-					await customUseChat.getMessage({
-						index: messages.length - 1,
-						type: 'resume',
-						chatRequest: {
-							body: {
-								id: event.data.id,
-							},
-						},
-						streamId: event.data.id,
-					})
-				}
-			},
-		})
-	}
-
-	$effect(() => {
-		chat_id
-		browser && resumeChat(chat_id)
-	})
 </script>
 
 <div class="relative flex flex-1 overflow-hidden">

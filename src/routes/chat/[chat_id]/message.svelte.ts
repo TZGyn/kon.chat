@@ -5,6 +5,8 @@ import {
 	type ChatUIMessage,
 } from '$lib/message'
 import { nanoid } from '$lib/nanoid'
+import { parseSSE } from '$lib/sse'
+import { processStream } from '$lib/stream'
 import type { ChatOptions } from '@ai-sdk/svelte'
 import {
 	callChatApi,
@@ -15,6 +17,7 @@ import {
 	type Message,
 	type UIMessage,
 } from '@ai-sdk/ui-utils'
+import { onMount } from 'svelte'
 
 export const getChatState = ({
 	options,
@@ -36,6 +39,20 @@ export const getChatState = ({
 	)
 	let input = $state('')
 	let data = $state<JSONValue[]>([])
+
+	const client = makeClient(fetch)
+	const clientId = nanoid()
+
+	let resumeAbortController: AbortController | null = null
+
+	$effect(() => {
+		chatId
+		try {
+			resumeAbortController?.abort()
+		} catch {}
+		resumeAbortController = new AbortController()
+		resumeChat(chatId)
+	})
 
 	const stop = () => {
 		try {
@@ -213,6 +230,49 @@ export const getChatState = ({
 		}
 	}
 
+	const resumeChat = async (chat_id: string) => {
+		const response = await client.chat[':chat_id'].sse.$post(
+			{
+				param: { chat_id },
+			},
+			{
+				init: {
+					signal: resumeAbortController?.signal,
+				},
+			},
+		)
+
+		if (!response.body) return
+
+		await processStream({
+			stream: response.body,
+			onValue: async ({ value }) => {
+				const event = parseSSE(value)
+				console.log(event)
+				if (!event) return
+
+				if (event.event === 'new-message') {
+					if (event.data.clientId != clientId) {
+						messages.push(event.data.data as ChatUIMessage)
+					}
+
+					const snapshotMessages = $state.snapshot(messages)
+
+					await getMessage({
+						index: snapshotMessages.length - 1,
+						type: 'resume',
+						chatRequest: {
+							body: {
+								id: event.data.id,
+							},
+						},
+						streamId: event.data.id,
+					})
+				}
+			},
+		})
+	}
+
 	return {
 		get messages(): ChatUIMessage[] {
 			return messages
@@ -234,11 +294,19 @@ export const getChatState = ({
 		set input(value: string) {
 			input = value
 		},
-		data,
+		get data() {
+			return data
+		},
+		set data(value: JSONValue[]) {
+			data = value
+		},
 		get id() {
 			return id
 		},
 		getMessage,
+		set chatId(value: string) {
+			chatId = value
+		},
 	}
 }
 
