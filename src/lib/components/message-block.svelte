@@ -3,7 +3,12 @@
 	import { cn } from '$lib/utils'
 	import type { JSONValue, UIMessage } from 'ai'
 	import { Button } from '$lib/components/ui/button'
-	import { Loader2Icon, SplitIcon, SquareIcon } from 'lucide-svelte'
+	import {
+		AlertCircleIcon,
+		Loader2Icon,
+		SplitIcon,
+		SquareIcon,
+	} from 'lucide-svelte'
 	import GoogleGroundingSection from '$lib/components/google-grounding-section.svelte'
 	import Markdown from './markdown'
 	import Attachments from './message/attachments.svelte'
@@ -137,6 +142,8 @@
 							{/* @ts-ignore */ null}
 							{#if annotation?.error.type === 'stopped_by_user'}
 								<SquareIcon class="size-4" />
+							{:else}
+								<AlertCircleIcon class="size-4" />
 							{/if}
 							<span class="text-sm">
 								{/* @ts-ignore */ null}

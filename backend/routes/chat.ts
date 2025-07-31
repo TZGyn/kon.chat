@@ -546,6 +546,47 @@ const app = new Hono<{
 					onStepFinish: (data) => {},
 					onError: (error) => {
 						console.log('Error', error)
+
+						const responseMessages = mergeChunksToResponse(chunks)
+
+						updateUserChatAndLimit({
+							chatId,
+							messages:
+								responseMessages.length > 0
+									? responseMessages
+									: [
+											{
+												role: 'assistant',
+												content: [{ type: 'text', text: '' }],
+											},
+										],
+							provider,
+							providerMetadata: {
+								kon_chat: {
+									status: 'error',
+									error: {
+										type: 'api_call_error',
+										message:
+											// @ts-ignore
+											error.error?.message ||
+											'Error when generating response',
+										error: error,
+									},
+								},
+							},
+							reasoning: undefined,
+							user,
+							usage: {
+								completionTokens: 0,
+								promptTokens: 0,
+								totalTokens: 0,
+							},
+							userMessage,
+							userMessageDate,
+							mode,
+							response_id: nanoid(),
+							apiKey: setting.openAIApiKey!,
+						})
 					},
 					experimental_transform: smoothStream({
 						delayInMs: 20, // optional: defaults to 10ms
