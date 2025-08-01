@@ -18,15 +18,52 @@ import {
 	type UIMessage,
 } from '@ai-sdk/ui-utils'
 
+export type ChatState = {
+	get messages(): ChatUIMessage[]
+	set messages(value: ChatMessage[])
+	handleSubmit: (
+		event?: {
+			preventDefault?: () => void
+		},
+		options?: ChatRequestOptions,
+	) => Promise<void>
+	get status(): 'submitted' | 'streaming' | 'ready' | 'error'
+	set status(value: 'submitted' | 'streaming' | 'ready' | 'error')
+	get input(): string
+	set input(value: string)
+	get data(): JSONValue[]
+	set data(value: JSONValue)
+	get id(): string
+	getMessage: ({
+		index,
+		type,
+		chatRequest,
+		streamId,
+	}: {
+		type: 'resume' | 'new'
+		index: number
+		chatRequest: {
+			data?: JSONValue | undefined
+			body?: object | undefined
+			headers?: Record<string, string> | Headers | undefined
+			messages?: ChatMessage[]
+		}
+		streamId?: string
+	}) => Promise<void>
+	set chatId(value: string)
+}
+
+export type ChatStateInput = {
+	options: ChatOptions
+	chatId: string
+	clientId: string
+}
+
 export const getChatState = ({
 	options,
 	chatId: chat_id,
 	clientId,
-}: {
-	options: ChatOptions
-	chatId: string
-	clientId: string
-}) => {
+}: ChatStateInput) => {
 	let api = $derived(options.api ?? '/api/chat')
 
 	let id = $derived(options.id ?? nanoid())
@@ -34,7 +71,6 @@ export const getChatState = ({
 	let chatId = $derived(chat_id)
 
 	let messages = $state<ChatUIMessage[]>([])
-	let abortController: AbortController | null = null
 	let status = $state<'submitted' | 'streaming' | 'ready' | 'error'>(
 		'ready',
 	)
@@ -45,14 +81,14 @@ export const getChatState = ({
 
 	let resumeAbortController: AbortController | null = null
 
-	$effect(() => {
-		chatId
-		try {
-			resumeAbortController?.abort()
-		} catch {}
-		resumeAbortController = new AbortController()
-		resumeChat(chatId)
-	})
+	// $effect(() => {
+	// 	chatId
+	// 	try {
+	// 		resumeAbortController?.abort()
+	// 	} catch {}
+	// 	resumeAbortController = new AbortController()
+	// 	resumeChat(chatId)
+	// })
 
 	const handleSubmit = async (
 		event?: { preventDefault?: () => void },
@@ -122,8 +158,6 @@ export const getChatState = ({
 		}
 
 		try {
-			abortController = new AbortController()
-
 			const constructedMessagesPayload = messages.map(
 				({
 					role,
@@ -173,7 +207,7 @@ export const getChatState = ({
 					headers: {
 						...chatRequest.headers,
 					},
-					abortController: () => abortController,
+					abortController: undefined,
 					restoreMessagesOnFailure: () => {},
 					onResponse: () => {},
 					onUpdate: ({ message, data, replaceLastMessage }) => {
@@ -226,8 +260,6 @@ export const getChatState = ({
 					})
 				}
 			}
-
-			abortController = null
 		} catch (error) {
 			console.log(isAbortError(error))
 			if (isAbortError(error)) {
@@ -235,9 +267,16 @@ export const getChatState = ({
 			}
 			const coalescedError =
 				error instanceof Error ? error : new Error(String(error))
-			if (options.onError) {
-				options.onError(coalescedError)
-			}
+
+			status = 'ready'
+			messages[messages.length - 1].annotations?.push({
+				type: 'kon_chat',
+				status: 'error',
+				error: {
+					type: coalescedError.name,
+					message: coalescedError.message,
+				},
+			})
 			messages[index + 1].status = 'ready'
 			// this.#store.error = coalescedError
 		}
@@ -251,7 +290,7 @@ export const getChatState = ({
 				},
 				{
 					init: {
-						signal: resumeAbortController?.signal,
+						// signal: resumeAbortController?.signal,
 					},
 				},
 			)

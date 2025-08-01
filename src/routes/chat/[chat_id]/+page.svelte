@@ -39,7 +39,7 @@
 	import { processStream } from '$lib/stream.js'
 	import { parseSSE } from '$lib/sse.js'
 	import { browser } from '$app/environment'
-	import { getChatState } from './message.svelte.js'
+	import { getChatState } from '$lib/states/message.svelte.js'
 	import type { ChatUIMessage } from '$lib/message.js'
 
 	let chat_id = $derived(page.params.chat_id)
@@ -207,20 +207,6 @@
 
 				customUseChat.status = 'ready'
 			},
-			onError: (error) => {
-				customUseChat.status = 'ready'
-				customUseChat.messages[
-					customUseChat.messages.length - 1
-				].annotations?.push({
-					type: 'kon_chat',
-					status: 'error',
-					error: {
-						type: error.name,
-						message: error.message,
-					},
-				})
-			},
-			credentials: 'include',
 		},
 	})
 
