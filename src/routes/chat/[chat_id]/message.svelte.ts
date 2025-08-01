@@ -41,7 +41,7 @@ export const getChatState = ({
 	let data = $state<JSONValue[]>([])
 
 	const client = makeClient(fetch)
-	const clientId = nanoid()
+	let clientId = $state(nanoid())
 
 	let resumeAbortController: AbortController | null = null
 
@@ -169,50 +169,74 @@ export const getChatState = ({
 					chatId: chatId,
 					streamId: streamId,
 				})
+
+				await callChatApi({
+					api: api + '/resume',
+					body: {
+						id: id,
+						clientId: clientId,
+						messages: constructedMessagesPayload,
+						data: chatRequest.data,
+						...chatRequest.body,
+					},
+					streamProtocol: 'data',
+					credentials: 'include',
+					headers: {
+						...chatRequest.headers,
+					},
+					abortController: () => abortController,
+					restoreMessagesOnFailure: () => {},
+					onResponse: () => {},
+					onUpdate: ({ message, data, replaceLastMessage }) => {
+						messages = messages
+
+						messages[index + 1] = {
+							...messages[index + 1],
+							...message,
+							status: 'streaming',
+						}
+
+						if (data?.length) {
+							data = existingData
+							data.push(...data)
+						}
+					},
+					onToolCall: () => {},
+					onFinish: (message, option) => {
+						options.onFinish?.(message, option)
+						messages[index + 1].status = 'ready'
+					},
+					generateId: nanoid,
+					fetch: options.fetch,
+					// callChatApi calls structuredClone on the message
+					lastMessage: $state.snapshot(messages[index]),
+				})
+			} else {
+				const response = await client.chat[':chat_id'].$post({
+					param: {
+						chat_id: chatId,
+					},
+					json: {
+						clientId: clientId,
+						messages: constructedMessagesPayload,
+						...chatRequest.body,
+					},
+				})
+
+				if (response.status === 200) {
+					const streamId = (await response.json()).messageId
+					getMessage({
+						type: 'resume',
+						chatRequest: {
+							body: {
+								id: streamId,
+							},
+						},
+						index,
+						streamId: streamId,
+					})
+				}
 			}
-			await callChatApi({
-				api: type === 'new' ? api : api + '/resume',
-				body: {
-					id: id,
-					messages: constructedMessagesPayload,
-					data: chatRequest.data,
-					...chatRequest.body,
-				},
-				streamProtocol: 'data',
-				credentials: 'include',
-				headers: {
-					...chatRequest.headers,
-				},
-				abortController: () => abortController,
-				restoreMessagesOnFailure: () => {},
-				onResponse: () => {},
-				onUpdate: ({ message, data, replaceLastMessage }) => {
-					if (type === 'new') return
-
-					messages = messages
-
-					messages[index + 1] = {
-						...messages[index + 1],
-						...message,
-						status: 'streaming',
-					}
-
-					if (data?.length) {
-						data = existingData
-						data.push(...data)
-					}
-				},
-				onToolCall: () => {},
-				onFinish: (message, option) => {
-					if (type === 'new') return
-					options.onFinish?.(message, option)
-					messages[index + 1].status = 'ready'
-				},
-				generateId: nanoid,
-				fetch: options.fetch,
-				// callChatApi calls structuredClone on the message
-				lastMessage: $state.snapshot(messages[index]),
-			})
 
 			abortController = null
 		} catch (error) {
@@ -251,11 +275,14 @@ export const getChatState = ({
 				console.log(event)
 				if (!event) return
 
-				if (event.event === 'new-message') {
-					if (event.data.clientId != clientId) {
-						messages.push(event.data.data as ChatUIMessage)
-					}
+				console.log('IDS', event.data.clientId, clientId)
 
+				if (
+					event.event === 'new-message' &&
+					event.data.clientId != clientId
+				) {
+					console.log('resume stream')
+					messages.push(event.data.data as ChatUIMessage)
 					const snapshotMessages = $state.snapshot(messages)
 
 					await getMessage({

@@ -819,7 +819,7 @@ const app = new Hono<{
 				console.log('Stream Error', error)
 			}
 
-			return c.json({}, 200)
+			return c.json({ messageId: key }, 200)
 		},
 	)
 
