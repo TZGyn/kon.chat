@@ -101,7 +101,7 @@
 			{#each allChats as chat_section}
 				{#if chat_section.chats.length > 0}
 					<Sidebar.GroupLabel
-						class="bg-sidebar sticky top-0 z-10 rounded-none">
+						class="bg-sidebar text-muted-foreground sticky top-0 z-10 rounded-none">
 						{m[chat_section.title]()}
 					</Sidebar.GroupLabel>
 					<Sidebar.Menu class="">
@@ -127,7 +127,7 @@
 											{...props}
 											class={cn(
 												props.class as string,
-												'h-12 rounded transition-[width,height] group-has-data-[sidebar=menu-action]/menu-item:pr-2 group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-6',
+												'h-8 rounded transition-[width,height] group-has-data-[sidebar=menu-action]/menu-item:pr-2 group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-6',
 											)}
 											data-sveltekit-preload-code="eager">
 											{#if chat.visibility === 'public'}
