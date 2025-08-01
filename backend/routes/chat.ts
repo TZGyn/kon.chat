@@ -393,17 +393,6 @@ const app = new Hono<{
 			z.object({
 				messages: z.any(),
 				provider: modelSchema,
-				searchGrounding: z.boolean().default(false),
-				mode: z
-					.union([
-						z.literal('x_search'),
-						z.literal('chat'),
-						z.literal('web_search'),
-						z.literal('academic_search'),
-						z.literal('web_reader_exa'),
-						z.literal('gpt-image-1'),
-					])
-					.default('chat'),
 				additional_system_prompt: z
 					.string()
 					.max(1000)
@@ -423,19 +412,10 @@ const app = new Hono<{
 			const {
 				messages,
 				provider,
-				searchGrounding,
-				mode,
 				additional_system_prompt,
 				name_for_llm,
 				clientId,
 			} = c.req.valid('json')
-
-			if (searchGrounding && mode !== 'chat') {
-				return c.text(
-					'Google models does not support calling search grounding and tools at the same time',
-					400,
-				)
-			}
 
 			const chatId = c.req.param('chat_id')
 
@@ -463,7 +443,7 @@ const app = new Hono<{
 
 			const { model, error, providerOptions } = getModel({
 				provider,
-				searchGrounding,
+				searchGrounding: false,
 			})
 
 			if (error !== null) {
@@ -523,7 +503,6 @@ const app = new Hono<{
 					model: model,
 					messages: coreMessages,
 					system: systemPrompt({
-						mode,
 						additional_system_prompt,
 						name_for_llm,
 					}),
@@ -534,15 +513,7 @@ const app = new Hono<{
 					},
 					maxSteps: 5,
 					// experimental_activeTools: [...activeTools(mode)],
-					tools: {
-						...tools(
-							user,
-							chatId,
-							writeMessageAnnotation,
-							mode,
-							setting,
-						),
-					},
+					tools: tools(user, chatId, writeMessageAnnotation, setting),
 					onStepFinish: (data) => {},
 					onError: (error) => {
 						console.log('Error', error)
@@ -583,7 +554,6 @@ const app = new Hono<{
 							},
 							userMessage,
 							userMessageDate,
-							mode,
 							response_id: nanoid(),
 							apiKey: setting.openAIApiKey!,
 						})
@@ -618,7 +588,6 @@ const app = new Hono<{
 							usage,
 							userMessage,
 							userMessageDate,
-							mode,
 							response_id: response.id,
 							apiKey: setting.openAIApiKey!,
 						})
@@ -739,7 +708,6 @@ const app = new Hono<{
 							},
 							userMessage,
 							userMessageDate,
-							mode,
 							response_id: nanoid(),
 							apiKey: setting.openAIApiKey!,
 						})
@@ -810,7 +778,6 @@ const app = new Hono<{
 					},
 					userMessage,
 					userMessageDate,
-					mode,
 					response_id: nanoid(),
 					apiKey: setting.openAIApiKey!,
 				})

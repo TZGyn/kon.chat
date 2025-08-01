@@ -127,33 +127,6 @@
 	"background": "Fondo",
 	"uploading": "Subiendo",
 	"file_uploaded": "Archivo cargado",
-	"mode": {
-		"chat": {
-			"name": "Charlar",
-			"description": "Aviso y respuesta estándar"
-		},
-		"gpt-image-1": {
-			"name": "Imagen",
-			"description": "Genere imágenes utilizando la última tecnología de generación de imágenes de OpenAI"
-		},
-		"web_search": {
-			"name": "Web",
-			"description": "Buscar en la web"
-		},
-		"x_search": {
-			"name": "incógnita",
-			"description": "Buscar X publicaciones"
-		},
-		"academic_search": {
-			"name": "Académico",
-			"description": "Buscar artículos académicos (PDF)"
-		},
-		"web_reader": {
-			"name": "Lector web",
-			"description": "Leer cualquier página web"
-		},
-		"mode": "Modo"
-	},
 	"cost": "Costo",
 	"pricing": "Precios",
 	"are_you_absolutely_sure?": "¿Estás absolutamente seguro?",

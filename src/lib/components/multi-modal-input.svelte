@@ -210,7 +210,6 @@
 				...custom,
 				search,
 				searchGrounding,
-				mode: selectedMode?.id || 'chat',
 				name_for_llm: settings.settings.nameForLLM || '',
 				additional_system_prompt:
 					settings.settings.additionalSystemPrompt || '',
@@ -240,78 +239,6 @@
 	$effect(() => {
 		input
 		adjustInputHeight()
-	})
-
-	let modes = $derived(
-		(
-			[
-				{
-					id: 'chat',
-					name: m['mode.chat.name'](),
-					description: m['mode.chat.description'](),
-					credits: 0,
-					icon: MessageCircleIcon,
-				},
-				{
-					id: 'gpt-image-1',
-					name: m['mode.gpt-image-1.name'](),
-					description: m['mode.gpt-image-1.description'](),
-					icon: ImagesIcon,
-				},
-				{
-					id: 'web_search',
-					name: m['mode.web_search.name'](),
-					description: m['mode.web_search.description'](),
-					icon: GlobeIcon,
-				},
-				// {
-				// 	id: 'x_search',
-				// 	name: m['mode.x_search.name'](),
-				// 	description: m['mode.x_search.description'](),
-				// 	icon: TwitterLogo,
-				// 	credits: 200,
-				// 	disable: !user,
-				// },
-				// {
-				// 	id: 'analysis',
-				// 	name: 'Analysis',
-				// 	description: 'Code, stock and currency stuff',
-				// 	icon: CodeXmlIcon,
-				// 	show: true,
-				// },
-				{
-					id: 'academic_search',
-					name: m['mode.academic_search.name'](),
-					description: m['mode.academic_search.description'](),
-					icon: BookIcon,
-				},
-				{
-					id: 'web_reader_exa',
-					name: m['mode.web_reader.name'](),
-					description: m['mode.web_reader.description'](),
-					icon: LibraryBigIcon,
-				},
-			] as const
-		).filter((mode) => {
-			if (!capabilities.capabilities.search) {
-				if (
-					mode.id === 'web_reader_exa' ||
-					mode.id === 'web_search' ||
-					mode.id === 'academic_search'
-				) {
-					return false
-				}
-			}
-			return true
-		}),
-	)
-
-	let selectedMode = $state<(typeof modes)[number]>()
-
-	$effect(() => {
-		if (!selectedMode) {
-			selectedMode = modes[0]
-		}
 	})
 
 	let modelSearch = $state('')
@@ -658,44 +585,6 @@
 				aria-label="toggle suggestion">
 				<WandSparklesIcon class="size-4" />
 			</Toggle>
-			{#if enableSearch}
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger
-						class={buttonVariants({ variant: 'outline' })}>
-						{#if selectedMode}
-							<selectedMode.icon />
-						{/if}
-						<ChevronDownIcon />
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content>
-						<DropdownMenu.Group>
-							<DropdownMenu.GroupHeading>
-								{m['mode.mode']()}
-							</DropdownMenu.GroupHeading>
-							<DropdownMenu.Separator />
-							{#each modes as mode}
-								<DropdownMenu.Item
-									class="p-3"
-									onclick={() => (selectedMode = mode)}>
-									<div
-										class="flex w-full items-center justify-between">
-										<div class="flex flex-col gap-2">
-											<div class="flex items-center gap-2">
-												<mode.icon />
-												{mode.name}
-											</div>
-											<div
-												class="text-muted-foreground max-w-[200px] text-sm">
-												{mode.description}
-											</div>
-										</div>
-									</div>
-								</DropdownMenu.Item>
-							{/each}
-						</DropdownMenu.Group>
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
-			{/if}
 			<Button type="submit" size="icon">
 				<SendIcon />
 			</Button>

@@ -1,4 +1,3 @@
-import { type Tool } from '$api/ai/tools'
 import {
 	generateTitleFromUserMessage,
 	sanitizeResponseMessages,
@@ -30,7 +29,6 @@ export const updateUserChatAndLimit = async ({
 	provider,
 	providerMetadata,
 	usage,
-	mode,
 	response_id,
 	user,
 	apiKey,
@@ -43,7 +41,6 @@ export const updateUserChatAndLimit = async ({
 	provider: Provider
 	providerMetadata: any | undefined
 	usage: LanguageModelUsage
-	mode: Tool
 	response_id: string
 	user: typeof auth.$Infer.Session.user
 	apiKey: string
