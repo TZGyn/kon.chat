@@ -17,7 +17,6 @@ import {
 	type Message,
 	type UIMessage,
 } from '@ai-sdk/ui-utils'
-import { onMount } from 'svelte'
 
 export const getChatState = ({
 	options,
@@ -55,17 +54,6 @@ export const getChatState = ({
 		resumeChat(chatId)
 	})
 
-	const stop = () => {
-		try {
-			console.log('aborted')
-			abortController?.abort()
-		} catch {
-			// ignore
-		} finally {
-			status = 'ready'
-			abortController = null
-		}
-	}
 	const handleSubmit = async (
 		event?: { preventDefault?: () => void },
 		options: ChatRequestOptions = {},
@@ -315,7 +303,6 @@ export const getChatState = ({
 		set messages(value: ChatMessage[]) {
 			messages = fillMessageParts(value)
 		},
-		stop,
 		handleSubmit,
 		get status() {
 			return status
