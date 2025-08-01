@@ -27,7 +27,7 @@ const app = new Hono<{
 }>()
 app.use(
 	cors({
-		origin: Bun.env.PUBLIC_APP_URL,
+		origin: Bun.env.PUBLIC_APP_URL!,
 		credentials: true,
 	}),
 )
@@ -48,7 +48,7 @@ app.get(
 			},
 			servers: [
 				{
-					url: Bun.env.PUBLIC_API_URL,
+					url: Bun.env.PUBLIC_API_URL!,
 					description: 'Local server',
 				},
 			],
@@ -63,7 +63,6 @@ app.get(
 		url: '/openapi',
 	}),
 )
-
 const router = app
 	.use('*', async (c, next) => {
 		const session = await auth.api.getSession({

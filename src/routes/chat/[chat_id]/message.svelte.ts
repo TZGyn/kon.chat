@@ -22,9 +22,11 @@ import { onMount } from 'svelte'
 export const getChatState = ({
 	options,
 	chatId: chat_id,
+	clientId,
 }: {
 	options: ChatOptions
 	chatId: string
+	clientId: string
 }) => {
 	let api = $derived(options.api ?? '/api/chat')
 
@@ -41,7 +43,6 @@ export const getChatState = ({
 	let data = $state<JSONValue[]>([])
 
 	const client = makeClient(fetch)
-	let clientId = $state(nanoid())
 
 	let resumeAbortController: AbortController | null = null
 
@@ -255,49 +256,56 @@ export const getChatState = ({
 	}
 
 	const resumeChat = async (chat_id: string) => {
-		const response = await client.chat[':chat_id'].sse.$post(
-			{
-				param: { chat_id },
-			},
-			{
-				init: {
-					signal: resumeAbortController?.signal,
+		try {
+			const response = await client.chat[':chat_id'].sse.$post(
+				{
+					param: { chat_id },
 				},
-			},
-		)
+				{
+					init: {
+						signal: resumeAbortController?.signal,
+					},
+				},
+			)
 
-		if (!response.body) return
+			if (!response.body) return
 
-		await processStream({
-			stream: response.body,
-			onValue: async ({ value }) => {
-				const event = parseSSE(value)
-				console.log(event)
-				if (!event) return
+			await processStream({
+				stream: response.body,
+				onValue: async ({ value }) => {
+					const event = parseSSE(value)
+					console.log(event)
+					if (!event) return
 
-				console.log('IDS', event.data.clientId, clientId)
+					console.log('IDS', event.data.clientId, clientId)
 
-				if (
-					event.event === 'new-message' &&
-					event.data.clientId != clientId
-				) {
-					console.log('resume stream')
-					messages.push(event.data.data as ChatUIMessage)
-					const snapshotMessages = $state.snapshot(messages)
+					if (
+						event.event === 'new-message' &&
+						event.data.clientId != clientId
+					) {
+						console.log('resume stream')
+						messages.push(event.data.data as ChatUIMessage)
+						const snapshotMessages = $state.snapshot(messages)
 
-					await getMessage({
-						index: snapshotMessages.length - 1,
-						type: 'resume',
-						chatRequest: {
-							body: {
-								id: event.data.id,
+						await getMessage({
+							index: snapshotMessages.length - 1,
+							type: 'resume',
+							chatRequest: {
+								body: {
+									id: event.data.id,
+								},
 							},
-						},
-						streamId: event.data.id,
-					})
-				}
-			},
-		})
+							streamId: event.data.id,
+						})
+					}
+				},
+			})
+		} catch (error) {
+			console.log(error)
+		}
+		console.log('retry')
+
+		resumeChat(chatId)
 	}
 
 	return {

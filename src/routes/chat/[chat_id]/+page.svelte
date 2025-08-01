@@ -160,6 +160,7 @@
 		get chatId() {
 			return chat_id
 		},
+		clientId: clientId,
 		options: {
 			initialMessages: [],
 			get api() {
