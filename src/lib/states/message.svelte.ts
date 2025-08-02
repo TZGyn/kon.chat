@@ -90,6 +90,39 @@ export const getChatState = ({
 	// 	resumeChat(chatId)
 	// })
 
+	const checkActiveStreams = async (chat_id: string) => {
+		const response = await makeClient(fetch).chat[
+			':chat_id'
+		].active_streams.$get({
+			param: {
+				chat_id: chat_id,
+			},
+		})
+
+		if (response.status === 200) {
+			const activeStreams = await response.json()
+
+			activeStreams.activeStreams.map(async (stream) => {
+				messages.push(stream.message as ChatUIMessage)
+				const newMessages = $state.snapshot(messages)
+				await getMessage({
+					index: newMessages.length - 1,
+					type: 'resume',
+					chatRequest: {
+						body: {
+							id: stream.id,
+						},
+					},
+					streamId: stream.id,
+				})
+			})
+		}
+	}
+
+	$effect(() => {
+		checkActiveStreams(chatId)
+	})
+
 	const handleSubmit = async (
 		event?: { preventDefault?: () => void },
 		options: ChatRequestOptions = {},

@@ -22,7 +22,6 @@
 		Share2Icon,
 	} from 'lucide-svelte'
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
-	import { onMount } from 'svelte'
 	import {
 		convertToUIMessages,
 		getMostRecentUserMessageIndex,
@@ -36,11 +35,9 @@
 	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
 	import { makeClient } from '$api/api-client.js'
-	import { processStream } from '$lib/stream.js'
-	import { parseSSE } from '$lib/sse.js'
-	import { browser } from '$app/environment'
 	import { getChatState } from '$lib/states/message.svelte.js'
 	import type { ChatUIMessage } from '$lib/message.js'
+	import { copyChat } from '$lib/utils/chat/copy-chat'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -101,35 +98,6 @@
 	}
 
 	let chat = $derived(useLocalStorage<Chat>(`chat:${chat_id}`, null))
-
-	onMount(async () => {
-		const response = await makeClient(fetch).chat[
-			':chat_id'
-		].active_streams.$get({
-			param: {
-				chat_id: chat_id,
-			},
-		})
-
-		if (response.status === 200) {
-			const activeStreams = await response.json()
-
-			activeStreams.activeStreams.map(async (stream) => {
-				customUseChat.messages.push(stream.message as ChatUIMessage)
-				const messages = $state.snapshot(customUseChat.messages)
-				await customUseChat.getMessage({
-					index: messages.length - 1,
-					type: 'resume',
-					chatRequest: {
-						body: {
-							id: stream.id,
-						},
-					},
-					streamId: stream.id,
-				})
-			})
-		}
-	})
 
 	$effect(() => {
 		const chat = localStorage.getItem(`chat:${chat_id}`)
@@ -242,26 +210,6 @@
 
 	let copyChatDialogOpen = $state(false)
 	let copyingChat = $state(false)
-
-	const copyChat = async (chat_id: string) => {
-		copyingChat = true
-
-		const response = await client.chat[':chat_id'].copy.$post({
-			param: { chat_id: chat_id },
-		})
-
-		if (response.status !== 200) {
-			toast.error('Cannot copy this chat to your account')
-		}
-
-		const body = (await response.json()) as { id: string }
-		copyingChat = true
-
-		await goto(`/chat/${body.id}`)
-		copyChatDialogOpen = false
-		chats.getChats()
-		toast.success('Chat Copied')
-	}
 
 	const branch = async (at_message_id: string, chat_id: string) => {
 		const chat = localStorage.getItem(`chat:${chat_id}`)
@@ -479,7 +427,14 @@
 				</Button>
 				<Button
 					variant="default"
-					onclick={() => copyChat(chat_id)}
+					onclick={async () => {
+						copyingChat = true
+
+						await copyChat(chat_id)
+
+						copyingChat = true
+						copyChatDialogOpen = false
+					}}
 					class="flex flex-1 gap-2"
 					disabled={copyingChat}>
 					{#if copyingChat}
