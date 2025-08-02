@@ -7,6 +7,8 @@
 	import { ModeWatcher } from 'mode-watcher'
 	import { useLocale } from '$lib/states/lang.svelte'
 	import OpenaiApikeyChecker from './(components)/openai-apikey-checker.svelte'
+	import { page } from '$app/state'
+	import { cn } from '$lib/utils'
 
 	let { children } = $props()
 
@@ -20,7 +22,22 @@
 			<!-- <header
 			class="flex h-16 shrink-0 items-center justify-between gap-2 bg-transparent px-4">
 		</header> -->
-			<div class="flex max-h-svh flex-1 overflow-hidden">
+			{#if page.url.pathname.startsWith('/chat')}
+				<Sidebar.Trigger class="absolute top-4 left-4 z-50" />
+			{:else}
+				<header
+					class="bg-sidebar flex h-12 items-center border-b px-4">
+					<Sidebar.Trigger class="z-50" />
+				</header>
+			{/if}
+
+			<div
+				class={cn(
+					'flex  flex-1 overflow-hidden',
+					page.url.pathname.startsWith('/chat')
+						? 'max-h-svh'
+						: 'max-h-[calc(100svh-3rem)]',
+				)}>
 				<div class="flex w-full flex-1 flex-col">
 					{@render children()}
 				</div>

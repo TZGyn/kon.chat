@@ -96,107 +96,64 @@
 </script>
 
 <Sidebar.Group class="flex-1 overflow-hidden">
-	{#if sidebar.open || sidebar.isMobile}
-		<ScrollArea class="overflow-hidden" scrollbarYClasses={'hidden'}>
-			{#each allChats as chat_section}
-				{#if chat_section.chats.length > 0}
-					<Sidebar.GroupLabel
-						class="bg-sidebar text-muted-foreground sticky top-0 z-10 rounded-none">
-						{m[chat_section.title]()}
-					</Sidebar.GroupLabel>
-					<Sidebar.Menu class="">
-						{#each chat_section.chats.sort((a, b) => {
-							if (a.updatedAt < b.updatedAt) {
-								return 1
-							} else if (a.updatedAt > b.updatedAt) {
-								return -1
-							}
-							return 0
-						}) as chat}
-							<Sidebar.MenuItem
-								class={cn(
-									'group/menu-button',
-									chat.status === 'streaming' && 'animate-pulse',
-								)}>
-								<Sidebar.MenuButton
-									isActive={page.url.pathname === `/chat/${chat.id}`}>
-									{#snippet child({ props })}
-										<a
-											href={`/chat/${chat.id}`}
-											title={chat.title}
-											{...props}
-											class={cn(
-												props.class as string,
-												'h-8 rounded transition-[width,height] group-has-data-[sidebar=menu-action]/menu-item:pr-2 group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-6',
-											)}
-											data-sveltekit-preload-code="eager">
-											{#if chat.visibility === 'public'}
-												<EyeIcon class="size-4" />
-											{/if}
-											<span>
-												{chat.title}
-											</span>
-										</a>
-									{/snippet}
-								</Sidebar.MenuButton>
-								<Sidebar.MenuAction
-									showOnHover
-									class="top-1/2"
-									onclick={() => {
-										selectedChatId = chat.id
-										openDeleteChatDialog = true
-									}}>
-									<XIcon />
-									<span class="sr-only">Delete</span>
-								</Sidebar.MenuAction>
-							</Sidebar.MenuItem>
-						{/each}
-					</Sidebar.Menu>
-				{/if}
-			{/each}
-		</ScrollArea>
-	{:else}
-		<Sidebar.Menu>
-			<Sidebar.MenuItem>
-				<DropdownMenu.Root>
-					<DropdownMenu.Trigger>
-						{#snippet child({ props })}
+	<ScrollArea class="overflow-hidden" scrollbarYClasses={'hidden'}>
+		{#each allChats as chat_section}
+			{#if chat_section.chats.length > 0}
+				<Sidebar.GroupLabel
+					class="bg-sidebar text-muted-foreground sticky top-0 z-10 rounded-none">
+					{m[chat_section.title]()}
+				</Sidebar.GroupLabel>
+				<Sidebar.Menu class="">
+					{#each chat_section.chats.sort((a, b) => {
+						if (a.updatedAt < b.updatedAt) {
+							return 1
+						} else if (a.updatedAt > b.updatedAt) {
+							return -1
+						}
+						return 0
+					}) as chat}
+						<Sidebar.MenuItem
+							class={cn(
+								'group/menu-button',
+								chat.status === 'streaming' && 'animate-pulse',
+							)}>
 							<Sidebar.MenuButton
-								class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-								{...props}>
-								<MessageCircleIcon class="size-4" />
+								isActive={page.url.pathname === `/chat/${chat.id}`}>
+								{#snippet child({ props })}
+									<a
+										href={`/chat/${chat.id}`}
+										title={chat.title}
+										{...props}
+										class={cn(
+											props.class as string,
+											'h-8 rounded transition-[width,height] group-has-data-[sidebar=menu-action]/menu-item:pr-2 group-hover/menu-button:group-has-data-[sidebar=menu-action]/menu-item:pr-6',
+										)}
+										data-sveltekit-preload-code="eager">
+										{#if chat.visibility === 'public'}
+											<EyeIcon class="size-4" />
+										{/if}
+										<span>
+											{chat.title}
+										</span>
+									</a>
+								{/snippet}
 							</Sidebar.MenuButton>
-						{/snippet}
-					</DropdownMenu.Trigger>
-					<DropdownMenu.Content
-						class="max-h-screen w-[--bits-dropdown-menu-anchor-width] min-w-56 overflow-y-scroll rounded-lg"
-						side={sidebar.isMobile ? 'bottom' : 'right'}
-						align="end"
-						sideOffset={4}>
-						<DropdownMenu.Group>
-							<DropdownMenu.GroupHeading>
-								Chats
-							</DropdownMenu.GroupHeading>
-							<DropdownMenu.Separator />
-							{#each chats.chats as chat}
-								<DropdownMenu.Item>
-									{#snippet child({ props })}
-										<a
-											href={`/chat/${chat.id}`}
-											title={chat.title}
-											{...props}>
-											<!-- <span>{item.emoji}</span> -->
-											<span>{chat.title}</span>
-										</a>
-									{/snippet}
-								</DropdownMenu.Item>
-							{/each}
-						</DropdownMenu.Group>
-					</DropdownMenu.Content>
-				</DropdownMenu.Root>
-			</Sidebar.MenuItem>
-		</Sidebar.Menu>
-	{/if}
+							<Sidebar.MenuAction
+								showOnHover
+								class="top-1/2"
+								onclick={() => {
+									selectedChatId = chat.id
+									openDeleteChatDialog = true
+								}}>
+								<XIcon />
+								<span class="sr-only">Delete</span>
+							</Sidebar.MenuAction>
+						</Sidebar.MenuItem>
+					{/each}
+				</Sidebar.Menu>
+			{/if}
+		{/each}
+	</ScrollArea>
 </Sidebar.Group>
 
 <Dialog.Root bind:open={openDeleteChatDialog}>

@@ -17,7 +17,7 @@
 
 	let {
 		ref = $bindable(null),
-		collapsible = 'icon',
+		collapsible = 'offcanvas',
 		...restProps
 	}: ComponentProps<typeof Sidebar.Root> = $props()
 
@@ -41,7 +41,6 @@
 						</div>
 					</a>
 				{/if}
-				<Sidebar.Trigger class="z-50" />
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 	</Sidebar.Header>
