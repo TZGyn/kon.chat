@@ -171,6 +171,7 @@
 				{m.cancel()}
 			</Button>
 			<Button
+				variant="destructive"
 				onclick={() => {
 					if (selectedChatId) {
 						chats.deleteChats(selectedChatId)
