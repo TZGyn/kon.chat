@@ -54,16 +54,6 @@ function getErrorMessage(error: unknown | undefined) {
 	return JSON.stringify(error)
 }
 
-const arrToObj = (arr: string[]) => {
-	const obj: Record<string, string> = {}
-
-	for (let i = 0; i < arr.length; i += 2) {
-		obj[arr[i]] = JSON.parse(arr[i + 1])
-	}
-
-	return obj
-}
-
 const app = new Hono<{
 	Variables: AuthType
 }>()
