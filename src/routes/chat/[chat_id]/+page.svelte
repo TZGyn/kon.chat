@@ -38,6 +38,7 @@
 	import { getChatState } from '$lib/states/message.svelte.js'
 	import type { ChatUIMessage } from '$lib/message.js'
 	import { copyChat } from '$lib/utils/chat/copy-chat'
+	import { useMessages } from '$lib/states/messages.svelte'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -120,63 +121,52 @@
 
 	const chats = useChats()
 
-	$effect(() => {
-		customUseChat.chatId = chat_id
-	})
-
-	let customUseChat = getChatState({
-		get chatId() {
-			return chat_id
-		},
-		clientId: clientId,
-		options: {
-			initialMessages: [],
-			get api() {
-				return `${PUBLIC_API_URL}/chat/${chat_id}`
-			},
-			get id() {
-				return chat_id
-			},
-			onFinish: (response) => {
-				if (page.url.searchParams.has('type')) {
-					page.url.searchParams.delete('type')
-					replaceState(page.url, page.state)
-					isNew = false
-				}
-				setTimeout(() => {
-					chats.getChats()
-				}, 3000)
-
-				const message: Message = {
-					chatId: customUseChat.id,
-					...response,
-					content: response.parts,
-					model:
-						// @ts-ignore
-						response.annotations?.find(
-							(annotation) =>
-								// @ts-ignore
-								annotation['type'] === 'model' &&
-								// @ts-ignore
-								annotation['model'] !== null,
-							// @ts-ignore
-						).model || '',
-					provider: '',
-					providerMetadata: {},
-					responseId: '',
-					createdAt: Date.now(),
-				}
-				if (chat.value !== null) {
-					chat.value = {
-						...chat.value,
-						messages: [...chat.value.messages, message],
+	let customUseChat = $derived(
+		useMessages().getMessage({
+			chat_id,
+			clientId: clientId,
+			options: {
+				onFinish: (response) => {
+					if (page.url.searchParams.has('type')) {
+						page.url.searchParams.delete('type')
+						replaceState(page.url, page.state)
+						isNew = false
 					}
-				}
+					setTimeout(() => {
+						chats.getChats()
+					}, 3000)
 
-				customUseChat.status = 'ready'
+					const message: Message = {
+						chatId: customUseChat.id,
+						...response,
+						content: response.parts,
+						model:
+							// @ts-ignore
+							response.annotations?.find(
+								(annotation) =>
+									// @ts-ignore
+									annotation['type'] === 'model' &&
+									// @ts-ignore
+									annotation['model'] !== null,
+								// @ts-ignore
+							).model || '',
+						provider: '',
+						providerMetadata: {},
+						responseId: '',
+						createdAt: Date.now(),
+					}
+					if (chat.value !== null) {
+						chat.value = {
+							...chat.value,
+							messages: [...chat.value.messages, message],
+						}
+					}
+
+					customUseChat.status = 'ready'
+				},
 			},
-		},
-	})
+		}),
+	)
 
 	let shareChatDialogOpen = $state(false)
 	let sharingChat = $state(false)

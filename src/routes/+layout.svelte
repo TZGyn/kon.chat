@@ -9,6 +9,7 @@
 	import OpenaiApikeyChecker from './(components)/openai-apikey-checker.svelte'
 	import { page } from '$app/state'
 	import { cn } from '$lib/utils'
+	import WebsocketListener from './(components)/websocket-listener.svelte'
 
 	let { children } = $props()
 
@@ -47,4 +48,5 @@
 	<Toaster richColors position="top-right" />
 	<ModeWatcher defaultMode="system" />
 	<OpenaiApikeyChecker />
+	<WebsocketListener />
 {/key}

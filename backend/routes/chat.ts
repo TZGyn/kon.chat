@@ -329,53 +329,6 @@ const app = new Hono<{
 		},
 	)
 
-	.post('/:chat_id/sse', async (c) => {
-		return streamSSE(c, async (stream) => {
-			const chatId = c.req.param('chat_id')
-			const streamKey = `session:${chatId}`
-			const subscription = createRedis()
-
-			subscription.subscribe(streamKey)
-			subscription.on('message', async (channel, message) => {
-				if (channel === streamKey) {
-					try {
-						await stream.writeSSE({
-							data: message,
-							event: 'new-message',
-							id: nanoid(),
-						})
-					} catch (error) {
-						console.error(error)
-					}
-				}
-			})
-
-			subscription.on('error', (error) => {
-				console.error(
-					`SSE subscription error on ${streamKey}:`,
-					error,
-				)
-				stream.close()
-			})
-
-			c.req.raw.signal.addEventListener('abort', () => {
-				console.log('Client disconnected, cleaning up subscription')
-				subscription.unsubscribe(streamKey)
-				stream.close()
-			})
-
-			while (true) {
-				const message = `It is ${new Date().toISOString()}`
-				await stream.writeSSE({
-					data: message,
-					event: 'keep-alive',
-					id: nanoid(),
-				})
-				await stream.sleep(5000)
-			}
-		})
-	})
-
 	.post(
 		'/:chat_id',
 		describeRoute({ tags: ['chat'] }),
@@ -648,6 +601,17 @@ const app = new Hono<{
 									chatSessionKey,
 									JSON.stringify({
 										message: 'message',
+										id: key,
+										data: messages[messages.length - 1],
+										clientId: clientId,
+									}),
+								)
+
+								await publisher.publish(
+									`user:${user.id}:events`,
+									JSON.stringify({
+										type: 'new-message',
+										chatId: chatId,
 										id: key,
 										data: messages[messages.length - 1],
 										clientId: clientId,

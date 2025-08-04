@@ -21,6 +21,12 @@ import { ModelRoutes } from './routes/model'
 import { auth, type AuthType } from '$api/auth'
 import { db } from '$api/db'
 import { setting } from '$api/db/schema'
+import { createBunWebSocket } from 'hono/bun'
+import type { ServerWebSocket } from 'bun'
+import { createRedis } from '$api/redis'
+
+const { upgradeWebSocket, websocket } =
+	createBunWebSocket<ServerWebSocket>()
 
 const app = new Hono<{
 	Variables: AuthType
@@ -100,6 +106,29 @@ const router = app
 		c.set('setting', settings)
 		return next()
 	})
+	.get('/ws', (c) => {
+		return upgradeWebSocket(c, {
+			onOpen: (event, ws) => {
+				const user = c.get('user')
+
+				const streamKey = `user:${user.id}:events`
+				const subscription = createRedis()
+
+				subscription.subscribe(streamKey)
+				subscription.on('message', async (channel, message) => {
+					console.log(message)
+					ws.send(message)
+				})
+			},
+			onMessage(event, ws) {
+				console.log(`Message from client: ${event.data}`)
+				ws.send('Hello from server!')
+			},
+			onClose: () => {
+				console.log('Connection closed')
+			},
+		})
+	})
 	.route('/auth', AuthRoutes)
 	.route('/user', UserRoutes)
 	.route('/model', ModelRoutes)
@@ -119,4 +148,5 @@ export default {
 	port: 8080,
 	fetch: app.fetch,
 	idleTimeout: 0,
+	websocket,
 }

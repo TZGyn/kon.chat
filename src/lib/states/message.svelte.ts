@@ -1,12 +1,11 @@
 import { makeClient } from '$api/api-client'
+import { PUBLIC_API_URL } from '$env/static/public'
 import {
 	fillMessageParts,
 	type ChatMessage,
 	type ChatUIMessage,
 } from '$lib/message'
 import { nanoid } from '$lib/nanoid'
-import { parseSSE } from '$lib/sse'
-import { processStream } from '$lib/stream'
 import type { ChatOptions } from '@ai-sdk/svelte'
 import {
 	callChatApi,
@@ -14,8 +13,6 @@ import {
 	type ChatRequest,
 	type ChatRequestOptions,
 	type JSONValue,
-	type Message,
-	type UIMessage,
 } from '@ai-sdk/ui-utils'
 
 export type ChatState = {
@@ -51,6 +48,7 @@ export type ChatState = {
 		streamId?: string
 	}) => Promise<void>
 	set chatId(value: string)
+	get ignoreStreams(): string[]
 }
 
 export type ChatStateInput = {
@@ -59,18 +57,20 @@ export type ChatStateInput = {
 	clientId: string
 }
 
+let messages = $state<ChatUIMessage[]>([])
+let ignoreStreams = $state<string[]>([])
+
 export const getChatState = ({
 	options,
 	chatId: chat_id,
 	clientId,
 }: ChatStateInput) => {
-	let api = $derived(options.api ?? '/api/chat')
+	let api = $derived(`${PUBLIC_API_URL}/chat/${chat_id}`)
 
-	let id = $derived(options.id ?? nanoid())
+	let id = $derived(nanoid())
 
 	let chatId = $derived(chat_id)
 
-	let messages = $state<ChatUIMessage[]>([])
 	let status = $state<'submitted' | 'streaming' | 'ready' | 'error'>(
 		'ready',
 	)
@@ -78,17 +78,6 @@ export const getChatState = ({
 	let data = $state<JSONValue[]>([])
 
 	const client = makeClient(fetch)
-
-	let resumeAbortController: AbortController | null = null
-
-	// $effect(() => {
-	// 	chatId
-	// 	try {
-	// 		resumeAbortController?.abort()
-	// 	} catch {}
-	// 	resumeAbortController = new AbortController()
-	// 	resumeChat(chatId)
-	// })
 
 	const checkActiveStreams = async (chat_id: string) => {
 		const response = await makeClient(fetch).chat[
@@ -263,7 +252,7 @@ export const getChatState = ({
 						messages[index + 1].status = 'ready'
 					},
 					generateId: nanoid,
-					fetch: options.fetch,
+					fetch: undefined,
 					// callChatApi calls structuredClone on the message
 					lastMessage: $state.snapshot(messages[index]),
 				})
@@ -281,6 +270,7 @@ export const getChatState = ({
 
 				if (response.status === 200) {
 					const streamId = (await response.json()).messageId
+					ignoreStreams.push(streamId)
 					getMessage({
 						type: 'resume',
 						chatRequest: {
@@ -315,59 +305,6 @@ export const getChatState = ({
 		}
 	}
 
-	const resumeChat = async (chat_id: string) => {
-		try {
-			const response = await client.chat[':chat_id'].sse.$post(
-				{
-					param: { chat_id },
-				},
-				{
-					init: {
-						// signal: resumeAbortController?.signal,
-					},
-				},
-			)
-
-			if (!response.body) return
-
-			await processStream({
-				stream: response.body,
-				onValue: async ({ value }) => {
-					const event = parseSSE(value)
-					console.log(event)
-					if (!event) return
-
-					console.log('IDS', event.data.clientId, clientId)
-
-					if (
-						event.event === 'new-message' &&
-						event.data.clientId != clientId
-					) {
-						console.log('resume stream')
-						messages.push(event.data.data as ChatUIMessage)
-						const snapshotMessages = $state.snapshot(messages)
-
-						await getMessage({
-							index: snapshotMessages.length - 1,
-							type: 'resume',
-							chatRequest: {
-								body: {
-									id: event.data.id,
-								},
-							},
-							streamId: event.data.id,
-						})
-					}
-				},
-			})
-		} catch (error) {
-			console.log(error)
-		}
-		console.log('retry')
-
-		resumeChat(chatId)
-	}
-
 	return {
 		get messages(): ChatUIMessage[] {
 			return messages
@@ -400,6 +337,9 @@ export const getChatState = ({
 		getMessage,
 		set chatId(value: string) {
 			chatId = value
+		},
+		get ignoreStreams() {
+			return ignoreStreams
 		},
 	}
 }

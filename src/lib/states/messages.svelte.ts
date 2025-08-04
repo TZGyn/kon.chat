@@ -3,18 +3,35 @@ import {
 	type ChatState,
 	type ChatStateInput,
 } from './message.svelte'
+import type { ChatOptions } from '@ai-sdk/svelte'
 
-let messages = $state<Record<string, ChatState>>({})
-export const useMessages = (input: ChatStateInput) => {
-	const getMessage = (chat_id: string) => {
-		if (chat_id in messages) {
-			return messages[chat_id]
-		} else {
-			messages[chat_id] = getChatState(input)
+let messages = $derived<Record<string, ChatState>>({})
+
+export const useMessages = () => {
+	const getMessage = ({
+		chat_id,
+		options,
+		clientId,
+	}: {
+		chat_id: string
+		options: ChatOptions
+		clientId: string
+	}) => {
+		if (!(chat_id in messages)) {
+			messages[chat_id] = getChatState({
+				clientId,
+				options: options,
+				chatId: chat_id,
+			})
 		}
+
+		return messages[chat_id]
 	}
 
 	return {
+		get messages() {
+			return messages
+		},
 		getMessage,
 	}
 }

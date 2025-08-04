@@ -1,0 +1,49 @@
+<script lang="ts">
+	import { makeClient } from '$api/api-client'
+	import type { ChatUIMessage } from '$lib/message'
+	import { useMessages } from '$lib/states/messages.svelte'
+	import { onMount } from 'svelte'
+
+	const client = makeClient(fetch)
+
+	const messages = useMessages()
+
+	onMount(() => {
+		const ws = client.ws.$ws()
+
+		ws.addEventListener('message', async (event) => {
+			const data = JSON.parse(event.data)
+			console.log(data)
+			if (data.type === 'new-message') {
+				if (data.chatId in messages.messages) {
+					if (
+						messages.messages[data.chatId].ignoreStreams.includes(
+							data.id,
+						)
+					) {
+						return
+					}
+
+					messages.messages[data.chatId].messages.push(
+						data.data as ChatUIMessage,
+					)
+
+					const snapshotMessages = $state.snapshot(
+						messages.messages[data.chatId].messages,
+					)
+
+					await messages.messages[data.chatId].getMessage({
+						index: snapshotMessages.length - 1,
+						type: 'resume',
+						chatRequest: {
+							body: {
+								id: data.id,
+							},
+						},
+						streamId: data.id,
+					})
+				}
+			}
+		})
+	})
+</script>
