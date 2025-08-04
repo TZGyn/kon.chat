@@ -19,7 +19,7 @@ import type { Setting } from './db/type.js'
 
 export const auth = betterAuth({
 	baseURL: Bun.env.PUBLIC_API_URL,
-	trustedOrigins: [Bun.env.PUBLIC_APP_URL],
+	trustedOrigins: [Bun.env.PUBLIC_APP_URL!],
 	basePath: '/auth',
 	secret: Bun.env.BETTER_AUTH_SECRET,
 	emailAndPassword: {
@@ -32,16 +32,16 @@ export const auth = betterAuth({
 				!!Bun.env.GOOGLE_OAUTH_CLIENT_ID &&
 				!!Bun.env.GOOGLE_OAUTH_CLIENT_SECRET,
 			disableSignUp: Bun.env.BETTER_AUTH_ENABLE_SIGNUP !== 'true',
-			clientId: Bun.env.GOOGLE_OAUTH_CLIENT_ID,
-			clientSecret: Bun.env.GOOGLE_OAUTH_CLIENT_SECRET,
+			clientId: Bun.env.GOOGLE_OAUTH_CLIENT_ID!,
+			clientSecret: Bun.env.GOOGLE_OAUTH_CLIENT_SECRET!,
 		},
 		github: {
 			enabled:
 				!!Bun.env.GITHUB_OAUTH_CLIENT_ID &&
 				!!Bun.env.GITHUB_OAUTH_CLIENT_SECRET,
 			disableSignUp: Bun.env.BETTER_AUTH_ENABLE_SIGNUP !== 'true',
-			clientId: Bun.env.GITHUB_OAUTH_CLIENT_ID,
-			clientSecret: Bun.env.GITHUB_OAUTH_CLIENT_SECRET,
+			clientId: Bun.env.GITHUB_OAUTH_CLIENT_ID!,
+			clientSecret: Bun.env.GITHUB_OAUTH_CLIENT_SECRET!,
 		},
 	},
 	account: {
