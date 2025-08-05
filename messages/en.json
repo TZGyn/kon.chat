@@ -134,15 +134,5 @@
 	"delete_chat_message": "You are about to delete this chat, this action is irreversible.",
 	"cancel": "Cancel",
 	"delete": "Delete",
-	"password_not_match": "Password Does Not Match!",
-	"suggestions": {
-		"coding": {
-			"python_for_loop": "Write me a python for loop with detailed explanation"
-		},
-		"search": {
-			"apple_stock": "Give me the stock price of Apple over the last year",
-			"usd_to_yen": "Convert USD to Yen",
-			"latest_openai_model": "Search for the latest openai models"
-		}
-	}
+	"password_not_match": "Password Does Not Match!"
 }

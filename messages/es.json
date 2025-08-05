@@ -134,15 +134,5 @@
 	"cancel": "Cancelar",
 	"delete": "Borrar",
 	"password_not_match": "¡La contraseña no coincide!",
-	"sign_up": "Inscribirse",
-	"suggestions": {
-		"coding": {
-			"python_for_loop": "Escríbeme un bucle for de Python con una explicación detallada."
-		},
-		"search": {
-			"apple_stock": "Dame el precio de las acciones de Apple durante el último año.",
-			"usd_to_yen": "Convertir USD a Yen",
-			"latest_openai_model": "Busque los últimos modelos de openai"
-		}
-	}
+	"sign_up": "Inscribirse"
 }

@@ -116,7 +116,6 @@ const router = app
 
 				subscription.subscribe(streamKey)
 				subscription.on('message', async (channel, message) => {
-					console.log(message)
 					ws.send(message)
 				})
 			},

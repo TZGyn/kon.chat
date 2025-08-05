@@ -41,10 +41,10 @@
 		class={cn(
 			'flex gap-2',
 			role === 'user' ? 'place-self-end' : 'place-self-start',
-			isLast &&
-				(halfSize
-					? 'min-h-[calc(50svh-18rem)] @6xl:min-h-[calc(100svh-18rem)]'
-					: 'min-h-[calc(100svh-18rem)]'),
+			// isLast &&
+			// 	(halfSize
+			// 		? 'min-h-[calc(50svh-18rem)] @6xl:min-h-[calc(100svh-18rem)]'
+			// 		: 'min-h-[calc(100svh-18rem)]'),
 		)}>
 		<div class="group flex flex-col gap-2">
 			{#if role !== 'user'}

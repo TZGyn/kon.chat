@@ -49,6 +49,7 @@ export type ChatState = {
 	}) => Promise<void>
 	set chatId(value: string)
 	get ignoreStreams(): string[]
+	get suggestions(): string[]
 }
 
 export type ChatStateInput = {
@@ -58,6 +59,7 @@ export type ChatStateInput = {
 }
 
 let messages = $state<ChatUIMessage[]>([])
+let suggestions = $state<string[]>([])
 let ignoreStreams = $state<string[]>([])
 
 export const getChatState = ({
@@ -250,6 +252,10 @@ export const getChatState = ({
 					onFinish: (message, option) => {
 						options.onFinish?.(message, option)
 						messages[index + 1].status = 'ready'
+						generateSuggestions([
+							messages[index],
+							messages[index + 1],
+						])
 					},
 					generateId: nanoid,
 					fetch: undefined,
@@ -305,6 +311,20 @@ export const getChatState = ({
 		}
 	}
 
+	const generateSuggestions = async (messages: ChatUIMessage[]) => {
+		const response = await client.chat.suggestions.$post({
+			json: {
+				messages: messages,
+			},
+		})
+
+		if (response.status === 200) {
+			const data = await response.json()
+
+			suggestions = data.suggestions
+		}
+	}
+
 	return {
 		get messages(): ChatUIMessage[] {
 			return messages
@@ -340,6 +360,9 @@ export const getChatState = ({
 		},
 		get ignoreStreams() {
 			return ignoreStreams
+		},
+		get suggestions() {
+			return suggestions
 		},
 	}
 }

@@ -54,7 +54,6 @@
 	import Drawing from './input/drawing.svelte'
 	import { useSettings } from '$lib/states/settings.svelte'
 	import { useCapabilities } from '$lib/states/capabilities.svelte'
-	import Suggestions from './input/suggestions.svelte'
 
 	let {
 		input = $bindable(),
@@ -275,8 +274,6 @@
 	let thinkingBudget = $state(0)
 
 	let modelSelectPopoverOpen = $state(false)
-
-	let openSuggestions = $state(false)
 </script>
 
 <form
@@ -292,14 +289,6 @@
 				onclick={() => autoScroll?.scrollToBottom()}>
 				<ArrowDownIcon />
 			</Button>
-		{/if}
-
-		{#if openSuggestions}
-			<Suggestions
-				updatePrompt={(value) => {
-					input = value
-					openSuggestions = false
-				}} />
 		{/if}
 	</div>
 	<Textarea
@@ -580,11 +569,6 @@
 			{/if}
 		</div>
 		<div class="flex items-center gap-2">
-			<Toggle
-				bind:pressed={openSuggestions}
-				aria-label="toggle suggestion">
-				<WandSparklesIcon class="size-4" />
-			</Toggle>
 			<Button type="submit" size="icon">
 				<SendIcon />
 			</Button>

@@ -39,6 +39,8 @@
 	import type { ChatUIMessage } from '$lib/message.js'
 	import { copyChat } from '$lib/utils/chat/copy-chat'
 	import { useMessages } from '$lib/states/messages.svelte'
+	import { MessageCircleQuestionIcon } from '@lucide/svelte'
+	import { cn } from '$lib/utils'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -271,6 +273,31 @@
 							isLast={index === customUseChat.messages.length - 1}
 							branch={() => branch(message.id, chat_id)} />
 					{/each}
+					{#if customUseChat.suggestions.length > 0}
+						<div class="flex flex-col gap-2 pt-4">
+							<div
+								class="text-muted-foreground flex items-center gap-2">
+								<MessageCircleQuestionIcon />
+								Recommended Questions
+							</div>
+							<div class="flex flex-col">
+								<!-- svelte-ignore a11y_no_static_element_interactions -->
+								{#each customUseChat.suggestions as suggestion, index}
+									<!-- svelte-ignore a11y_click_events_have_key_events -->
+									<div
+										class={cn(
+											'hover:text-primary w-full cursor-pointer border-b py-2',
+											index === 0 && 'border-t',
+										)}
+										onclick={() => {
+											customUseChat.input = suggestion
+										}}>
+										{suggestion}
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/if}
 				</div>
 			</div>
 		</div>

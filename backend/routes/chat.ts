@@ -6,6 +6,8 @@ import {
 	formatDataStreamPart,
 	type TextStreamPart,
 	type ToolSet,
+	generateObject,
+	convertToCoreMessages,
 } from 'ai'
 import { z } from 'zod'
 
@@ -37,6 +39,7 @@ import { streamSSE } from 'hono/streaming'
 import type { auth, AuthType } from '$api/auth'
 import { systemPrompt } from '$api/ai/system-prompt'
 import { resumeStream } from '$api/chat/resume-stream'
+import { createOpenAI } from '@ai-sdk/openai'
 
 function getErrorMessage(error: unknown | undefined) {
 	if (error == null) {
@@ -248,6 +251,69 @@ const app = new Hono<{
 			}
 
 			return c.json({ success: true })
+		},
+	)
+
+	.post(
+		'/suggestions',
+		describeRoute({ tags: ['chat'] }),
+		zValidator(
+			'json',
+			z.object({
+				messages: z.any(),
+			}),
+		),
+		async (c) => {
+			const setting = c.get('setting')
+			const { messages } = c.req.valid('json')
+
+			const openai = createOpenAI({
+				apiKey: setting.openAIApiKey!,
+			})
+
+			let coreMessages = convertToCoreMessages(messages)
+			coreMessages = coreMessages.map((message) => {
+				if (message.role !== 'assistant') return message
+				if (typeof message.content === 'string') return message
+
+				return {
+					...message,
+					content: message.content.filter((content) => {
+						return content.type === 'text'
+					}),
+				}
+			})
+
+			const { object } = await generateObject({
+				model: openai('gpt-4.1-nano'),
+				maxTokens: 512,
+				system: `
+					You will be given a question and a response from a LLM chat
+					Based on the messages, you will:
+
+					- Generate 4 prompt suggestions
+					- Do not repeat the same prompt
+
+					There are tools where you can also suggest to call:
+					- Currency converter
+					- Stock Charts
+					- Image Generator
+					- Web page reader (give an url)
+					- Web search
+					- Academic search
+
+					For these tools, your suggestions dont have to be direct like "call currency converter to convert USD to YEN".
+					Instead, you should just suggest "Convert 100 USD to YEN", the tools will be automatically picked up without directly specifying it.
+				`,
+				messages,
+				schema: z.object({
+					suggestions: z
+						.array(z.string())
+						.describe('The generated suggestions'),
+				}),
+			})
+
+			return c.json(object)
 		},
 	)
 

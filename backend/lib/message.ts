@@ -102,7 +102,7 @@ export const processMessages = ({
 					const files = (
 						message.content[0].result as { files: string[] }
 					).files.filter((url) =>
-						url.startsWith(Bun.env.PUBLIC_API_URL),
+						url.startsWith(Bun.env.PUBLIC_API_URL!),
 					)
 
 					if (files.length <= 0) {

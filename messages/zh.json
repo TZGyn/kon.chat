@@ -134,15 +134,5 @@
 	"cancel": "取消",
 	"delete": "删除",
 	"password_not_match": "密码不匹配！",
-	"sign_up": "报名",
-	"suggestions": {
-		"coding": {
-			"python_for_loop": "写一个 Python for 循环并详细解释一下"
-		},
-		"search": {
-			"apple_stock": "告诉我苹果去年的股价",
-			"usd_to_yen": "美元兑换日元",
-			"latest_openai_model": "搜索最新的 openai 模型"
-		}
-	}
+	"sign_up": "报名"
 }
