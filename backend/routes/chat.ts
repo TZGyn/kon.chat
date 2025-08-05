@@ -415,7 +415,6 @@ const app = new Hono<{
 					.optional()
 					.nullable()
 					.default(''),
-				clientId: z.string(),
 			}),
 		),
 		async (c) => {
@@ -424,7 +423,6 @@ const app = new Hono<{
 				provider,
 				additional_system_prompt,
 				name_for_llm,
-				clientId,
 			} = c.req.valid('json')
 
 			const chatId = c.req.param('chat_id')
@@ -669,7 +667,6 @@ const app = new Hono<{
 										message: 'message',
 										id: key,
 										data: messages[messages.length - 1],
-										clientId: clientId,
 									}),
 								)
 
@@ -680,7 +677,6 @@ const app = new Hono<{
 										chatId: chatId,
 										id: key,
 										data: messages[messages.length - 1],
-										clientId: clientId,
 									}),
 								)
 								start = false

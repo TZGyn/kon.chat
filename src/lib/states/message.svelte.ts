@@ -55,7 +55,6 @@ export type ChatState = {
 export type ChatStateInput = {
 	options: ChatOptions
 	chatId: string
-	clientId: string
 }
 
 let messages = $state<ChatUIMessage[]>([])
@@ -65,7 +64,6 @@ let ignoreStreams = $state<string[]>([])
 export const getChatState = ({
 	options,
 	chatId: chat_id,
-	clientId,
 }: ChatStateInput) => {
 	let api = $derived(`${PUBLIC_API_URL}/chat/${chat_id}`)
 
@@ -221,7 +219,6 @@ export const getChatState = ({
 					api: api + '/resume',
 					body: {
 						id: id,
-						clientId: clientId,
 						messages: constructedMessagesPayload,
 						data: chatRequest.data,
 						...chatRequest.body,
@@ -268,7 +265,6 @@ export const getChatState = ({
 						chat_id: chatId,
 					},
 					json: {
-						clientId: clientId,
 						messages: constructedMessagesPayload,
 						...chatRequest.body,
 					},

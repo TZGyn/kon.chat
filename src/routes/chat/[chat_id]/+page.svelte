@@ -52,8 +52,6 @@
 
 	const client = makeClient(fetch)
 
-	const clientId = nanoid()
-
 	type Message = Omit<
 		MessageType,
 		'promptTokens' | 'completionTokens' | 'totalTokens'
@@ -130,7 +128,6 @@
 	let customUseChat = $derived(
 		useMessages().getMessage({
 			chat_id,
-			clientId: clientId,
 			options: {
 				onFinish: (response) => {
 					if (page.url.searchParams.has('type')) {
@@ -554,7 +551,7 @@
 			chats.updateChatStatus({ id: chat_id, status: 'streaming' })
 			await customUseChat.handleSubmit(e, {
 				...chatRequestOptions,
-				body: { ...chatRequestOptions?.body, clientId },
+				body: { ...chatRequestOptions?.body },
 			})
 			chats.updateChatStatus({ id: chat_id, status: 'ready' })
 		}}
