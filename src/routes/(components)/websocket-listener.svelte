@@ -3,6 +3,7 @@
 	import type { ChatUIMessage } from '$lib/message'
 	import { useMessages } from '$lib/states/messages.svelte'
 	import { onMount } from 'svelte'
+	import { nanoid } from 'zod/v4'
 
 	const client = makeClient(fetch)
 
@@ -24,9 +25,10 @@
 						return
 					}
 
-					messages.messages[data.chatId].messages.push(
-						data.data as ChatUIMessage,
-					)
+					messages.messages[data.chatId].messages.push({
+						id: nanoid(),
+						...data.data,
+					} as ChatUIMessage)
 
 					const snapshotMessages = $state.snapshot(
 						messages.messages[data.chatId].messages,
