@@ -38,6 +38,7 @@
 
 {#key message.id}
 	<div
+		id={message.id}
 		class={cn(
 			'flex gap-2',
 			role === 'user' ? 'place-self-end' : 'place-self-start',

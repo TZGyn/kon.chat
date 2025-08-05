@@ -27,7 +27,10 @@
 		getMostRecentUserMessageIndex,
 		mergeMessages,
 	} from '$lib/utils/chat.js'
-	import { Button } from '$lib/components/ui/button/index.js'
+	import {
+		Button,
+		buttonVariants,
+	} from '$lib/components/ui/button/index.js'
 	import * as Dialog from '$lib/components/ui/dialog/index.js'
 	import * as Tooltip from '$lib/components/ui/tooltip/index.js'
 	import { Snippet } from '$lib/components/ui/snippet'
@@ -39,8 +42,9 @@
 	import type { ChatUIMessage } from '$lib/message.js'
 	import { copyChat } from '$lib/utils/chat/copy-chat'
 	import { useMessages } from '$lib/states/messages.svelte'
-	import { MessageCircleQuestionIcon } from '@lucide/svelte'
+	import { MenuIcon, MessageCircleQuestionIcon } from '@lucide/svelte'
 	import { cn } from '$lib/utils'
+	import * as Sheet from '$lib/components/ui/sheet/index.js'
 
 	let chat_id = $derived(page.params.chat_id)
 	let isNew = $derived(page.url.searchParams.get('type') === 'new')
@@ -304,6 +308,48 @@
 		{#if !isNew}
 			<div
 				class="bg-secondary absolute top-0 right-0 flex items-center gap-2 rounded-bl-full pr-2 pl-4">
+				<Sheet.Root>
+					<Sheet.Trigger
+						class={cn(
+							buttonVariants({
+								size: 'icon',
+								variant: 'ghost',
+								class: 'hover:bg-transparent',
+							}),
+						)}>
+						<MenuIcon />
+					</Sheet.Trigger>
+					<Sheet.Content>
+						<Sheet.Header>
+							<Sheet.Title>Messages</Sheet.Title>
+							<Sheet.Description
+								class="max-h-[calc(100vh-4rem)] overflow-y-scroll">
+								<!-- svelte-ignore a11y_no_static_element_interactions -->
+								{#each customUseChat.messages as message, index}
+									<!-- svelte-ignore a11y_click_events_have_key_events -->
+									<div
+										class={cn(
+											'hover:text-primary overflow-hidden border-b py-4',
+											index === 0 && 'border-t',
+										)}
+										onclick={() => {
+											document
+												.getElementById(message.id)
+												?.scrollIntoView({ behavior: 'smooth' })
+										}}>
+										<div class="line-clamp-1">
+											{message.parts
+												.map((part) => {
+													if (part.type === 'text') return part.text
+												})
+												.join(' ')}
+										</div>
+									</div>
+								{/each}
+							</Sheet.Description>
+						</Sheet.Header>
+					</Sheet.Content>
+				</Sheet.Root>
 				{#if chat.value && chat.value.isOwner}
 					<Button
 						size="icon"
