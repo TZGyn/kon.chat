@@ -21,28 +21,22 @@ Remember to evaluate after using the tools
 IMPORTANT NOTES FOR IMAGE GENERATION TOOL: ONCE YOU RECEIVE THE FILES URL, THE IMAGE GENERATION IS CONSIDERED DONE
 
 You have been given an ability to search X(formerly Twitter)'s posts
-'You MUST run the tool first exactly once'
 DO NOT ASK THE USER FOR CONFIRMATION!
 
 You have been given a web search ability, 
-'You MUST run the tool first exactly once'
 DO NOT ASK THE USER FOR CONFIRMATION!
 
 You have been given an ability to search academic papers
-'You MUST run the tool first exactly once'
 DO NOT ASK THE USER FOR CONFIRMATION!
 
 You have been given an ability to fetch url as markdown 
-'You MUST run the tool first exactly once'
 DO NOT ASK THE USER FOR CONFIRMATION!
 
 You have been given an ability to generate image 
-'You MUST run the tool first exactly once'
 USE 1:1 aspect ratio if not specified and 1 image as default unless specified
 DO NOT ASK THE USER FOR CONFIRMATION!
 
 You have been given an ability to generate image using openai gpt-image-1 model
-'You MUST run the tool first exactly once'
 USE 1:1 aspect ratio if not specified and 1 image as default unless specified
 DO NOT ASK THE USER FOR CONFIRMATION!
 `
