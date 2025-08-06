@@ -12,6 +12,8 @@
 	import { browser } from '$app/environment'
 	import Code from './code.svelte'
 	import Self from './renderer.svelte'
+	import { CopyButton } from '../ui/copy-button'
+	import { cn } from '$lib/utils'
 
 	let {
 		tokens = [],
@@ -41,34 +43,46 @@
 			{token.text}
 		{/if}
 	{:else if token.type === 'table'}
-		<div class="group relative w-full">
-			<div
-				class="scrollbar-hidden relative max-w-full overflow-x-auto rounded-lg">
-				<Table.Root>
-					<!-- <Table.Caption>
-						A list of your recent invoices.
-					</Table.Caption> -->
-					<Table.Header>
+		<div class="overflow-hidden rounded-xl border">
+			<Table.Root class="!my-0" containerClass="max-h-[50vh]">
+				<Table.Header>
+					<Table.Row>
+						{#each token.header as header, headerIdx}
+							<Table.Head
+								class={cn(
+									'bg-secondary sticky top-0 py-5 font-semibold',
+									headerIdx === 0 && 'pl-4',
+									headerIdx === token.header.length - 1 && 'pr-4',
+								)}>
+								<MarkdownInline tokens={header.tokens} />
+							</Table.Head>
+						{/each}
+					</Table.Row>
+				</Table.Header>
+				<Table.Body>
+					{#each token.rows as row, rowIdx}
 						<Table.Row>
-							{#each token.header as header, headerIdx}
-								<Table.Head>
-									<MarkdownInline tokens={header.tokens} />
-								</Table.Head>
+							{#each row ?? [] as cell, cellIdx}
+								<Table.Cell
+									class={cn(
+										cellIdx === 0 && 'pl-4',
+										cellIdx === row.length - 1 && 'pr-4',
+									)}>
+									<MarkdownInline tokens={cell.tokens} />
+								</Table.Cell>
 							{/each}
 						</Table.Row>
-					</Table.Header>
-					<Table.Body>
-						{#each token.rows as row, rowIdx}
-							<Table.Row>
-								{#each row ?? [] as cell, cellIdx}
-									<Table.Cell>
-										<MarkdownInline tokens={cell.tokens} />
-									</Table.Cell>
-								{/each}
-							</Table.Row>
-						{/each}
-					</Table.Body>
-				</Table.Root>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+			<div
+				class="bg-secondary flex items-center justify-between px-2">
+				<div></div>
+
+				<CopyButton
+					variant="ghost"
+					class="hover:bg-transparent"
+					text={token.raw} />
 			</div>
 		</div>
 	{:else if token.type === 'blockquote'}
