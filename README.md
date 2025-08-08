@@ -14,10 +14,12 @@ All in one chat app with search tools and file uploads
 # Preview + Features
 
 - Multimodal chats
+- Resumable Streams/Live Chat Sync
 - Image/document uploads
 - Search capabilities
 - Image generation
 - Bring your own keys for each user
+- Tools such as Chat with Youtube and Chart Generator (coming soon)
 
 ## Homepage
 
@@ -45,14 +47,23 @@ All in one chat app with search tools and file uploads
 
 ## Developing
 
+### Frontend and Backend
+
 ```bash
+# cd backend
 bun --bun run dev
 ```
 
 ## Building
 
-To create a production version of your app:
+### Frontend
 
 ```bash
 bun --bun run build
+```
+
+### Backend
+
+```bash
+bun --bun backend/index.ts
 ```
