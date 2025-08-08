@@ -141,15 +141,15 @@
 	})
 
 	let selectedModel = $state<Model>({
-		name: 'GPT 4.1',
+		name: 'GPT 5 nano',
 		info: '',
 		provider: 'openai',
-		id: 'gpt-4.1',
+		id: 'gpt-5-nano',
 		capabilities: {
 			image: true,
 			file: false,
 			fast: false,
-			reasoning: false,
+			reasoning: true,
 			searchGrounding: false,
 		},
 	})

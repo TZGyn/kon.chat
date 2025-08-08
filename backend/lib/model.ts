@@ -177,6 +177,18 @@ export const getModel = ({
 					reasoningSummary: 'detailed',
 				},
 			}
+		} else if (
+			provider.model === 'gpt-5' ||
+			provider.model === 'gpt-5-mini' ||
+			provider.model === 'gpt-5-nano'
+		) {
+			model = openai.responses(provider.model)
+			providerOptions = {
+				openai: {
+					reasoningEffort: 'low',
+					reasoningSummary: 'detailed',
+				},
+			}
 		} else {
 			model = openai(provider.model)
 		}
