@@ -514,6 +514,7 @@ const app = new Hono<{
 						additional_system_prompt,
 						name_for_llm,
 					}),
+					temperature: 1,
 					providerOptions: providerOptions,
 					abortSignal: abortController.signal,
 					onChunk: ({ chunk }) => {
