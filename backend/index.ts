@@ -15,6 +15,7 @@ import { WebhookRoutes } from './routes/webhook'
 import { DocumentsRoutes } from './routes/document'
 import { YoutubeRoutes } from './routes/youtube'
 import { WebsiteRoutes } from './routes/website'
+import { DataVisualizerRoutes } from './routes/data-visualizer'
 import { AdminRoutes } from './routes/admin'
 
 import { ModelRoutes } from './routes/model'
@@ -137,6 +138,7 @@ const router = app
 	.route('/documents', DocumentsRoutes)
 	.route('/youtube', YoutubeRoutes)
 	.route('/website', WebsiteRoutes)
+	.route('/data-visualizer', DataVisualizerRoutes)
 	.route('/admin', AdminRoutes)
 
 export const api = app

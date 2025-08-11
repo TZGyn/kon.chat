@@ -12,12 +12,14 @@
 		ChartNoAxesCombinedIcon,
 		CircleDollarSignIcon,
 		ImageIcon,
+		PieChartIcon,
 	} from '@lucide/svelte'
 	import OpenaiIcon from '$lib/icons/openai-icon.svelte'
 	import * as m from '$lib/paraglide/messages'
 	import WebReaderExa from './tool/web-reader-exa.svelte'
 	import CurrencyConverter from './tool/currency-converter.svelte'
 	import StockChart from './tool/stock-chart.svelte'
+	import DataVisualizerGenerateChart from './tool/data-visualizer-generate-chart.svelte'
 
 	let {
 		toolInvocation,
@@ -64,6 +66,8 @@
 		<CurrencyConverter result={toolInvocation.result} />
 	{:else if toolInvocation.toolName === 'stock_chart'}
 		<StockChart result={toolInvocation.result} />
+	{:else if toolInvocation.toolName === 'dataVisualizerGenerateCharts'}
+		<DataVisualizerGenerateChart result={toolInvocation.args} />
 	{/if}
 {:else if toolInvocation.toolName === 'x_search'}
 	<div class="flex items-center gap-4 rounded border p-4">
@@ -139,6 +143,16 @@
 			<div
 				class="flex size-32 animate-pulse items-center justify-center rounded-full border object-cover p-3">
 				<ChartNoAxesCombinedIcon class="size-16" />
+			</div>
+		</div>
+	</div>
+{:else if toolInvocation.toolName === 'dataVisualizerGenerateCharts'}
+	<div
+		class="h-16 w-full animate-[border_4s_linear_infinite] rounded-2xl border border-transparent [background:linear-gradient(45deg,var(--background))_padding-box,conic-gradient(from_var(--border-angle),var(--secondary)_80%,var(--primary)_86%,var(--primary)_90%,var(--primary)_94%,var(--secondary))_border-box]">
+		<div class="flex h-full items-center justify-start gap-4 p-4">
+			<div
+				class="flex animate-pulse items-center justify-center rounded-full border object-cover p-3">
+				<PieChartIcon class="size-4" />
 			</div>
 		</div>
 	</div>

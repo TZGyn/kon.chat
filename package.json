@@ -98,6 +98,7 @@
 		"shiki": "^3.1.0",
 		"svelte-konva": "^1.0.0-next.0",
 		"tabulator-tables": "^6.3.1",
+		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
 		"youtubei.js": "^13.1.0",
 		"zod": "^3.25.64",
 		"zod-openapi": "^4.2.4"

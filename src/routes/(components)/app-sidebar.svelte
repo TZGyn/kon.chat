@@ -11,7 +11,7 @@
 		NotepadTextIcon,
 		YoutubeIcon,
 	} from 'lucide-svelte'
-	import { PlusIcon } from '@lucide/svelte'
+	import { ChartPieIcon, PlusIcon } from '@lucide/svelte'
 	import { m } from '$lib/paraglide/messages'
 	import { cn } from '$lib/utils'
 
@@ -83,6 +83,19 @@
 								data-sveltekit-preload-code="eager">
 								<AppWindowIcon />
 								<span>Website Builder</span>
+							</a>
+						{/snippet}
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton>
+						{#snippet child({ props })}
+							<a
+								href="/data-visualizer"
+								{...props}
+								data-sveltekit-preload-code="eager">
+								<ChartPieIcon />
+								<span>Data Visualizer</span>
 							</a>
 						{/snippet}
 					</Sidebar.MenuButton>
