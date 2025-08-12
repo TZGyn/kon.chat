@@ -13,6 +13,7 @@ import { createOpenAI } from '@ai-sdk/openai'
 import { stream } from 'hono/streaming'
 import { zValidator } from '@hono/zod-validator'
 import * as XLSX from 'xlsx'
+import { dataVisualizerSchema } from '$api/ai/tools/data-visuallizer'
 
 const app = new Hono<{
 	Variables: AuthType
@@ -73,58 +74,7 @@ const app = new Hono<{
 				dataVisualizerGenerateCharts: {
 					description: 'Generate charts on the frontend',
 					parameters: z.object({
-						chartData: z.array(
-							z.union([
-								z.object({
-									columns: z
-										.union([z.literal(1), z.literal(2)])
-										.describe(
-											'How many columns is takes to display on frontend (more data = more columns)',
-										),
-									data: z
-										.array(
-											z.object({
-												x: z.any(),
-												y: z.any(),
-											}),
-										)
-										.default([]),
-									title: z.string(),
-									description: z.string(),
-									type: z.enum(['bar', 'area', 'line']),
-									xLabel: z.string(),
-									yLabel: z.string(),
-									color: z
-										.string()
-										.describe('hex code (with #) of the graph'),
-								}),
-								z.object({
-									columns: z
-										.union([z.literal(1), z.literal(2)])
-										.describe(
-											'How many columns is takes to display on frontend (more data = more columns)',
-										),
-									data: z
-										.array(
-											z.object({
-												x: z.any(),
-												y: z.any(),
-												color: z
-													.string()
-													.describe(
-														'hex code (with #) of the pie data',
-													),
-											}),
-										)
-										.default([]),
-									title: z.string(),
-									description: z.string(),
-									type: z.enum(['pie']),
-									xLabel: z.string(),
-									yLabel: z.string(),
-								}),
-							]),
-						),
+						chartData: dataVisualizerSchema,
 					}),
 					execute: async (data) => {
 						return data
@@ -148,6 +98,7 @@ const app = new Hono<{
 			`,
 			messages: processedMessages,
 			toolCallStreaming: true,
+			maxRetries: 5,
 			experimental_repairToolCall: async ({
 				toolCall,
 				tools,

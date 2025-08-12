@@ -27,9 +27,12 @@
 	import { PUBLIC_API_URL } from '$env/static/public'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import MessageBlock from '$lib/components/message-block.svelte'
-	import Chart from './(components)/chart.svelte'
 	import { Button } from '$lib/components/ui/button'
 	import { getChartDataState } from '$lib/states/data-visualizer-chart-data.svelte'
+	import type { ChartData } from '$api/ai/tools/data-visuallizer'
+	import BarChart from './(components)/bar-chart.svelte'
+	import LineAreaChart from './(components)/line-area-chart.svelte'
+	import PieChart from './(components)/pie-chart.svelte'
 
 	const autoScroll = new UseAutoScroll()
 
@@ -54,10 +57,9 @@
 		onToolCall: ({ toolCall }) => {
 			console.log(toolCall)
 			chartState.chartData = (
-				toolCall.args as { chartData: ChartData[] }
+				toolCall.args as { chartData: ChartData }
 			).chartData
 		},
-		onResponse: (response) => {},
 		onError: (error) => {
 			chat.messages[chat.messages.length - 1].annotations?.push({
 				type: 'kon_chat',
@@ -99,7 +101,13 @@
 			<div class="@container flex-1 overflow-y-scroll p-8">
 				<div class="grid grid-cols-1 gap-4 @xl:grid-cols-2">
 					{#each chartState.chartData as data}
-						<Chart {...data} />
+						{#if data.type === 'bar'}
+							<BarChart {...data} />
+						{:else if data.type === 'area' || data.type === 'line'}
+							<LineAreaChart {...data} />
+						{:else if data.type === 'pie'}
+							<PieChart {...data} />
+						{/if}
 					{/each}
 				</div>
 			</div>
