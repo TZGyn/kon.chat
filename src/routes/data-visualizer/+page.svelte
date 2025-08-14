@@ -23,6 +23,7 @@
 	import LineAreaChart from './(components)/line-area-chart.svelte'
 	import PieChart from './(components)/pie-chart.svelte'
 	import { toast } from 'svelte-sonner'
+	import { type ChatUIMessage } from '$lib/message'
 
 	const autoScroll = new UseAutoScroll()
 
@@ -52,6 +53,14 @@
 		},
 		onError: (error) => {
 			toast.error(error.message)
+			chat.messages[chat.messages.length - 1].annotations?.push({
+				type: 'kon_chat',
+				status: 'error',
+				error: {
+					type: error.name,
+					message: error.message,
+				},
+			})
 		},
 	})
 
@@ -107,7 +116,7 @@
 							{#each chat.messages as message, index (index)}
 								<MessageBlock
 									data={chat.data}
-									message={{ ...message, status: 'ready' }}
+									message={message as ChatUIMessage}
 									role={message.role}
 									isLast={index === chat.messages.length - 1} />
 							{/each}

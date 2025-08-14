@@ -47,7 +47,7 @@
 					},
 				}}>
 				{#snippet tooltip()}
-					<Chart.Tooltip hideLabel />
+					<Chart.Tooltip />
 				{/snippet}
 				<!-- {#snippet arc({ props, visibleData, index })}
 					<Arc {...props}>

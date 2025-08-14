@@ -6,6 +6,7 @@ import {
 	NoSuchToolError,
 	streamText,
 	type TextPart,
+	type ToolInvocation,
 } from 'ai'
 import { z } from 'zod'
 import type { AuthType } from '$api/auth'
@@ -26,12 +27,30 @@ const app = new Hono<{
 		}),
 	),
 	async (c) => {
-		const { messages } = c.req.valid('json')
+		let { messages } = c.req.valid('json')
 		const setting = c.get('setting')
 
 		const openai = createOpenAI({
 			apiKey: setting.openAIApiKey!,
 		})
+
+		messages = messages
+			.map((message: any) => ({
+				...message,
+				toolInvocations:
+					message.toolInvocations?.filter((tool: ToolInvocation) => {
+						return 'result' in tool
+					}) || [],
+				parts:
+					message.parts?.filter((part: any) => {
+						if (part.type === 'reasoning' && !part.reasoning)
+							return false
+						if (part.type !== 'tool-invocation') return true
+						if (!('toolInvocation' in part)) return false
+						return 'result' in part.toolInvocation
+					}) || [],
+			}))
+			.filter((message: any) => message.parts.length !== 0)
 
 		const coreMessages = convertToCoreMessages(messages)
 
@@ -141,6 +160,15 @@ const app = new Hono<{
 
 		return createDataStreamResponse({
 			execute: (dataStream) => {
+				dataStream.writeMessageAnnotation({
+					type: 'model',
+					model: 'gpt-5-nano',
+				})
+				dataStream.writeData({
+					type: 'message',
+					message: 'Generating Response',
+				})
+
 				result.mergeIntoDataStream(dataStream)
 			},
 		})

@@ -34,6 +34,21 @@
 		return processed
 	})
 
+	let maxY = $derived.by(() => {
+		let max = 0
+
+		processedData.map((data) => {
+			console.log(Object.entries(data))
+			Object.entries(data).map(([key, value]) => {
+				if (key === 'x') return
+				if (parseFloat(value as any) > max) {
+					max = parseFloat(value as any)
+				}
+			})
+		})
+		return max
+	})
+
 	let chartConfig = $derived.by(() => {
 		let processed: Record<string, { label: string; color: string }> =
 			{}
@@ -78,10 +93,11 @@
 				xScale={scaleBand().padding(0.25)}
 				x="x"
 				{series}
+				yDomain={[0, maxY]}
 				orientation={data.orientation}
 				seriesLayout={data.seriesLayout}>
 				{#snippet tooltip()}
-					<Chart.Tooltip hideLabel />
+					<Chart.Tooltip />
 				{/snippet}
 			</BarChart>
 		</Chart.Container>

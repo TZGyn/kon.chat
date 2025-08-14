@@ -9,8 +9,8 @@ const pieChartSchema = z.object({
 	data: z
 		.array(
 			z.object({
-				x: z.any(),
-				y: z.any(),
+				x: z.string(),
+				y: z.string(),
 				color: z
 					.string()
 					.describe('hex code (with #) of the pie data'),
@@ -35,8 +35,8 @@ const barChartSchema = z.object({
 			z.object({
 				data: z.array(
 					z.object({
-						x: z.any(),
-						y: z.any(),
+						x: z.string(),
+						y: z.string(),
 					}),
 				),
 				label: z.string(),
@@ -71,8 +71,8 @@ const lineAreaChartSchema = z.object({
 			z.object({
 				data: z.array(
 					z.object({
-						x: z.any(),
-						y: z.any(),
+						x: z.string(),
+						y: z.string(),
 					}),
 				),
 				label: z.string(),
