@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { marked } from 'marked'
+	import { marked, type Tokens } from 'marked'
 
 	import DOMPurify from 'isomorphic-dompurify'
 	import MarkdownInline from './inline.svelte'
 	import * as Collapsible from '$lib/components/ui/collapsible/index.js'
-	import * as Table from '$lib/components/ui/table/index.js'
 	import { ChevronsUpDownIcon } from 'lucide-svelte'
 	import { buttonVariants } from '../ui/button'
 	import katex from 'katex'
@@ -12,8 +11,7 @@
 	import { browser } from '$app/environment'
 	import Code from './code.svelte'
 	import Self from './renderer.svelte'
-	import { CopyButton } from '../ui/copy-button'
-	import { cn } from '$lib/utils'
+	import Table from './table.svelte'
 
 	let {
 		tokens = [],
@@ -43,48 +41,7 @@
 			{token.text}
 		{/if}
 	{:else if token.type === 'table'}
-		<div class="overflow-hidden rounded-xl border">
-			<Table.Root class="!my-0" containerClass="max-h-[50vh]">
-				<Table.Header>
-					<Table.Row>
-						{#each token.header as header, headerIdx}
-							<Table.Head
-								class={cn(
-									'bg-secondary sticky top-0 py-5 font-semibold',
-									headerIdx === 0 && 'pl-4',
-									headerIdx === token.header.length - 1 && 'pr-4',
-								)}>
-								<MarkdownInline tokens={header.tokens} />
-							</Table.Head>
-						{/each}
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{#each token.rows as row, rowIdx}
-						<Table.Row>
-							{#each row ?? [] as cell, cellIdx}
-								<Table.Cell
-									class={cn(
-										cellIdx === 0 && 'pl-4',
-										cellIdx === row.length - 1 && 'pr-4',
-									)}>
-									<MarkdownInline tokens={cell.tokens} />
-								</Table.Cell>
-							{/each}
-						</Table.Row>
-					{/each}
-				</Table.Body>
-			</Table.Root>
-			<div
-				class="bg-secondary flex items-center justify-between px-2">
-				<div></div>
-
-				<CopyButton
-					variant="ghost"
-					class="hover:bg-transparent"
-					text={token.raw} />
-			</div>
-		</div>
+		<Table token={token as Tokens.Table} />
 	{:else if token.type === 'blockquote'}
 		<blockquote dir="auto">
 			<Self tokens={token.tokens} />
