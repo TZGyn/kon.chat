@@ -1,26 +1,15 @@
 <script lang="ts">
-	import {
-		FileDropZone,
-		type FileDropZoneProps,
-	} from '$lib/components/ui/file-drop-zone'
-	import { Input } from '$lib/components/ui/input'
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js'
+	import * as Avatar from '$lib/components/ui/avatar'
 	import * as Resizable from '$lib/components/ui/resizable/index.js'
 	import { Textarea } from '$lib/components/ui/textarea'
 	import { m } from '$lib/paraglide/messages'
 	import {
-		CalendarIcon,
-		EllipsisVerticalIcon,
-		FileIcon,
-		HouseIcon,
-		InboxIcon,
 		PaperclipIcon,
-		SearchIcon,
 		SendIcon,
-		SettingsIcon,
 		XIcon,
+		Loader2Icon,
 	} from '@lucide/svelte'
-	import { byteToHumanReadable } from '$lib/utils'
+	import { byteToHumanReadable, cn } from '$lib/utils'
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js'
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js'
 	import { Chat } from '@ai-sdk/svelte'
@@ -33,6 +22,7 @@
 	import BarChart from './(components)/bar-chart.svelte'
 	import LineAreaChart from './(components)/line-area-chart.svelte'
 	import PieChart from './(components)/pie-chart.svelte'
+	import { toast } from 'svelte-sonner'
 
 	const autoScroll = new UseAutoScroll()
 
@@ -61,14 +51,7 @@
 			).chartData
 		},
 		onError: (error) => {
-			chat.messages[chat.messages.length - 1].annotations?.push({
-				type: 'kon_chat',
-				status: 'error',
-				error: {
-					type: error.name,
-					message: error.message,
-				},
-			})
+			toast.error(error.message)
 		},
 	})
 
@@ -128,6 +111,38 @@
 									role={message.role}
 									isLast={index === chat.messages.length - 1} />
 							{/each}
+							{#if chat.status === 'submitted'}
+								<div
+									class={cn(
+										'flex min-h-[calc(50svh-25rem)] gap-2 place-self-start @6xl:min-h-[calc(100svh-25rem)]',
+									)}>
+									<div class="group flex flex-col gap-2">
+										<div class="flex items-center gap-4">
+											<div
+												class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
+												<div class="translate-y-px">
+													<Avatar.Root
+														class="size-4 overflow-visible">
+														<Avatar.Image
+															src={'/logo.png'}
+															alt="favicon"
+															class="size-4" />
+														<Avatar.Fallback
+															class="bg-opacity-0 size-4">
+															<img src="/logo.png" alt="favicon" />
+														</Avatar.Fallback>
+													</Avatar.Root>
+												</div>
+											</div>
+											<div
+												class="flex animate-pulse items-center gap-2">
+												<Loader2Icon class="size-4 animate-spin" />
+												Submitting Prompt
+											</div>
+										</div>
+									</div>
+								</div>
+							{/if}
 						</div>
 					</div>
 					{#if files.length > 0}
@@ -211,7 +226,8 @@
 							<PaperclipIcon />
 						</Button>
 						<Button
-							loading={chat.status === 'streaming'}
+							loading={chat.status === 'streaming' ||
+								chat.status === 'submitted'}
 							size="icon"
 							variant="ghost"
 							onclick={(event: Event) => {
