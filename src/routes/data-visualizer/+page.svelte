@@ -211,6 +211,7 @@
 							<PaperclipIcon />
 						</Button>
 						<Button
+							loading={chat.status === 'streaming'}
 							size="icon"
 							variant="ghost"
 							onclick={(event: Event) => {
