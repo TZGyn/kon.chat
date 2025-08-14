@@ -10,6 +10,8 @@
 	import MultiModalInput from '$lib/components/multi-modal-input.svelte'
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { Loader2Icon } from 'lucide-svelte'
+	import { PUBLIC_API_URL } from '$env/static/public'
+	import { type ChatUIMessage } from '$lib/message'
 
 	let { table }: { table: Tabulator | undefined } = $props()
 
@@ -35,7 +37,7 @@
 		maxSteps: 1,
 		initialMessages: [],
 		get api() {
-			return `/api/documents/sheets`
+			return `${PUBLIC_API_URL}/documents/sheets`
 		},
 		onFinish: () => {
 			autoScroll.scrollToBottom()
@@ -220,17 +222,16 @@
 	})
 </script>
 
-<ScrollArea
-	bind:vp={autoScroll.ref}
-	class="flex flex-1 flex-col items-center p-4">
+<div
+	bind:this={autoScroll.ref}
+	class="flex flex-1 flex-col items-center overflow-y-scroll">
 	<div class="flex w-full flex-col items-center pb-40">
 		<div class="flex w-full max-w-[600px] flex-col gap-4">
 			{#each useChat.messages as message, index}
 				<MessageBlock
 					data={useChat.data}
-					{message}
+					message={message as ChatUIMessage}
 					role={message.role}
-					status={useChat.status}
 					isLast={index === useChat.messages.length - 1}
 					halfSize={true} />
 			{/each}
@@ -265,7 +266,8 @@
 			{/if}
 		</div>
 	</div>
-</ScrollArea>
+</div>
+
 <MultiModalInput
 	bind:input={useChat.input}
 	selectedModelLocator={`model:sheets`}
