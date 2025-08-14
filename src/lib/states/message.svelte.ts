@@ -14,6 +14,7 @@ import {
 	type ChatRequestOptions,
 	type JSONValue,
 } from '@ai-sdk/ui-utils'
+import { useChats } from './chats.svelte'
 
 export type ChatState = {
 	get messages(): ChatUIMessage[]
@@ -65,6 +66,8 @@ export const getChatState = ({
 	options,
 	chatId: chat_id,
 }: ChatStateInput) => {
+	let chats = useChats()
+
 	let api = $derived(`${PUBLIC_API_URL}/chat/${chat_id}`)
 
 	let id = $derived(nanoid())
@@ -178,6 +181,11 @@ export const getChatState = ({
 			// Optimistically update messages
 			messages = new_messages
 		}
+
+		chats.updateChatStatus({
+			id: id,
+			status: 'streaming',
+		})
 
 		try {
 			const constructedMessagesPayload = messages.map(
@@ -304,6 +312,11 @@ export const getChatState = ({
 			})
 			messages[index + 1].status = 'ready'
 			// this.#store.error = coalescedError
+		} finally {
+			chats.updateChatStatus({
+				id: id,
+				status: 'ready',
+			})
 		}
 	}
 
