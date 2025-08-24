@@ -23,4 +23,4 @@ RUN bun --bun run build
 
 EXPOSE 4173
 
-CMD ["bun", "run", "preview", "--host"]
+CMD ["bun", "run", "server.ts"]
