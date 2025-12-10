@@ -7,10 +7,6 @@ node_modules
 .wrangler
 /.svelte-kit
 /build
-dist
-
-# Turbo
-.turbo
 
 # OS
 .DS_Store
