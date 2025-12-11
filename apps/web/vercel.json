@@ -21,6 +21,15 @@
 		}
 	],
 	"cleanUrls": true,
+	"rewrites": [
+		{
+			"source": "/documents/pdf/(.*)",
+			"destination": "/documents/pdf/1"
+		},
+		{ "source": "/youtube/(.*)", "destination": "/youtube/1" },
+		{ "source": "/chat/(.*)", "destination": "/chat/1" },
+		{ "source": "/(.*)", "destination": "/200" }
+	],
 	"git": {
 		"deploymentEnabled": {
 			"merge_backend": false
