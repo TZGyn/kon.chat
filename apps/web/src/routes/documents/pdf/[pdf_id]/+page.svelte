@@ -13,6 +13,7 @@
 	import { UseAutoScroll } from '$lib/hooks/use-auto-scroll.svelte'
 	import { useLocalStorage } from '$lib/hooks/use-local-storage.svelte'
 	import { client } from '$lib/fetch'
+	import { PUBLIC_API_URL } from '$env/static/public'
 
 	const autoScroll = new UseAutoScroll()
 	const autoScrollMarkdown = new UseAutoScroll()
@@ -173,7 +174,9 @@
 				<iframe
 					title="pdf"
 					class="flex-1"
-					src={'/api/file-upload/' + pdf.value?.uploadId}>
+					src={PUBLIC_API_URL +
+						'/file-upload/' +
+						pdf.value?.uploadId}>
 				</iframe>
 			{/if}
 		</div>
