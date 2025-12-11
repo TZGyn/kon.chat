@@ -1,3 +1,2 @@
-export const entries = () => {
-	return [{ chat_id: '1' }]
-}
+export const ssr = false
+export const prerender = false
