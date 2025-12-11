@@ -169,11 +169,13 @@
 	class="@container flex flex-1 flex-col justify-center overflow-hidden">
 	<div class="flex flex-1 flex-col overflow-hidden @6xl:flex-row">
 		<div class="flex flex-1 overflow-hidden">
-			<iframe
-				title="pdf"
-				class="flex-1"
-				src={'/api/file-upload/' + pdf.value?.uploadId}>
-			</iframe>
+			{#if pdf}
+				<iframe
+					title="pdf"
+					class="flex-1"
+					src={'/api/file-upload/' + pdf.value?.uploadId}>
+				</iframe>
+			{/if}
 		</div>
 		<div class="flex flex-1 overflow-hidden">
 			<Tabs.Root
