@@ -37,7 +37,10 @@
 	import { nanoid } from '$lib/nanoid.js'
 	import { type ChatRequestOptions } from '@ai-sdk/ui-utils'
 	import { PUBLIC_API_URL, PUBLIC_APP_URL } from '$env/static/public'
-	import { getChatState } from '$lib/states/message.svelte.js'
+	import {
+		getChatState,
+		type ChatState,
+	} from '$lib/states/message.svelte.js'
 	import type { ChatUIMessage } from '$lib/message.js'
 	import { copyChat } from '$lib/utils/chat/copy-chat'
 	import { useMessages } from '$lib/states/messages.svelte'
@@ -46,10 +49,24 @@
 	import * as Sheet from '$lib/components/ui/sheet/index.js'
 	import { client } from '$lib/fetch.js'
 
-	let chat_id = $derived(page.params.chat_id)
-	let isNew = $derived(page.url.searchParams.get('type') === 'new')
-	let upload_url = $derived(`/chat/${chat_id}/upload`)
+	let chat_id = $state('')
 
+	$effect(() => {
+		if (page.params.chat_id) {
+			chat_id = page.params.chat_id
+		}
+	})
+
+	let isNew = $state(true)
+
+	$effect(() => {
+		isNew = page.url.searchParams.get('type') === 'new'
+	})
+	let upload_url = $state('')
+
+	$effect(() => {
+		upload_url = `/chat/${chat_id}/upload`
+	})
 
 	type Message = Omit<
 		MessageType,
@@ -64,6 +81,8 @@
 		| null
 
 	const getChat = async (id: string) => {
+		if (!customUseChat) return
+
 		if (page.url.searchParams.get('type') === 'new_branch') return
 
 		const response = await client.chat[':chat_id'].$get({
@@ -108,7 +127,7 @@
 		if (chat) {
 			const chatJSON = JSON.parse(chat) as Chat
 
-			if (chatJSON) {
+			if (chatJSON && customUseChat) {
 				customUseChat.messages = mergeMessages(
 					convertToUIMessages(chatJSON?.messages || []),
 				).map((message) => ({
@@ -124,8 +143,10 @@
 
 	const chats = useChats()
 
-	let customUseChat = $derived(
-		useMessages().getMessage({
+	let customUseChat = $state<ChatState>()
+
+	$effect(() => {
+		customUseChat = useMessages().getMessage({
 			chat_id,
 			options: {
 				onFinish: (response) => {
@@ -139,7 +160,7 @@
 					}, 3000)
 
 					const message: Message = {
-						chatId: customUseChat.id,
+						chatId: customUseChat!.id,
 						...response,
 						content: response.parts,
 						model:
@@ -164,11 +185,11 @@
 						}
 					}
 
-					customUseChat.status = 'ready'
+					customUseChat!.status = 'ready'
 				},
 			},
-		}),
-	)
+		})
+	})
 
 	let shareChatDialogOpen = $state(false)
 	let sharingChat = $state(false)
@@ -265,38 +286,40 @@
 			<div class="flex w-full flex-col items-center pt-20 pb-40">
 				<div
 					class="@container/chat flex w-full max-w-[600px] flex-col gap-4">
-					{#each customUseChat.messages as message, index (index)}
-						<MessageBlock
-							data={customUseChat.data}
-							{message}
-							role={message.role}
-							isLast={index === customUseChat.messages.length - 1}
-							branch={() => branch(message.id, chat_id)} />
-					{/each}
-					{#if customUseChat.suggestions.length > 0}
-						<div class="flex flex-col gap-2 pt-4">
-							<div
-								class="text-muted-foreground flex items-center gap-2">
-								<MessageCircleQuestionIcon />
-								Recommended Questions
+					{#if customUseChat}
+						{#each customUseChat.messages as message, index (index)}
+							<MessageBlock
+								data={customUseChat.data}
+								{message}
+								role={message.role}
+								isLast={index === customUseChat.messages.length - 1}
+								branch={() => branch(message.id, chat_id)} />
+						{/each}
+						{#if customUseChat.suggestions.length > 0}
+							<div class="flex flex-col gap-2 pt-4">
+								<div
+									class="text-muted-foreground flex items-center gap-2">
+									<MessageCircleQuestionIcon />
+									Recommended Questions
+								</div>
+								<div class="flex flex-col">
+									<!-- svelte-ignore a11y_no_static_element_interactions -->
+									{#each customUseChat.suggestions as suggestion, index}
+										<!-- svelte-ignore a11y_click_events_have_key_events -->
+										<div
+											class={cn(
+												'hover:text-primary w-full cursor-pointer border-b py-2',
+												index === 0 && 'border-t',
+											)}
+											onclick={() => {
+												customUseChat!.input = suggestion
+											}}>
+											{suggestion}
+										</div>
+									{/each}
+								</div>
 							</div>
-							<div class="flex flex-col">
-								<!-- svelte-ignore a11y_no_static_element_interactions -->
-								{#each customUseChat.suggestions as suggestion, index}
-									<!-- svelte-ignore a11y_click_events_have_key_events -->
-									<div
-										class={cn(
-											'hover:text-primary w-full cursor-pointer border-b py-2',
-											index === 0 && 'border-t',
-										)}
-										onclick={() => {
-											customUseChat.input = suggestion
-										}}>
-										{suggestion}
-									</div>
-								{/each}
-							</div>
-						</div>
+						{/if}
 					{/if}
 				</div>
 			</div>
@@ -320,28 +343,30 @@
 							<Sheet.Title>Messages</Sheet.Title>
 							<Sheet.Description
 								class="max-h-[calc(100vh-4rem)] overflow-y-scroll">
-								<!-- svelte-ignore a11y_no_static_element_interactions -->
-								{#each customUseChat.messages as message, index}
-									<!-- svelte-ignore a11y_click_events_have_key_events -->
-									<div
-										class={cn(
-											'hover:text-primary overflow-hidden border-b py-4',
-											index === 0 && 'border-t',
-										)}
-										onclick={() => {
-											document
-												.getElementById(message.id)
-												?.scrollIntoView({ behavior: 'smooth' })
-										}}>
-										<div class="line-clamp-1">
-											{message.parts
-												.map((part) => {
-													if (part.type === 'text') return part.text
-												})
-												.join(' ')}
+								{#if customUseChat}
+									<!-- svelte-ignore a11y_no_static_element_interactions -->
+									{#each customUseChat.messages as message, index}
+										<!-- svelte-ignore a11y_click_events_have_key_events -->
+										<div
+											class={cn(
+												'hover:text-primary overflow-hidden border-b py-4',
+												index === 0 && 'border-t',
+											)}
+											onclick={() => {
+												document
+													.getElementById(message.id)
+													?.scrollIntoView({ behavior: 'smooth' })
+											}}>
+											<div class="line-clamp-1">
+												{message.parts
+													.map((part) => {
+														if (part.type === 'text') return part.text
+													})
+													.join(' ')}
+											</div>
 										</div>
-									</div>
-								{/each}
+									{/each}
+								{/if}
 							</Sheet.Description>
 						</Sheet.Header>
 					</Sheet.Content>
@@ -506,7 +531,7 @@
 	</Dialog.Content>
 </Dialog.Root>
 
-{#if (chat.value && chat.value.isOwner) || isNew}
+{#if ((chat.value && chat.value.isOwner) || isNew) && customUseChat}
 	<MultiModalInput
 		bind:input={customUseChat.input}
 		{upload_url}
@@ -516,11 +541,11 @@
 			chatRequestOptions?: ChatRequestOptions,
 		) => {
 			const message: Message = {
-				chatId: customUseChat.id,
+				chatId: customUseChat!.id,
 				content: [
 					{
 						type: 'text',
-						text: customUseChat.input,
+						text: customUseChat!.input,
 					},
 				],
 				id: nanoid(),
@@ -548,7 +573,7 @@
 			}
 
 			chats.updateChatStatus({ id: chat_id, status: 'streaming' })
-			await customUseChat.handleSubmit(e, {
+			await customUseChat!.handleSubmit(e, {
 				...chatRequestOptions,
 				body: { ...chatRequestOptions?.body },
 			})
