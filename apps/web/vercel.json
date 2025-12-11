@@ -20,6 +20,7 @@
 			]
 		}
 	],
+	"cleanUrls": true,
 	"git": {
 		"deploymentEnabled": {
 			"merge_backend": false
