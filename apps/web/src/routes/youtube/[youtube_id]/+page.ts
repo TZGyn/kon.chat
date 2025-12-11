@@ -1,3 +1,2 @@
-export const entries = () => {
-	return [{ youtube_id: '1' }]
-}
+export const ssr = false
+export const prerender = false
