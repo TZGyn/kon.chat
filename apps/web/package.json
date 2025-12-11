@@ -54,7 +54,6 @@
 		"vite": "^6.3.5"
 	},
 	"dependencies": {
-		"@kon.chat/backend": "workspace:*",
 		"@ai-sdk/anthropic": "^1.2.12",
 		"@ai-sdk/google": "^1.2.19",
 		"@ai-sdk/mistral": "^1.2.8",
@@ -65,6 +64,7 @@
 		"@ai-sdk/xai": "^1.2.16",
 		"@hono/zod-validator": "^0.7.2",
 		"@inlang/paraglide-js": "^2.0.0",
+		"@kon.chat/backend": "workspace:*",
 		"@lucide/svelte": "^0.515.0",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
@@ -92,7 +92,6 @@
 		"pdf-lib": "^1.17.1",
 		"pg": "^8.16.0",
 		"pyodide": "0.27.7",
-		"react-tweet": "^3.2.2",
 		"shiki": "^3.1.0",
 		"svelte-konva": "^1.0.0-next.0",
 		"tabulator-tables": "^6.3.1",

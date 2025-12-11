@@ -2,7 +2,7 @@
 	import * as Card from '$lib/components/ui/card'
 	import * as Avatar from '$lib/components/ui/avatar/index.js'
 	import { Separator } from '$lib/components/ui/separator'
-	import { type EnrichedTweet, enrichTweet } from 'react-tweet'
+	import { enrichTweet, type EnrichedTweet } from '$lib/utils/tweet/tweet'
 
 	let { tweet_id }: { tweet_id: string } = $props()
 	let tweet = $state<Promise<EnrichedTweet>>(
