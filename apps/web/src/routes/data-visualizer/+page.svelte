@@ -24,6 +24,7 @@
 	import PieChart from './(components)/pie-chart.svelte'
 	import { toast } from 'svelte-sonner'
 	import { type ChatUIMessage } from '$lib/message'
+	import { onMount } from 'svelte'
 
 	const autoScroll = new UseAutoScroll()
 
@@ -42,26 +43,29 @@
 
 	let chartState = getChartDataState()
 
-	const chat = new Chat({
-		api: PUBLIC_API_URL + '/data-visualizer',
-		credentials: 'include',
-		onToolCall: ({ toolCall }) => {
-			console.log(toolCall)
-			chartState.chartData = (
-				toolCall.args as { chartData: ChartData }
-			).chartData
-		},
-		onError: (error) => {
-			toast.error(error.message)
-			chat.messages[chat.messages.length - 1].annotations?.push({
-				type: 'kon_chat',
-				status: 'error',
-				error: {
-					type: error.name,
-					message: error.message,
-				},
-			})
-		},
+	let chat = $state<Chat>()
+	onMount(() => {
+		chat = new Chat({
+			api: PUBLIC_API_URL + '/data-visualizer',
+			credentials: 'include',
+			onToolCall: ({ toolCall }) => {
+				console.log(toolCall)
+				chartState.chartData = (
+					toolCall.args as { chartData: ChartData }
+				).chartData
+			},
+			onError: (error) => {
+				toast.error(error.message)
+				chat!.messages[chat!.messages.length - 1].annotations?.push({
+					type: 'kon_chat',
+					status: 'error',
+					error: {
+						type: error.name,
+						message: error.message,
+					},
+				})
+			},
+		})
 	})
 
 	const toBase64 = (file: File) =>
@@ -80,7 +84,7 @@
 				url: (await toBase64(file)) as string,
 			})),
 		)
-		chat.handleSubmit(event, {
+		chat?.handleSubmit(event, {
 			experimental_attachments: attachments,
 		})
 		files = []
@@ -113,44 +117,46 @@
 						class="@container flex flex-1 flex-col items-center overflow-y-scroll p-4">
 						<div
 							class="@container/chat flex w-full max-w-[600px] flex-col gap-4">
-							{#each chat.messages as message, index (index)}
-								<MessageBlock
-									data={chat.data}
-									message={message as ChatUIMessage}
-									role={message.role}
-									isLast={index === chat.messages.length - 1} />
-							{/each}
-							{#if chat.status === 'submitted'}
-								<div
-									class={cn(
-										'flex min-h-[calc(50svh-25rem)] gap-2 place-self-start @6xl:min-h-[calc(100svh-25rem)]',
-									)}>
-									<div class="group flex flex-col gap-2">
-										<div class="flex items-center gap-4">
-											<div
-												class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
-												<div class="translate-y-px">
-													<Avatar.Root
-														class="size-4 overflow-visible">
-														<Avatar.Image
-															src={'/logo.png'}
-															alt="favicon"
-															class="size-4" />
-														<Avatar.Fallback
-															class="bg-opacity-0 size-4">
-															<img src="/logo.png" alt="favicon" />
-														</Avatar.Fallback>
-													</Avatar.Root>
+							{#if chat}
+								{#each chat.messages as message, index (index)}
+									<MessageBlock
+										data={chat.data}
+										message={message as ChatUIMessage}
+										role={message.role}
+										isLast={index === chat.messages.length - 1} />
+								{/each}
+								{#if chat.status === 'submitted'}
+									<div
+										class={cn(
+											'flex min-h-[calc(50svh-25rem)] gap-2 place-self-start @6xl:min-h-[calc(100svh-25rem)]',
+										)}>
+										<div class="group flex flex-col gap-2">
+											<div class="flex items-center gap-4">
+												<div
+													class="ring-border flex size-8 shrink-0 items-center justify-center rounded-full bg-black ring-1">
+													<div class="translate-y-px">
+														<Avatar.Root
+															class="size-4 overflow-visible">
+															<Avatar.Image
+																src={'/logo.png'}
+																alt="favicon"
+																class="size-4" />
+															<Avatar.Fallback
+																class="bg-opacity-0 size-4">
+																<img src="/logo.png" alt="favicon" />
+															</Avatar.Fallback>
+														</Avatar.Root>
+													</div>
 												</div>
-											</div>
-											<div
-												class="flex animate-pulse items-center gap-2">
-												<Loader2Icon class="size-4 animate-spin" />
-												Submitting Prompt
+												<div
+													class="flex animate-pulse items-center gap-2">
+													<Loader2Icon class="size-4 animate-spin" />
+													Submitting Prompt
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
+								{/if}
 							{/if}
 						</div>
 					</div>
@@ -193,29 +199,31 @@
 					minSize={25}
 					class="bg-secondary flex flex-col">
 					<div class="flex-1">
-						<Textarea
-							bind:value={chat.input}
-							onpaste={(event) => {
-								console.log(event)
-								const files = Array.from(
-									event.clipboardData?.files ?? [],
-								)
-								if (files.length > 0) {
-									event.preventDefault()
-									files.push(...files)
-								}
-							}}
-							class="h-full resize-none rounded-none border-none !bg-transparent p-4 focus-visible:ring-0 focus-visible:ring-offset-0"
-							placeholder={m.send_a_message() +
-								' ' +
-								m.ctrl_enter_to_send()}
-							onkeydown={(event) => {
-								if (event.key === 'Enter' && event.ctrlKey) {
-									event.preventDefault()
+						{#if chat}
+							<Textarea
+								bind:value={chat.input}
+								onpaste={(event) => {
+									console.log(event)
+									const files = Array.from(
+										event.clipboardData?.files ?? [],
+									)
+									if (files.length > 0) {
+										event.preventDefault()
+										files.push(...files)
+									}
+								}}
+								class="h-full resize-none rounded-none border-none !bg-transparent p-4 focus-visible:ring-0 focus-visible:ring-offset-0"
+								placeholder={m.send_a_message() +
+									' ' +
+									m.ctrl_enter_to_send()}
+								onkeydown={(event) => {
+									if (event.key === 'Enter' && event.ctrlKey) {
+										event.preventDefault()
 
-									customSubmit(event)
-								}
-							}} />
+										customSubmit(event)
+									}
+								}} />
+						{/if}
 					</div>
 					<div class="flex justify-between border-t">
 						<input
@@ -235,8 +243,8 @@
 							<PaperclipIcon />
 						</Button>
 						<Button
-							loading={chat.status === 'streaming' ||
-								chat.status === 'submitted'}
+							loading={chat?.status === 'streaming' ||
+								chat?.status === 'submitted'}
 							size="icon"
 							variant="ghost"
 							onclick={(event: Event) => {
