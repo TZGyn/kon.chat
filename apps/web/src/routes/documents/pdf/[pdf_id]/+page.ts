@@ -1,2 +1,3 @@
-export const ssr = false
-export const prerender = false
+export const entries = () => {
+	return [{ pdf_id: '1' }]
+}

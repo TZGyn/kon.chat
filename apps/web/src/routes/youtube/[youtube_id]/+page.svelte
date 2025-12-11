@@ -15,8 +15,12 @@
 	import Markdown from '$lib/components/markdown'
 	import { client } from '$lib/fetch'
 
+	let selectedTab = $state('')
 
-	let selectedTab = $state(page.url.searchParams.get('tab') || 'chat')
+	onMount(() => {
+		selectedTab = page.url.searchParams.get('tab') || 'chat'
+	})
+
 	let player = $state<YT.Player>()
 	let tabDiv = $state<HTMLDivElement>()
 
@@ -152,7 +156,7 @@
 
 		const response = await client.youtube[':youtube_id'].$get({
 			param: {
-				youtube_id: page.params.youtube_id,
+				youtube_id: page.params.youtube_id!,
 			},
 		})
 
@@ -437,7 +441,11 @@
 					value="chat"
 					class="flex flex-1 overflow-hidden">
 					<div class="relative flex flex-1 overflow-hidden">
-						<Chat youtube_id={page.params.youtube_id} {transcript} />
+						{#if page.params.youtube_id}
+							<Chat
+								youtube_id={page.params.youtube_id}
+								{transcript} />
+						{/if}
 					</div>
 				</Tabs.Content>
 			</Tabs.Root>

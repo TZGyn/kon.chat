@@ -17,8 +17,11 @@
 	const autoScroll = new UseAutoScroll()
 	const autoScrollMarkdown = new UseAutoScroll()
 
+	let selectedTab = $state('')
 
-	let selectedTab = $state(page.url.searchParams.get('tab') || 'chat')
+	onMount(() => {
+		selectedTab = page.url.searchParams.get('tab') || 'chat'
+	})
 
 	let status = $state<
 		'loading' | 'submitted' | 'streaming' | 'ready'
@@ -43,7 +46,7 @@
 
 		const response = await client.documents.pdf[':pdf_id'].$get({
 			param: {
-				pdf_id: page.params.pdf_id,
+				pdf_id: page.params.pdf_id!,
 			},
 		})
 
@@ -65,7 +68,7 @@
 			':pdf_id'
 		].markdown.$get({
 			param: {
-				pdf_id: page.params.pdf_id,
+				pdf_id: page.params.pdf_id!,
 			},
 		})
 
@@ -113,7 +116,7 @@
 			':pdf_id'
 		].summary.$get({
 			param: {
-				pdf_id: page.params.pdf_id,
+				pdf_id: page.params.pdf_id!,
 			},
 		})
 
@@ -273,7 +276,7 @@
 					class="flex flex-1 overflow-hidden">
 					<div class="relative flex flex-1 overflow-hidden">
 						<Chat
-							pdf_id={page.params.pdf_id}
+							pdf_id={page.params.pdf_id!}
 							markdown={pdf.value?.markdown || ''} />
 					</div>
 				</Tabs.Content>
