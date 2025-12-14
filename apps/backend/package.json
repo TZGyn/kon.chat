@@ -5,9 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "tsdown --watch",
-		"dev:server": "bun run src/index.ts",
 		"build": "tsdown",
-		"build:server": "bun build src/index.ts",
 		"format": "prettier --write .",
 		"lint": "prettier --check .",
 		"db:push": "drizzle-kit push",
