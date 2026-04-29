@@ -17,6 +17,7 @@ import {
 	type TextStreamPart,
 	type ToolContent,
 	type ToolSet,
+	LanguageModelV1,
 } from 'ai'
 import { and, eq } from 'drizzle-orm'
 
@@ -32,6 +33,7 @@ export const updateUserChatAndLimit = async ({
 	response_id,
 	user,
 	apiKey,
+	model,
 }: {
 	chatId: string
 	userMessage: CoreUserMessage
@@ -44,6 +46,7 @@ export const updateUserChatAndLimit = async ({
 	response_id: string
 	user: typeof auth.$Infer.Session.user
 	apiKey: string
+	model: LanguageModelV1
 }) => {
 	let existingChat = await db.query.chat.findFirst({
 		where: (chat, { eq, and }) => and(eq(chat.id, chatId)),
@@ -54,6 +57,7 @@ export const updateUserChatAndLimit = async ({
 		const title = await generateTitleFromUserMessage({
 			message: userMessage,
 			apiKey,
+			model,
 		})
 
 		try {
@@ -76,6 +80,7 @@ export const updateUserChatAndLimit = async ({
 		const title = await generateTitleFromUserMessage({
 			message: userMessage,
 			apiKey,
+			model,
 		})
 		await db
 			.update(chat)

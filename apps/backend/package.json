@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "tsdown --watch",
+		"dev:server": "bun ./src/index.ts",
 		"build": "tsdown",
 		"format": "prettier --write .",
 		"lint": "prettier --check .",

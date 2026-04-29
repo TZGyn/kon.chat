@@ -4,21 +4,20 @@ import {
 	type CoreToolMessage,
 	type CoreUserMessage,
 	generateText,
+	LanguageModelV1,
 } from 'ai'
 
 export async function generateTitleFromUserMessage({
 	message,
 	apiKey,
+	model,
 }: {
 	message: CoreUserMessage
 	apiKey: string
+	model: LanguageModelV1
 }) {
-	const openai = createOpenAI({
-		apiKey: apiKey,
-	})
-
 	const { text: title } = await generateText({
-		model: openai('gpt-4o-mini'),
+		model: model,
 		maxTokens: 512,
 		system: `\n
     - you will generate a short title based on the first message a user begins a conversation with

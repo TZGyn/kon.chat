@@ -319,6 +319,7 @@ export const getChatState = ({
 	}
 
 	const generateSuggestions = async (messages: ChatUIMessage[]) => {
+		return
 		const response = await client.chat.suggestions.$post({
 			json: {
 				messages: messages,
