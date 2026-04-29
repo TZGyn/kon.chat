@@ -5,6 +5,7 @@ import {
 	type CoreSystemMessage,
 	type CoreToolMessage,
 	type CoreUserMessage,
+	LanguageModelV1,
 	type ToolInvocation,
 } from 'ai'
 import { getMostRecentUserMessage } from './utils'
@@ -285,11 +286,13 @@ export const checkNewChat = async ({
 	user_message,
 	user,
 	api_key,
+	model,
 }: {
 	chat_id: string
 	user_message: CoreUserMessage
 	user: User
 	api_key: string
+	model: LanguageModelV1
 }) => {
 	const existingChat = await db.query.chat.findFirst({
 		where: (chat, { eq, and }) => and(eq(chat.id, chat_id)),
@@ -299,6 +302,7 @@ export const checkNewChat = async ({
 		const title = await generateTitleFromUserMessage({
 			message: user_message,
 			apiKey: api_key,
+			model,
 		})
 
 		await db.insert(chat).values({

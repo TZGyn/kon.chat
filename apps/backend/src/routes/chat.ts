@@ -442,13 +442,6 @@ const app = new Hono<{
 				return c.text(processMessageError, { status: 400 })
 			}
 
-			checkNewChat({
-				chat_id: chatId,
-				user_message: userMessage,
-				user,
-				api_key: setting.openAIApiKey!,
-			})
-
 			const { model, error, providerOptions } = getModel({
 				provider,
 				searchGrounding: false,
@@ -457,6 +450,14 @@ const app = new Hono<{
 			if (error !== null) {
 				return c.text(error, 400)
 			}
+
+			checkNewChat({
+				chat_id: chatId,
+				user_message: userMessage,
+				user,
+				api_key: setting.openAIApiKey!,
+				model,
+			})
 
 			const key = nanoid()
 
