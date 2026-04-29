@@ -363,7 +363,7 @@
 		{/if}
 		{#if consoleOutput.length > 0}
 			<div
-				class="bg-muted sticky top-0 z-50 mt-2 flex h-fit w-full flex-row items-center justify-between border-b border-zinc-200 px-2 py-1 dark:border-zinc-700">
+				class="bg-muted z-50 mt-2 flex h-fit w-full flex-row items-center justify-between border-b border-zinc-200 px-2 py-1 dark:border-zinc-700">
 				<div
 					class="dark:bg-secondary flex flex-row items-center gap-3 pl-2 text-sm">
 					<div class="text-muted-foreground">
