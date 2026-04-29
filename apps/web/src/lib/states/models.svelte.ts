@@ -292,12 +292,13 @@ export type Model = {
 
 let customModels = $state<Model[]>([])
 
-$effect(() => {
-	console.log('Custom Models Log', customModels)
-})
-
 export const useModels = () => {
 	let capabilities = useCapabilities()
+
+	$effect(() => {
+		console.log('Custom Models Log', customModels)
+	})
+
 	const getModels = async () => {
 		customModels = JSON.parse(
 			localStorage.getItem('custom_models') || '[]',
