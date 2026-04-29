@@ -269,7 +269,9 @@
 		},
 	])
 
-	$inspect(modelsList)
+	$effect(() => {
+		console.log(modelsList)
+	})
 
 	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
 
