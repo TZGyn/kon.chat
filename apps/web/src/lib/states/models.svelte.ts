@@ -300,9 +300,9 @@ export const useModels = () => {
 	})
 
 	const getModels = async () => {
-		customModels = JSON.parse(
-			localStorage.getItem('custom_models') || '[]',
-		)
+		// customModels = JSON.parse(
+		// 	localStorage.getItem('custom_models') || '[]',
+		// )
 		const response = await client.model.available_models.$get()
 
 		if (response.status === 200) {
@@ -334,14 +334,14 @@ export const useModels = () => {
 			// 		model.provider as any,
 			// 	)
 			// })
-			console.log(
-				'Custom Models After Available Providers',
-				customModels.filter((model) => {
-					capabilities.capabilities.available_providers.includes(
-						model.provider as any,
-					)
-				}),
-			)
+			// console.log(
+			// 	'Custom Models After Available Providers',
+			// 	customModels.filter((model) => {
+			// 		capabilities.capabilities.available_providers.includes(
+			// 			model.provider as any,
+			// 		)
+			// 	}),
+			// )
 		}
 	}
 
