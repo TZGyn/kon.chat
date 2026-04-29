@@ -456,7 +456,7 @@ const app = new Hono<{
 				user_message: userMessage,
 				user,
 				api_key: setting.openAIApiKey!,
-				model,
+				model: model,
 			})
 
 			const key = nanoid()
@@ -566,7 +566,7 @@ const app = new Hono<{
 							userMessageDate,
 							response_id: nanoid(),
 							apiKey: setting.openAIApiKey!,
-							model,
+							model: model,
 						})
 					},
 					experimental_transform: smoothStream({
@@ -601,7 +601,7 @@ const app = new Hono<{
 							userMessageDate,
 							response_id: response.id,
 							apiKey: setting.openAIApiKey!,
-							model,
+							model: model,
 						})
 					},
 				})
@@ -731,7 +731,7 @@ const app = new Hono<{
 							userMessageDate,
 							response_id: nanoid(),
 							apiKey: setting.openAIApiKey!,
-							model,
+							model: model,
 						})
 						console.log('Catching', error)
 					} finally {
@@ -802,7 +802,7 @@ const app = new Hono<{
 					userMessageDate,
 					response_id: nanoid(),
 					apiKey: setting.openAIApiKey!,
-					model,
+					model: model,
 				})
 				// Error messages are masked by default for security reasons.
 				// If you want to expose the error message to the client, you can do so here:
