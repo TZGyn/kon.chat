@@ -269,6 +269,8 @@
 		},
 	])
 
+	$inspect(modelsList)
+
 	let reasoningEffort = $state<'low' | 'medium' | 'high'>('low')
 
 	let thinkingBudget = $state(0)
