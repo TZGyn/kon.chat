@@ -325,15 +325,15 @@ export const useModels = () => {
 			)
 			console.log('Custom Models', customModels)
 			console.log('Capabilities', capabilities.capabilities)
-			customModels = customModels.filter((model) => {
-				console.log(
-					'Available Providers During Filter',
-					capabilities.capabilities.available_providers,
-				)
-				capabilities.capabilities.available_providers.includes(
-					model.provider as any,
-				)
-			})
+			// customModels = customModels.filter((model) => {
+			// 	console.log(
+			// 		'Available Providers During Filter',
+			// 		capabilities.capabilities.available_providers,
+			// 	)
+			// 	capabilities.capabilities.available_providers.includes(
+			// 		model.provider as any,
+			// 	)
+			// })
 			console.log(
 				'Custom Models After Available Providers',
 				customModels.filter((model) => {
