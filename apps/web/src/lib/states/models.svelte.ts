@@ -292,6 +292,10 @@ export type Model = {
 
 let customModels = $state<Model[]>([])
 
+$effect(() => {
+	console.log('Custom Models Log', customModels)
+})
+
 export const useModels = () => {
 	let capabilities = useCapabilities()
 	const getModels = async () => {
@@ -327,7 +331,11 @@ export const useModels = () => {
 			})
 			console.log(
 				'Custom Models After Available Providers',
-				customModels,
+				customModels.filter((model) => {
+					capabilities.capabilities.available_providers.includes(
+						model.provider as any,
+					)
+				}),
 			)
 		}
 	}
