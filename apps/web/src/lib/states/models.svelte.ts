@@ -318,11 +318,17 @@ export const useModels = () => {
 					}
 				},
 			)
+			console.log('Custom Models', customModels)
+			console.log('Capabilities', capabilities)
 			customModels = customModels.filter((model) => {
 				capabilities.capabilities.available_providers.includes(
 					model.provider as any,
 				)
 			})
+			console.log(
+				'Custom Models After Available Providers',
+				customModels,
+			)
 		}
 	}
 
