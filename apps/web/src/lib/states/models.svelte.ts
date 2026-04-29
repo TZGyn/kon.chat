@@ -341,6 +341,10 @@ export const useModels = () => {
 		}
 	}
 
+	$effect(() => {
+		capabilities.capabilities && getModels()
+	})
+
 	let filterModels = $derived(
 		models.filter((model) => {
 			return capabilities.capabilities.available_providers.includes(
